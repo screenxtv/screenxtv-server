@@ -1,0 +1,6 @@
+*~
+#*
+*.class
+node_modules/*
+*.castinfo
+shellclient/screenxfork

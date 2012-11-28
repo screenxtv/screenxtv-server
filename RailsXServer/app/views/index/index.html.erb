@@ -1,0 +1,101 @@
+<script src="/assets/jquery.min.js"></script>
+<script src="/assets/tompngtile.js"></script>
+<script src="assets/vt100.js"></script>
+<script src="assets/terminal.js"></script>
+<script>
+terminalList=[<%= screens.map(&:to_json).join(",").html_safe %>];
+</script>
+<script>
+$(function(){
+	var first=terminalList[0];
+	if(first&&first.casting){
+		var embed=$("<iframe/>");
+		embed.attr("src","/embed/"+first.url);
+		$("#demo").append(embed);
+	}
+	var main=$('#main');
+	var tiles=[];
+	for(var i=0;i<terminalList.length;i++){
+		var data=terminalList[i]
+		var vt100=data.vt100;
+		var div=document.createElement('div');
+		div.className='terminal';
+		main.append(div);
+		console.log(vt100)
+		var terminal=new Terminal(div,vt100.W,vt100.H,Terminal.defaultColorMap[data.color]);
+		terminal.vt100=new VT100(vt100);
+		terminal.updateView();
+		div.removeChild(div.firstChild);
+		var title=document.createElement('a');
+		console.log(data)
+		title.href='/'+data.url;
+		title.className='title'
+		title.innerHTML="<div></div>"
+		title.firstChild.textContent=data.title;
+		div.appendChild(title);
+		if(!data.casting)div.style.opacity=0.5;
+		tiles.push(div);
+	}
+	while(tiles.length<4){
+		var div=document.createElement("div");
+		div.className='terminal dummy';
+		main.append(div);
+		tiles.push(div);
+	}
+	console.log(tiles[0])
+	tompngTile('.terminal','#main',tiles[0].offsetWidth,24,24);
+});
+
+</script>
+
+<style>
+a.title{
+	font-size:32px;
+	color:white;
+	text-shadow:0 0 10px black;
+	text-decoration:none;
+	text-align:center;
+	position:absolute;left:0;top:0;width:100%;height:100%;
+}
+a.title div{
+	position:absolute;left:0;bottom:0;width:100%;
+	background:rgba(64,64,64,0.5);
+}
+.terminal{
+	position:relative;
+	font-size:16px;
+	box-shadow:0 0 8px gray;
+}
+.terminal,.dummy{width:320px;height:192px;}
+.terminal:hover{
+	box-shadow:0 0 32px gray;
+}
+.dummy{
+	box-shadow:0 0 8px rgba(127,127,127,0.2);
+}
+.dummy:hover{
+	box-shadow:0 0 8px rgba(127,127,127,0.2);
+}
+#main{position:relative;margin:0;padding:0;}
+iframe{
+	border:none;
+	width:100%;
+	height:400px;
+}
+div.footer{
+border-top:1px solid#eee;
+text-align:right;
+margin-top:20px;
+padding:10px 20px;
+color:gray;
+}
+
+</style>
+
+<center id='demo'></center>
+<div id='main'></div>
+
+
+<div class='footer'>
+supported by <a href='http://qwik.jp/okinawarb/'>okinawa.rb</a>
+</div>
