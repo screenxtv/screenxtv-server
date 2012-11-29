@@ -13,11 +13,11 @@ class ScreensController < ApplicationController
   end
 
   def index
-      
-
     render json:Screen.getSorted
   end
   def post
+    HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],{type:'chat',name:nil,message:params[:message]})
+    render nothing:true
   end
 
   def notify

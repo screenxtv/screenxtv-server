@@ -5,6 +5,7 @@ RailsXServer::Application.routes.draw do
   match 'embed/:url', to:'index#embed'
   match ':controller(/:action(/:id))(.:format)'
   match 'screen_notify/:url', to:'screens#notify'
+  match 'post/:url', to:'screens#post',as:'post'
   match ':url', to:'index#screen'
   # The priority is based upon order of creation:
   # first created -> highest priority.

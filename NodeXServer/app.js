@@ -11,8 +11,6 @@ var RAILS_PORT=3000;
 var UNIX_PORT=8000;
 
 function notify(id,data){
-	console.log(id,data.status);
-	console.log('http://localhost:'+RAILS_PORT+'/screen_notify/'+id);
 	request.post({
 		uri:'http://localhost:'+RAILS_PORT+'/screen_notify/'+id,
 		json:data
@@ -39,17 +37,14 @@ app.configure('production', function(){
 });
 
 app.get('/:id',function(req,res){
-	console.log(req.params.id)
-	var channel=ChannelData.channelActiveMap[req.params.id];
-    res.end(JSON.stringify(["GET",req.query,req.body]));
+	var channel=ChannelData.channelActiveMap['#'+req.params.id];
+    res.end(JSON.stringify(channel&&{info:channel.info,vt100:channel.vt100}));
 });
 
 app.post('/:id',function(req,res){
-	console.log(req.params.id)
-	var channel=ChannelData.channelActiveMap[req.params.id];
-	if(req.body.type=='chat')channel.chat(req.body.data);
-	console.log(req.body);
-	res.end(JSON.stringify(["POST",req.query,req.body]));
+	var channel=ChannelData.channelActiveMap['#'+req.params.id];
+	if(channel&&req.body.type=='chat')channel.chat({name:req.body.name,message:req.body.message});
+	res.end();
 })
 
 var server=http.createServer(app).listen(app.get('port'),function(){
@@ -164,7 +159,7 @@ ChannelData.prototype.chat=function(data){
 }
 ChannelData.prototype.castStart=function(socket,pswd,w,h,info){
 	console.log(w,h,info);
-	if(this.castPassword&&this.castPassword!=pswd)throw 'wrong pswd';
+	if(this.castPassword&&this.castPassword!=pswd)throw 'url already in use';
 	if(this.castSocket)this.castSocket.disconnect();
 	if(this.chatlist==null)this.chatlist=[];
 	this.info=info;
@@ -250,12 +245,11 @@ net.createServer(function(usocket){
 	    try{
 		switch(key){
 			case 'init':oninit(JSON.parse(value));break;
-			case 'chat':if(channel)channel.chat(iosocket,{name:'admin',message:value});break;
+			case 'chat':if(channel)channel.chat({name:'admin',message:value});break;
 			case 'data':if(channel)channel.castData(iosocket,value);break;
 			case 'winch':if(channel)onwinch(JSON.parse(value));break;
 			default:return;
 		}
-		//console.log(key,key=='data'?value.length:value);
 	    }catch(e){console.log(e);}
 	}
 	function onwinch(size){

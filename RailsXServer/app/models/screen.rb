@@ -10,14 +10,14 @@ class Screen < ActiveRecord::Base
     when 'update'
       screen.title=params[:title]
       screen.color=params[:color]
-      screen.vt100=params[:vt100];
-      screen.casting=true;
-      screen.viewer=params[:viewer];
-      screen.pausecount=params[:pause];
+      screen.vt100=params[:vt100]
+      screen.casting=true
+      screen.viewer=params[:viewer]
+      screen.pausecount=params[:pause]
       screen.save
     when 'castend'
       screen.casting=false
-      screen.viewer=screen.pausecount=0;
+      screen.viewer=screen.pausecount=0
       screen.save
     when 'terminate'
       screen.destroy
