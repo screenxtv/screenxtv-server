@@ -62,6 +62,10 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 		socket.emit('init',{channel:channelID},function(){console.log('init')});
 		window.socket=socket;
 	});
+	socket.on('disconnect',function(){
+		socket=null;
+		if(self.onClose)self.onClose();
+	})
 	socket.on('init',function(data){initTerminal(data);if(self.onInit)self.onInit(data);var arr=data.chatlist;if(self.onChatArrive)for(var i=0;i<arr.length;i++)self.onChatArrive(arr[i])});
 	socket.on('viewer',function(data){console.log('viewer',data);if(self.onViewerChange)self.onViewerChange(data)});
 	socket.on('chat',function(data){console.log('chat',data);if(self.onChatArrive)self.onChatArrive(data)});
@@ -71,6 +75,7 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 	socket.on('castEnd',function(){if(self.onCastEnd)self.onCastEnd()});
 	this.resize=resizeUpdate;
 	this.post=function(message,twitter){
+		if(!socket)return;
 		$.post('/post/'+channelID,{authenticity_token:csrf_token,twitter:twitter,message:message})
 	}
 }

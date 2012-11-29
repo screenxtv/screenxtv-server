@@ -42,6 +42,9 @@ $(function(){
 	terminalview.onViewerChange=function(n){
 		$("#terminalstatus").text("viewer: "+n);
 	}
+	terminalview.onClose=function(){
+		$("#terminalstatus").text("disconnected");	
+	}
 	window.onresize();
 })
 function post(){
