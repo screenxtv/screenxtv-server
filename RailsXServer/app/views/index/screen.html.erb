@@ -16,24 +16,31 @@ $(function(){
 		var h=innerHeight-50;
 		if(w<300){
 			w=innerWidth;
-			$("#terminalmain").css({width:w,height:h});
-			terminalview.resize(w,h);
 			$("#chatmain").css("display","none")
 		}else{
-			$("#terminalmain").css({width:w,height:h});
 			$("#chatmain").css({display:"block",height:h})
 			$("#chatlist").css({height:h-80})
-			terminalview.resize(w,h);
 			$("#chatlist").scrollTop(65536);
 		}
+		$("#terminalmain").css({width:w,height:h});
+		terminalview.resize(w,h);
 	}
 	terminalview.onChatArrive=function(data){
 		try{addChat(JSON.parse(data.name),data.message);}catch(e){console.log(data)}
 	}
+	terminalview.onInit=function(data){
+		$("#header_title").text(data.info.title);
+		terminalview.onCastStart();
+		terminalview.onViewerChange(data.viewer);
+	}
 	terminalview.onCastStart=function(data){
-
-
-
+		$("#terminalstatus").css({color:'black'})
+	}
+	terminalview.onCastEnd=function(){
+		$("#terminalstatus").css({color:'silver'})
+	}
+	terminalview.onViewerChange=function(n){
+		$("#terminalstatus").text("viewer: "+n);
 	}
 	window.onresize();
 })
@@ -72,10 +79,14 @@ div.chat div{margin-left:30px;overflow-x:hidden;}
 	font-size:16px;
 }
 #message:focus{box-shadow:0 0 8px blue;}
-#twitcheckbox{position:absolute;left:10px;bottom:2px;}
+#twitcheckbox{position:absolute;left:10px;bottom:2px;font-size:16px;}
+#terminalstatus{
+	position:absolute;right:5px;bottom:2px;font-size:16px;
+	text-align:right;
+}
 </style>
 <div id="terminalmain" style='position:fixed;left:0;top:50;'>
-<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
+	<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
 </div>
 <div id='chatmain' style='position:fixed;right:0;top:50;width:300px;box-shadow:0 0 16px black;overflow:hidden;'>
 	<div id='chatlist' style='margin:5px;overflow:auto'></div>
@@ -85,6 +96,7 @@ div.chat div{margin-left:30px;overflow-x:hidden;}
 			<% if user %>
 			<div id='twitcheckbox'><input type=checkbox id='twitpost'>post to twitter</div>
 			<% end %>
+			<div id='terminalstatus'></div>
 		</form>
 	</div>
 </div>

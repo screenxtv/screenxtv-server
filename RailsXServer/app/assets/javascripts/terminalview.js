@@ -62,7 +62,7 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 		socket.emit('init',{channel:channelID},function(){console.log('init')});
 		window.socket=socket;
 	});
-	socket.on('init',function(data){initTerminal(data);var arr=data.chatlist;if(self.onChatArrive)for(var i=0;i<arr.length;i++)self.onChatArrive(arr[i])});
+	socket.on('init',function(data){initTerminal(data);if(self.onInit)self.onInit(data);var arr=data.chatlist;if(self.onChatArrive)for(var i=0;i<arr.length;i++)self.onChatArrive(arr[i])});
 	socket.on('viewer',function(data){console.log('viewer',data);if(self.onViewerChange)self.onViewerChange(data)});
 	socket.on('chat',function(data){console.log('chat',data);if(self.onChatArrive)self.onChatArrive(data)});
 	socket.on('castStart',function(data){initTerminal(data);if(self.onCastStart)self.onCastStart(data)});
