@@ -10,11 +10,85 @@ port=8080
 var terminalview;
 $(function(){
 	if(!channelID)return;
-	terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,false);
-})
-</script>
+	terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true);
+	window.onresize=function(){
+		var w=innerWidth-300;
+		var h=innerHeight-50;
+		if(w<300){
+			w=innerWidth;
+			$("#terminalmain").css({width:w,height:h});
+			terminalview.resize(w,h);
+			$("#chatmain").css("display","none")
+		}else{
+			$("#terminalmain").css({width:w,height:h});
+			$("#chatmain").css({display:"block",height:h})
+			$("#chatlist").css({height:h-80})
+			terminalview.resize(w,h);
+			$("#chatlist").scrollTop(65536);
+		}
+	}
+	terminalview.onChatArrive=function(data){
+		try{addChat(JSON.parse(data.name),data.message);}catch(e){console.log(data)}
+	}
+	terminalview.onCastStart=function(data){
 
+
+
+	}
+	window.onresize();
+})
+function post(){
+	var message=$("#message").val();
+	$("#message").val("")
+	if(!message.trim())return;
+	var twit=$("#twitpost")[0];
+	var data={
+		authenticity_token:csrf_token,
+		message:message
+	}
+	terminalview.post(message,twit&&twit.checked);
+}
+function addChat(name,message){
+	var div=$("<div class='chat'><img><div/></div>");
+	var imgsrc=name&&name.profile_image;
+	if(!imgsrc)imgsrc="/assets/anonymous.png"
+	div.children().first().attr("src",imgsrc);
+	div.children().last().text(message);
+	var chatlist=$("#chatlist");
+	if(chatlist.children().length>256)chatlist.children().first().remove();
+	chatlist.append(div);
+	chatlist.scrollTop(65536);
+}
+</script>
+<style>
+div.chat{position:relative;border-radius:5px;margin:5px;padding:5px;box-shadow:0 0 8px rgba(0,0,0,0.2);min-height:30px;}
+div.chat img{position:absolute;width:24px;height:24px;left:5px;top:5px;border-radius:4px;}
+div.chat div{margin-left:30px;overflow-x:hidden;}
+#message{
+	border-radius:8px;
+	border:1px solid silver;
+	outline:none;
+	position:absolute;left:10px;top:5px;width:276px;height:40px;
+	font-size:16px;
+}
+#message:focus{box-shadow:0 0 8px blue;}
+#twitcheckbox{position:absolute;left:10px;bottom:2px;}
+</style>
+<div id="terminalmain" style='position:fixed;left:0;top:50;'>
 <div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
-<%= form_tag post_path,remote:true do%>
-	<input name='message'>
-<% end %>
+</div>
+<div id='chatmain' style='position:fixed;right:0;top:50;width:300px;box-shadow:0 0 16px black;overflow:hidden;'>
+	<div id='chatlist' style='margin:5px;overflow:auto'></div>
+	<div id='chatform' style='box-shadow:0 0 5px rgba(0,0,0,0.2);position:absolute;left:0;bottom:0;width:300px;height:75px;'>
+		<form onsubmit="try{post()}catch(e){}return false">
+			<input id='message' style='' autocomplete='off'>
+			<% if user %>
+			<div id='twitcheckbox'><input type=checkbox id='twitpost'>post to twitter</div>
+			<% end %>
+		</form>
+	</div>
+</div>
+
+
+
+

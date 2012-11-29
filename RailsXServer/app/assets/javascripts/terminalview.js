@@ -26,11 +26,16 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 		terminal.updateView();
 		resizeUpdate();
 	}
+	var width,height;
 	function resizeUpdate(){
 		if(!autoresize)return;
+		if(arguments.length==2){
+			width=arguments[0];
+			height=arguments[1];
+		}
 		var e=$(terminalElement);
 		e.css("transform","none");
-		var w=innerWidth-20,h=innerHeight-20;
+		var w=width-20,h=height-20;
 		var w2=e.width(),h2=e.height();
 		var scale=Math.min(w/w2,h/h2);
 		console.log(scale)
@@ -57,16 +62,16 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 		socket.emit('init',{channel:channelID},function(){console.log('init')});
 		window.socket=socket;
 	});
-	socket.on('init',initTerminal);
+	socket.on('init',function(data){initTerminal(data);var arr=data.chatlist;if(self.onChatArrive)for(var i=0;i<arr.length;i++)self.onChatArrive(arr[i])});
 	socket.on('viewer',function(data){console.log('viewer',data);if(self.onViewerChange)self.onViewerChange(data)});
 	socket.on('chat',function(data){console.log('chat',data);if(self.onChatArrive)self.onChatArrive(data)});
-	socket.on('castStart',function(data){initTerminal(data);if(self.onCastStart)self.onCastStart()});
+	socket.on('castStart',function(data){initTerminal(data);if(self.onCastStart)self.onCastStart(data)});
 	socket.on('castData',function(data){updateTerminal(data)});
 	socket.on('castWINCH',function(data){resizeTerminal(data.width,data.height)});
 	socket.on('castEnd',function(){if(self.onCastEnd)self.onCastEnd()});
 	this.resize=resizeUpdate;
-	this.post=function(message){
-		$.post('/post/'+channelID,{authenticity_token:csrf_token,message:message})
+	this.post=function(message,twitter){
+		$.post('/post/'+channelID,{authenticity_token:csrf_token,twitter:twitter,message:message})
 	}
 }
 

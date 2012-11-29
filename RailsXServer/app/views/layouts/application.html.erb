@@ -25,15 +25,30 @@ body{margin:0;padding:0;padding-top:50px;overflow-x:hidden;}
 	z-index:65536;
 }
 div.social{
-	position:absolute;right:0;top:10px;
+	position:absolute;right:120px;top:10px;
 	text-align:right;
 }
 div.social div{display:inline-block;}
 div.twitterbutton{position:relative;top:3px;}
 
+
+.header_login{
+	display:inline-block;
+	position:absolute;
+	right:0;top:0;
+	text-align:right;
+	width:120px;height:50px;
+}
+.header_login img{position:absolute;right:82px;top:9px;width:32px;height:32px;border-radius:4px;}
+.login_text{position:absolute;right:0;bottom:5px;width:80px;font-size:16px;text-align:left;vertical-align:bottom;}
+.header_title{
+	
+	
+}
 </style>
 <div class="header">
-	<a href='/'><img src='/assets/logo.png'></a>
+	<a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536'></a>
+	<div id='header_title'></div>
 	<div class='social'>
 		<script id="facebook-jssdk" src="http://connect.facebook.net/ja_JP/all.js#xfbml=1"></script>
 	 	<div class="fb-like" data-href="http://screenx.tv/" data-send="false" data-width="70" data-show-faces="false" data-layout="button_count"></div> 
@@ -41,6 +56,16 @@ div.twitterbutton{position:relative;top:3px;}
 			<a href="https://twitter.com/share" class="twitter-share-button" style='color:transparent'>Tweet</a>
 		  	<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 		</div>
+	</div>
+	<div class='header_login'>
+		<%if session[:user] %>
+			<img src='<%=session[:user][:profile_image]%>'>
+			<div class='login_text'><a href='/index/logout'>logout</a></div>
+		<% else %>
+			<a href='/index/login'>
+			<div class='login_text' style='font-size:1.5em'>login</div>
+			</a>
+		<% end %>
 	</div>
 </div>
 

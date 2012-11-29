@@ -1,62 +1,34 @@
 class IndexController < ApplicationController
-  CONSUMER_KEY='pJ2F7coxlc5jlKcmSPrLqQ';
-  CONSUMER_SECRET='n0qURhYbR8ugJfET12fhb1ko4vJD18e8Kmuxlk3M884'
-  CALLBACK_PATH="/index/oauth_callback"
-  protect_from_forgery :except=>[:index]
-  def consumer
-    OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://twitter.com"})
-  end
-  Twitter.configure do |config|
-    config.consumer_key=CONSUMER_KEY
-    config.consumer_secret=CONSUMER_SECRET
-  end
-  def hoge
-    #Thread.new{
-      p "STARTHOGE"
-      http=HTTPPost 'google.com',80,'/search?q=test',{x:1,y:'a',z:1023}
-      p "ENDHOGE"
-    #}
-    render json:'hoge'
-  end
   def index
     render locals:{screens:Screen.getSorted(100)}
   end
+
   def embed
-    render layout:false,locals:{url:params[:url]}
+    render layout:false,locals:{url:params[:url],link:params[:link]}
   end
+
   def screen
-    render locals:{url:params[:url]}
+    render locals:{url:params[:url],user:(authorized? ? session[:user] : nil)}
   end
 
 
-  def authorized?
-    session[:oauth_token]
-  end
   def logout
     session.delete :oauth_token
-    render text:'logout'
+    session.delete :user
+    redirect_to :action=>:index
   end
-  def twitter
-    Twitter::Client.new session[:oauth_token]
-  end
-  def tweet
-    if request[:id]
-      render json:(twitter.update request[:id])
-    else
-      userinfo=twitter.user
-      render json:session[:user]
-    end
-  end
+
+
   def login
     if authorized?
-      render text:'authorized'
       session.delete :oauth_token
-      return
+      session.delete :user
+      redirect_to :action=>:index
+    else
+      request_token=consumer.get_request_token(oauth_callback:"http://#{request.host_with_port+CALLBACK_PATH}")
+      session[:request_token]={token:request_token.token,secret:request_token.secret}
+      redirect_to request_token.authorize_url
     end
-    request_token=consumer.get_request_token(oauth_callback:"http://#{request.host_with_port+CALLBACK_PATH}")
-    p request_token
-    session[:request_token]={token:request_token.token,secret:request_token.secret}
-    redirect_to request_token.authorize_url
   end
   def oauth_callback
     if !authorized?

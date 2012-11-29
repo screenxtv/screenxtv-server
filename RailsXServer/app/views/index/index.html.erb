@@ -10,7 +10,8 @@ $(function(){
 	var first=terminalList[0];
 	if(first&&first.casting){
 		var embed=$("<iframe/>");
-		embed.attr("src","/embed/"+first.url);
+		var embed=
+		embed.attr("src","/embed/"+first.url+"?link=true");
 		$("#demo").append(embed);
 	}
 	var main=$('#main');

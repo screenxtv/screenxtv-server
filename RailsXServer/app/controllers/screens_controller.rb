@@ -16,7 +16,12 @@ class ScreensController < ApplicationController
     render json:Screen.getSorted
   end
   def post
-    HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],{type:'chat',name:nil,message:params[:message]})
+    Thread.new{
+      HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],{type:'chat',name:session[:user].to_json,message:params[:message]})
+      if(authorized? && params[:twitter]=='true')
+        twitter.update params[:message]
+      end
+    }
     render nothing:true
   end
 

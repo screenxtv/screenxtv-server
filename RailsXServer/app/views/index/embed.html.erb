@@ -12,10 +12,10 @@ var terminalview;
 $(function(){
 	if(!channelID)return;
 	terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true);
-	window.onresize=function(){ioterminal.resize()}
+	window.onresize=function(){terminalview.resize(innerWidth,innerHeight)}
+	window.onresize();
 })
-
-
-
 </script>
+<%if link%><a href="/<%=url%>" target='_top'><% end%>
 <div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
+<%if link%></a><% end%>
