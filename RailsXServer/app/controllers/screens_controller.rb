@@ -2,7 +2,7 @@ class ScreensController < ApplicationController
   before_filter :localfilter, only:[:notify]
   protect_from_forgery :except=>[:notify]
   NODE_IP="127.0.0.1"
-  NODE_PORT=8080
+  NODE_PORT=ENV['NODE_PORT']||8080
   def localfilter
     render nothing:true if request.remote_ip!=NODE_IP
   end

@@ -1,12 +1,12 @@
-<script src="/assets/socket.io.js"></script>
+<!--script src="/assets/socket.io.js"></script>
 <script src="/assets/jquery.min.js"></script>
 <script src="/assets/vt100.js"></script>
 <script src="/assets/terminal.js"></script>
-<script src="/assets/terminalview.js"></script>
+<script src="/assets/terminalview.js"></script-->
 <script>
 channelID="<%= url %>"
 host=location.hostname;
-port=8080
+port=<%= node_port||8080 %>
 var terminalview;
 $(function(){
 	if(!channelID)return;
@@ -29,7 +29,7 @@ $(function(){
 		try{addChat(JSON.parse(data.name),data.message);}catch(e){console.log(data)}
 	}
 	terminalview.onInit=function(data){
-		$("#header_title").text(data.info.title);
+		$("#header_title").text(data.info?data.info.title:"");
 		terminalview.onCastStart();
 		terminalview.onViewerChange(data.viewer);
 	}

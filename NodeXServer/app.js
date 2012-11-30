@@ -7,7 +7,7 @@ var express = require('express')
 var app = express();
 
 var PORT=8080
-var RAILS_PORT=3000;
+var RAILS_PORT=80;
 var UNIX_PORT=8000;
 
 function notify(id,data){
@@ -20,9 +20,9 @@ function notify(id,data){
 
 
 app.configure(function(){
-    RAILS_PORT=process.env.RPORT||RAILS_PORT;
-    UNIX_PORT=process.env.UPORT||UNIX_PORT;
-	app.set('port',process.env.PORT||PORT);
+    RAILS_PORT=process.env.RAILS_PORT||RAILS_PORT;
+    UNIX_PORT=process.env.NODE_UPORT||UNIX_PORT;
+	app.set('port',process.env.NODE_PORT||PORT);
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
@@ -158,7 +158,7 @@ ChannelData.prototype.chat=function(data){
 	this.broadcast('chat',data);
 }
 ChannelData.prototype.castStart=function(socket,pswd,w,h,info){
-	console.log(w,h,info);
+	//console.log(w,h,info);
 	if(this.castPassword&&this.castPassword!=pswd)throw 'url already in use';
 	if(this.castSocket)this.castSocket.disconnect();
 	if(this.chatlist==null)this.chatlist=[];
@@ -171,7 +171,7 @@ ChannelData.prototype.castStart=function(socket,pswd,w,h,info){
 	this.notifyStatus();
 	this.broadcast('castStart',{info:this.info,vt100:this.vt100},socket);
 	ChannelData.channelActiveMap['#'+this.channelID]=this;
-	console.log(this.channelID);
+	//console.log(this.channelID);
 	if(this.endTimer){clearTimeout(this.endTimer);this.endTimer=null;}
 }
 ChannelData.prototype.castWINCH=function(socket,w,h){
@@ -193,7 +193,7 @@ ChannelData.prototype.castEnd=function(socket){
 	this.broadcast('castEnd','castend',socket);
 	this.castSocket=null;
 	var channel=this;
-	this.endTimer=setTimeout(function(){channel.ended()},10*60*1000/60);
+	this.endTimer=setTimeout(function(){channel.ended()},10*60*1000);
 }
 ChannelData.prototype.ended=function(){
 	this.castPassword=null;
@@ -260,7 +260,7 @@ net.createServer(function(usocket){
 	}
 	function oninit(data){
 		var kv=(data.slug||"").split('#');
-		console.log(data);
+		//console.log(data);
 		if(!kv[0])kv[0]=ChannelData.genUniqID();
 		if(!kv[1])kv[1]=genRandomID(8);
 		channel=ChannelData.getChannelData(kv[0]);
@@ -280,6 +280,6 @@ net.createServer(function(usocket){
 });
 
 process.on('uncaughtException',function(err){
-    console.log('Caught exception:'+err);
+    console.log('Caught exception:',err);
 });
 
