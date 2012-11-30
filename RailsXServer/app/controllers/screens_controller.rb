@@ -16,7 +16,7 @@ class ScreensController < ApplicationController
     Thread.new{
       HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],{type:'chat',name:session[:user].to_json,message:params[:message]})
       if(authorized? && params[:twitter]=='true')
-        twitter.update params[:message]
+        twitter.update params[:message]+" http://screenx.tv/"+params[:url]
       end
     }
     render nothing:true
