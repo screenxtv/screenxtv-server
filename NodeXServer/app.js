@@ -63,7 +63,7 @@ io.set("log level",0);
 
 io.sockets.on('connection',function(socket){
 	socket.on('init',function(data){
-		channel=ChannelData.getChannelData(data.channel);
+		var channel=ChannelData.getChannelData(data.channel);
 		channel.join(socket);
 		socket.on('disconnect',function(){channel.leave(socket)});
 	});

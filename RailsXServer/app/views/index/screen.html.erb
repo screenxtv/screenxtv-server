@@ -1,8 +1,4 @@
-<script src="/assets/socket.io.js"></script>
-<script src="/assets/jquery.min.js"></script>
-<script src="/assets/vt100.js"></script>
-<script src="/assets/terminal.js"></script>
-<script src="/assets/terminalview.js"></script>
+<%= javascript_include_tag "screen" %>
 <script>
 channelID="<%= url %>"
 host=location.hostname;
@@ -30,7 +26,8 @@ $(function(){
 	}
 	terminalview.onInit=function(data){
 		$("#header_title").text(data.info?data.info.title:"");
-		terminalview.onCastStart();
+		if(data.casting)terminalview.onCastStart();
+		else terminalview.onCastEnd();
 		terminalview.onViewerChange(data.viewer);
 	}
 	terminalview.onCastStart=function(data){

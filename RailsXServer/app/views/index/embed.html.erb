@@ -1,9 +1,6 @@
 <meta encoding='utf-8'>
-<script src="/assets/socket.io.js"></script>
-<script src="/assets/jquery.min.js"></script>
-<script src="/assets/vt100.js"></script>
-<script src="/assets/terminal.js"></script>
-<script src="/assets/terminalview.js"></script>
+<%= javascript_include_tag "screen" %>
+<%= render partial:'/analytics' %>
 <script>
 channelID="<%= url %>"
 host=location.hostname;
