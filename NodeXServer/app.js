@@ -22,7 +22,7 @@ function notify(id,data){
 app.configure(function(){
     RAILS_PORT=process.env.RAILS_PORT||RAILS_PORT;
     UNIX_PORT=process.env.NODE_UPORT||UNIX_PORT;
-	app.set('port',process.env.NODE_PORT||PORT);
+    PORT=process.env.NODE_PORT||PORT;
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
@@ -47,8 +47,8 @@ app.post('/:id',function(req,res){
 	res.end();
 })
 
-var server=http.createServer(app).listen(app.get('port'),function(){
-	console.log("Express server listening on port " + app.get('port'));
+var server=http.createServer(app).listen(PORT,function(){
+	console.log("Express server listening on port " + PORT);
 });
 
 

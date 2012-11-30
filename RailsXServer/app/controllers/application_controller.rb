@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
-  CONSUMER_KEY=ENV['CONSUMER_KEY']||"pJ2F7coxlc5jlKcmSPrLqQ"
-  CONSUMER_SECRET=ENV['CONSUMER_SECRET']||"n0qURhYbR8ugJfET12fhb1ko4vJD18e8Kmuxlk3M884"
+  CONSUMER_KEY=ENV['CONSUMER_KEY']
+  CONSUMER_SECRET=ENV['CONSUMER_SECRET']
   CALLBACK_PATH="/index/oauth_callback"
   def consumer
     OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://twitter.com"})

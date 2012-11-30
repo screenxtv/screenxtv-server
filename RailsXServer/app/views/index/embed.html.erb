@@ -1,10 +1,9 @@
 <meta encoding='utf-8'>
-<%= javascript_include_tag "application" %>
-<!--script src="/assets/socket.io.js"></script>
+<script src="/assets/socket.io.js"></script>
 <script src="/assets/jquery.min.js"></script>
 <script src="/assets/vt100.js"></script>
 <script src="/assets/terminal.js"></script>
-<script src="/assets/terminalview.js"></script-->
+<script src="/assets/terminalview.js"></script>
 <script>
 channelID="<%= url %>"
 host=location.hostname;
@@ -17,6 +16,6 @@ $(function(){
 	window.onresize();
 })
 </script>
-<%if link%><a href="/<%=url%>" target='_top'><% end%>
+<%if link%><a href="/<%=url%>" target='_top' style='text-decoration:none'><% end%>
 <div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
 <%if link%></a><% end%>
