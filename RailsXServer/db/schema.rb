@@ -17,7 +17,7 @@ ActiveRecord::Schema.define(:version => 20121125102030) do
     t.string   "url"
     t.string   "title"
     t.string   "color"
-    t.string   "vt100"
+    t.text     "vt100"
     t.boolean  "casting"
     t.integer  "viewer"
     t.integer  "pausecount"
