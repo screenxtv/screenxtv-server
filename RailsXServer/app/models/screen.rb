@@ -35,6 +35,6 @@ class Screen < ActiveRecord::Base
     "\"color\":"+color.to_json+","+
     "\"viewer\":"+viewer.to_s+","+
     "\"casting\":"+casting.to_s+","+
-    "\"vt100\":"+vt100+"}").gsub("<","\\u03c").gsub(">","\\u003e");
+    "\"vt100\":"+vt100+"}").gsub("<","\\u003c").gsub(">","\\u003e");
   end
 end
