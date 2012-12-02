@@ -38,7 +38,6 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 		var w=width-20,h=height-20;
 		var w2=e.width(),h2=e.height();
 		var scale=Math.min(w/w2,h/h2);
-		console.log(scale)
 		var ww=w2*scale,hh=h2*scale;
 		e.css("transform-origin","0 0");
 		e.css("transform","scale("+scale+")");

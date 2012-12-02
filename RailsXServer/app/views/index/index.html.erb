@@ -85,9 +85,11 @@ border-top:1px solid#eee;
 text-align:right;
 margin-top:20px;
 padding:10px 20px;
+font-size:14px;
 color:gray;
 }
-
+div.footer a{color:#444}
+div.footer span{margin-right:20px;}
 div.whatis{
 	margin:20px;
 	text-align:left;
@@ -98,9 +100,15 @@ div.whatis{
 </style>
 <center>
 <div class="whatis">
-ScreenXを使えばあなたのターミナル画面を生中継できます。<br>
-勉強会の配信、講義、ペアプログラミングなどのシーンでご活用ください。<br>
-<a href='https://github.com/tompng/screenxtv-client/blob/master/README-jp.md'>How to Broadcast?</a>
+<% if 'ja' == request.env['HTTP_ACCEPT_LANGUAGE'].scan(/^[a-z]{2}/).first %>
+  ScreenX TVを使えばあなたのターミナル画面を生中継できます。<br>
+  勉強会の配信、講義、ペアプログラミングなどのシーンでご活用ください。<br>
+  <a href='https://github.com/tompng/screenxtv-client/blob/master/README-jp.md'>配信方法はこちらから</a>
+<% else %>
+  ScreenX TV enables you to broadcast your terminal in real time.<br>
+  You can use ScreenX TV in a lecture, hackathon, pair programming etc.<br>
+  <a href='https://github.com/tompng/screenxtv-client/blob/master/README.md'>How to Broadcast?</a>
+<% end %>
 </div>
 </center>
 
@@ -109,5 +117,9 @@ ScreenXを使えばあなたのターミナル画面を生中継できます。<
 
 
 <div class='footer'>
-supported by <a href='http://qwik.jp/okinawarb/'>okinawa.rb</a>
+  <span class=contact>Contact:
+    <a href='http://twitter.com/tompng'>@tompng</a>
+    <a href='http://twitter.com/yasulab'>@yasulab</a>
+  </span>
+  Supported by <a href='http://qwik.jp/okinawarb/'>okinawa.rb</a>
 </div>
