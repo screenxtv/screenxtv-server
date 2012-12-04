@@ -24,10 +24,11 @@ class Screen < ActiveRecord::Base
     end
   end
   def self.getSorted(limit)
-  	screens=Arel::Table.new :screens
-  	arrcasting=Screen.where(casting:true).order(screens[:pausecount],screens[:viewer].desc).limit(limit);
-  	arrcasted=Screen.where(casting:false).limit(limit-arrcasting.count);
-  	arrcasting+arrcasted
+    Screen.delete_all(["updated_at <= ?",1.minute.ago])
+    screens=Arel::Table.new :screens
+    arrcasting=Screen.where(casting:true).order(screens[:pausecount],screens[:viewer].desc).limit(limit);
+    arrcasted=Screen.where(casting:false).limit(limit-arrcasting.count);
+    arrcasting+arrcasted
   end
   def to_json
     ("{"+"\"url\":"+url.to_json+","+

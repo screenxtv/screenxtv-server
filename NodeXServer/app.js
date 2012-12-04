@@ -11,10 +11,11 @@ var RAILS_PORT=80;
 var UNIX_PORT=8000;
 
 function notify(id,data){
-	request.post({
-		uri:'http://localhost:'+RAILS_PORT+'/screen_notify/'+id,
-		json:data
-	});
+    console.log(new Date()+":"+id)
+    request.post({
+	uri:'http://localhost:'+RAILS_PORT+'/screen_notify/'+id,
+	json:data
+    },function(x,y,z){console.log(id+" recv:"+(x||"")+":"+(y||"")+":"+(z||""))});
 }
 
 
@@ -117,8 +118,8 @@ function genRandomID(n){
 	for(var i=0;i<n;i++)name+=chars.charAt(chars.length*Math.random());
 	return name;
 }
-ChannelData.genUniqID=function(){
-	for(var len=2;len<16;len++){
+ChannelData.genUniqID=function(n){
+	for(var len=n||2;len<16;len++){
 		var name=genRandomID(len);
 		if(!ChannelData.channelMap['#'+name])return name;
 	}
@@ -134,18 +135,21 @@ ChannelData.removeChannelData=function(channel){
 	if(channel.chatlist==null&&channel.viewerCount==0)
 		delete ChannelData.channelMap['#'+channel.channelID];
 }
-ChannelData.prototype.notify=function(data){notify(this.channelID,data)}
+ChannelData.prototype.notify=function(data){notify(this.channelID,this.private?{status:'private'}:data)}
 ChannelData.prototype.notifyStatus=function(){
 	if(this.notifyTimer)clearTimeout(this.notifyTimer);
 	var info=this.info||{};
-	this.notify({
-		status:'update',
-		vt100:JSON.stringify(this.vt100.getSubData(40,12)),
-		title:info.title,
-		color:info.color,
-		viewer:this.viewerCount,
-		pause:this.pauseCount
-	})
+	if(this.private)this.notify();
+	else{
+		this.notify({
+			status:'update',
+			vt100:JSON.stringify(this.vt100.getSubData(40,12)),
+			title:info.title,
+			color:info.color,
+			viewer:this.viewerCount,
+			pause:this.pauseCount
+		})
+	}
 	this.pauseCount++;
 	var channel=this;
 	this.notifyTimer=setTimeout(function(){channel.notifyStatus()},10*1000);
@@ -158,11 +162,13 @@ ChannelData.prototype.chat=function(data){
 	this.broadcast('chat',data);
 }
 ChannelData.prototype.castStart=function(socket,pswd,w,h,info){
-	//console.log(w,h,info);
-	if(this.castPassword&&this.castPassword!=pswd)throw 'url already in use';
+	if(this.castPassword){
+		if(this.castPassword!=pswd||this.private!=info.private)throw 'url already in use';
+	}
 	if(this.castSocket)this.castSocket.disconnect();
 	if(this.chatlist==null)this.chatlist=[];
 	this.info=info;
+	this.private=info.private;
 	this.castPassword=pswd;
 	this.castSocket=socket;
 	socket.emit('slug',this.getSlugData());
@@ -171,7 +177,6 @@ ChannelData.prototype.castStart=function(socket,pswd,w,h,info){
 	this.notifyStatus();
 	this.broadcast('castStart',{info:this.info,vt100:this.vt100},socket);
 	ChannelData.channelActiveMap['#'+this.channelID]=this;
-	//console.log(this.channelID);
 	if(this.endTimer){clearTimeout(this.endTimer);this.endTimer=null;}
 }
 ChannelData.prototype.castWINCH=function(socket,w,h){
@@ -260,12 +265,18 @@ net.createServer(function(usocket){
 	}
 	function oninit(data){
 		var kv=(data.slug||"").split('#');
-		//console.log(data);
-		if(!kv[0])kv[0]=ChannelData.genUniqID();
+		var info=data.info||{};
+		if(!kv[0].match("^[a-zA-Z0-9_]*$")){
+			iosocket.emit('errtype','url');
+			iosocket.emit('error','invalid url');
+			iosocket.disconnect();
+			return;
+		}
+		if(!kv[0])kv[0]=ChannelData.genUniqID(info.private?8:2);
 		if(!kv[1])kv[1]=genRandomID(8);
 		channel=ChannelData.getChannelData(kv[0]);
 		try{
-			channel.castStart(iosocket,kv[1],data.width,data.height,data.info||{});
+			channel.castStart(iosocket,kv[1],data.width,data.height,info);
 		}catch(e){
 			console.log(e);
 			iosocket.emit('error',e);
@@ -276,7 +287,7 @@ net.createServer(function(usocket){
 	usocket.on('error',function(){if(channel)channel.castEnd(iosocket);channel=null;});
 	usocket.on('close',function(){if(channel)channel.castEnd(iosocket);channel=null;});
 }).listen(UNIX_PORT,null,null,function(err){
-	console.log("ScreenxTV server listening on port "+UNIX_PORT)
+	console.log("NodeX listening on port "+UNIX_PORT)
 });
 
 process.on('uncaughtException',function(err){
