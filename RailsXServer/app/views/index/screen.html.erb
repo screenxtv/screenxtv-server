@@ -25,7 +25,9 @@ $(function(){
 		try{addChat(JSON.parse(data.name),data.message);}catch(e){console.log(data)}
 	}
 	terminalview.onInit=function(data){
-		$("#header_title").text(data.info?data.info.title:"");
+		title=data.info?data.info.title:""
+		$("#header_title").text(title);
+		document.title=(title?title+" - ":"")+"ScreenX TV";
 		if(data.casting)terminalview.onCastStart();
 		else terminalview.onCastEnd();
 		terminalview.onViewerChange(data.viewer);
