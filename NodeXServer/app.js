@@ -168,7 +168,7 @@ ChannelData.prototype.castStart=function(socket,pswd,w,h,info){
 	if(this.castSocket)this.castSocket.disconnect();
 	if(this.chatlist==null)this.chatlist=[];
 	this.info=info;
-	this.private=info.private;
+	//this.private=info.private;
 	this.castPassword=pswd;
 	this.castSocket=socket;
 	socket.emit('slug',this.getSlugData());
