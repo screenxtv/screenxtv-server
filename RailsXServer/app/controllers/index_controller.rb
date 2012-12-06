@@ -21,8 +21,6 @@ class IndexController < ApplicationController
 
   def login
     if authorized?
-      session.delete :oauth_token
-      session.delete :user
       redirect_to :action=>:index
     else
       request_token=consumer.get_request_token(oauth_callback:"http://#{request.host_with_port+CALLBACK_PATH}")

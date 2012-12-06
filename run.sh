@@ -8,6 +8,6 @@ export CONSUMER_SECRET=n0qURhYbR8ugJfET12fhb1ko4vJD18e8Kmuxlk3M884
 cd NodeXServer
 curl localhost:$NODE_PORT/ ||nohup node app.js&
 cd ../RailsXServer
-unicorn_rails -E production -p $RAILS_PORT -D
+unicorn_rails -c config/unicorn.rb -E production -p $RAILS_PORT -D
 
 

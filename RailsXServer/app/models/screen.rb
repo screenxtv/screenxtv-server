@@ -1,10 +1,12 @@
 class Screen < ActiveRecord::Base
-  # attr_accessible :title, :body
   attr_accessible :url
 
-
   def self.notify(params)
-  	screen=Screen.where(url:params[:url]).first;
+    screen=Screen.where(url:params[:url]).first;
+    if params[:status]=='terminate'
+      screen.destroy if screen
+      return
+    end
     screen=Screen.create(url:params[:url]) if !screen
     case params[:status]
     when 'update'
@@ -19,12 +21,10 @@ class Screen < ActiveRecord::Base
       screen.casting=false
       screen.viewer=screen.pausecount=0
       screen.save
-    when 'terminate'
-      screen.destroy
     end
   end
   def self.getSorted(limit)
-    Screen.delete_all(["updated_at <= ?",1.minute.ago])
+    Screen.delete_all(["updated_at <= ?",10.minute.ago])
     screens=Arel::Table.new :screens
     arrcasting=Screen.where(casting:true).order(screens[:pausecount],screens[:viewer].desc).limit(limit);
     arrcasted=Screen.where(casting:false).limit(limit-arrcasting.count);
