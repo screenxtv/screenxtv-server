@@ -3,21 +3,25 @@ class IndexController < ApplicationController
     render locals:{screens:Screen.getSorted(100)}
   end
 
+  def howto
+    @title='Install'
+  end
+
   def embed
+    @title=params[:url]
     render layout:false,locals:{url:params[:url],link:params[:link]}
   end
 
   def screen
+    @title=params[:url]
     render locals:{url:params[:url],user:(authorized? ? session[:user] : nil)}
   end
-
 
   def logout
     session.delete :oauth_token
     session.delete :user
     redirect_to :action=>:index
   end
-
 
   def login
     if authorized?

@@ -3,6 +3,7 @@ RailsXServer::Application.routes.draw do
 
   root to:'index#index'
   match 'embed/:url', to:'index#embed'
+  match 'doc/howto',to:'index#howto',as:'doc_howto'
   match ':controller(/:action(/:id))(.:format)'
   match 'screen_notify/:url', to:'screens#notify'
   match 'post/:url', to:'screens#post',as:'post'

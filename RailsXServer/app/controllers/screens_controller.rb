@@ -8,7 +8,7 @@ class ScreensController < ApplicationController
   end
 
   def HTTPPost(host,port,path,hash)
-    query=hash.map{|x|x.map{|y|URI.encode(y.to_s)}.join("=")}.join("&")
+    query=hash.map{|x|x.map{|y|URI.encode(y.to_s).gsub("+","%2B")}.join("=")}.join("&")
     Net::HTTP.new(host,port).post(path,query).body
   end
 
