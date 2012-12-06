@@ -31,15 +31,9 @@ div.social{
 div.twitterbutton{position:relative;top:3px;}
 
 
-.header_login{
-	display:inline-block;
-	position:absolute;
-	right:0;top:0;
-	text-align:right;
-	width:120px;height:50px;
-}
-.header_login img{position:absolute;right:82px;top:9px;width:32px;height:32px;border-radius:4px;}
-.login_text{position:absolute;right:0;bottom:5px;width:80px;font-size:16px;text-align:left;vertical-align:bottom;}
+.login_text img{position:absolute;width:32px;height:32px;bottom:0px;left:0px;border-radius:4px;}
+.login_text{position:absolute;right:8px;bottom:8px;font-size:20px;text-align:left;vertical-align:bottom;padding-left:40px;}
+.login_text a{color:black;text-decoration:none;font-family:Osaka,Sans-Serif;}
 #header_title{
 	margin-left:160px;
 	margin-right:250px;
@@ -50,25 +44,26 @@ div.twitterbutton{position:relative;top:3px;}
 }
 </style>
 <div class="header">
-	<a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536'></a>
-	<div id='header_title'></div>
-	<div class='social'>
-	 	<div class='twitterbutton'>
-			<iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/" style="width:120px; height:20px;"></iframe>
-		</div>
-		<script id="facebook-jssdk" src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
-	 	<div class="fb-like" data-href="http://screenx.tv/" data-send="false" data-width="70" data-show-faces="false" data-layout="button_count"></div> 
-	</div>
-	<div class='header_login'>
-		<%if session[:user] %>
-			<img src='<%=session[:user][:profile_image]%>'>
-			<div class='login_text'><a href='/index/logout'>logout</a></div>
-		<% else %>
-			<a href='/index/login'>
-			<div class='login_text' style='font-size:1.5em'>login</div>
-			</a>
-		<% end %>
-	</div>
+  <a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536'></a>
+  <div id='header_title'></div>
+  <div class='social'>
+    <div class='twitterbutton'>
+      <iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/" style="width:120px; height:20px;"></iframe>
+    </div>
+    <script id="facebook-jssdk" src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
+    <div class="fb-like" data-href="http://screenx.tv/" data-send="false" data-width="70" data-show-faces="false" data-layout="button_count"></div> 
+  </div>
+  <nobr class='login_text'>
+    <%if session[:user] %>
+      <img src='<%=session[:user][:profile_image]%>'>
+      <a href='/index/logout'>Sign out</a>
+    <% else %>
+      <a href='/index/login'>
+	<img src='/assets/twitlogin.png'>
+	Sign in
+      </a>
+    <% end %>
+  </nobr>
 </div>
 
 <%= yield %>
