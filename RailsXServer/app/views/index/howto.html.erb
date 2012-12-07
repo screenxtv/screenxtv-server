@@ -47,26 +47,54 @@ div.code{
   background:#eee;
 }
 
+h1{padding-top:50px;}
+h1.install{text-align:center;font-size:64px;font-weight:bold;margin:0;padding:0;}
+h1.install a{
+  color:#800;
+  text-decoration:none;
+  margin:0 10px;
+  padding:10px 20px;
+  border:1px solid silver;
+  border-radius:20px;
+  background:#ddd;
+  background:-webkit-linear-gradient(top,#eee,#ccc);
+  background:-moz-linear-gradient(top,#eee,#ccc);
+  background:-o-linear-gradient(top,#eee,#ccc);
+}
+h1.install a:hover{
+  background:#ccc;
+  background:-webkit-linear-gradient(top,#ddd,#bbb);
+  background:-moz-linear-gradient(top,#ddd,#bbb);
+  background:-o-linear-gradient(top,#ddd,#bbb);
+}
+h1.install a:active{
+  background:#bbb;
+  background:-webkit-linear-gradient(top,#ccc,#aaa);
+  background:-moz-linear-gradient(top,#ccc,#aaa);
+  background:-o-linear-gradient(top,#ccc,#aaa);
+}
 </style>
 
 <center>
   <div class="whatis">
     <div class='howto'>
-      <h1>Install for Ruby</h1>
+      <h1 class="install">
+	<div>Install with</div>
+	<a href="#ruby">Ruby</a><a href="#gcc">GCC</a>
+      </h1>
+      <h1 id='ruby'>Install with Ruby</h1>
       <div class=description>
-	To install broadcasting tool, just run the command :
+	If you have <a href='http://rubygems.org'>rubygems</a> and Ruby 1.9.x or higher, you can install by:
 	<div class='gemcode'>gem install screenxtv</div>
       </div>
       <div class='shell'>
 	<span class=prompt>bash$</span> <span class=input>gem install screenxtv</span><br>
-	<span class=comment>Installing screenxtv done!</span><br>
+	<span class=comment>&nbsp;Install screenxtv</span><br>
 	<span class=prompt>bash$</span> <span class=input>rehash</span><br>
-	<span class=comment>Rehashed!</span><br>
-	<span class=prompt>bash$</span> <span class=input>screenxtv</span><br>
-	<span class=comment>You can broadcast your terminal!</span><br>
+	<span class=comment>&nbsp;Reload $PATH</span><br>
       </div>
       <div class=description>
-	Run screenxtv command and follow the instructions.
+	Run `screenxtv` and follow the instructions.
       </div>
       <div class='shell'>
 	<span class=prompt>bash$</span> <span class=input>screenxtv</span><br>
@@ -83,7 +111,7 @@ div.code{
 	&gt; <span class=cursor>&nbsp;</span><br>
       </div>
       <div class=description>
-	Options are :
+	Options are:
       </div>
       <div class='shell'>
 	<span class=prompt>bash$</span> <span class=input>screenxtv -h</span><br>
@@ -93,19 +121,19 @@ div.code{
 	&nbsp;&nbsp;&nbsp;&nbsp;-t [title]<br>
 	&nbsp;&nbsp;&nbsp;&nbsp;-reset<br>
 	&nbsp;&nbsp;&nbsp;&nbsp;-f config_file<br><br>
-	<span class=comment>Examples</span><br>
+	<span class=comment>Examples:</span><br>
 	<span class=prompt>bash$</span> <span class=input>screenxtv -u myurl2 -t "New Title"</span><br>
 	<span class=comment>&nbsp;Broadcast with url="myrul2" and title="New Title"</span><br>
 	<span class=prompt>bash$</span> <span class=input>screenxtv -u</span><br>
-	<span class=comment>&nbsp;The tool will ask you for a new url </span><br>
+	<span class=comment>&nbsp;The tool will ask you for a new url</span><br>
+	<span class=prompt>bash$</span> <span class=input>screenxtv -reset</span><br>
+	<span class=comment>&nbsp;Reset configurations</span><br>
 	<span class=prompt>bash$</span> <span class=input>screenxtv -f ./conf.yml</span><br>
 	<span class=comment>&nbsp;Save the config to "./conf.yml" instead of "~/.screenxtv.yml"</span><br>
       </div>
-      <br><br>
-      <h1>Install for GCC</h1>
+      <h1 id='gcc'>Install with GCC</h1>
       <div class=description>
-	GCC Version is available in
-	<a href='https://github.com/tompng/screenxtv-gcc-client'>https://github.com/tompng/screenxtv-gcc-client</a>
+	ScreenX TV Client for GCC is available in <a href='https://github.com/tompng/screenxtv-gcc-client'>GitHub: screenxtv-gcc-client</a>
       </div>
     </div>
   </div>
