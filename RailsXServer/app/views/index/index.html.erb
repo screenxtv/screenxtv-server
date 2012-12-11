@@ -122,7 +122,8 @@ function textselect(e){
 </script>
 <center>
 <div class="whatis">
-<% if 'ja' == request.env['HTTP_ACCEPT_LANGUAGE'].scan(/^[a-z]{2}/).first %>
+<% lang=request.env['HTTP_ACCEPT_LANGUAGE']%>
+<% if lang&&lang.scan(/[a-z]{2}/).first=='ja' %>
   <div class='description'>
     ScreenX TVを使えばあなたのターミナル画面を生中継できます。<br>
     勉強会の配信、講義、ペアプログラミングなどのシーンでご活用ください。<br>
@@ -133,7 +134,7 @@ function textselect(e){
   </div>
 <% else %>
   <div class='description'>
-    ScreenX TV is the best way to broadcast your terminal in real time.<br>
+    ScreenX TV is the best way to broadcast your terminal to the world.<br>
     Show your live coding for a presentation, hackathon, or remote pair programming.<br>
   </div>
   <div class='howto'>

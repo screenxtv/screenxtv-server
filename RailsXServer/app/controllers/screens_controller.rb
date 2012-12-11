@@ -26,4 +26,22 @@ class ScreensController < ApplicationController
     Screen.notify params
     render nothing:true
   end
+
+  def status
+    info=Screen.where(url:params[:url]).first
+    out=nil
+    case params[:key]
+      when 'title'
+      out=info ? info.title : nil
+      when 'color'
+      out=info ? info.color : nil
+      when 'viewer'
+      out=info ? info.viewer : 0
+      when 'casting'
+      out=info ? info.casting : false
+      when nil
+      out={title:info.title,color:info.color,viewer:info.viewer,casting:info.casting} if info
+    end
+    render json:out
+  end
 end
