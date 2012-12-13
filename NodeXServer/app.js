@@ -15,7 +15,7 @@ function notify(id,data){
     request.post({
 	uri:'http://localhost:'+RAILS_PORT+'/screen_notify/'+id,
 	json:data
-    },function(x,y,z){console.log(id+" recv:"+(x||"")+":"+(y||"")+":"+(z||""))});
+    });
 }
 
 

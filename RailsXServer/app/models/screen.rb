@@ -5,9 +5,15 @@ class Screen < ActiveRecord::Base
     screen=Screen.where(url:params[:url]).first;
     if params[:status]=='terminate'
       screen.destroy if screen
-      return
+      return false
     end
-    screen=Screen.create(url:params[:url]) if !screen
+    if !screen
+      screen=Screen.create(url:params[:url])
+      createdflag=true
+    else
+      createdflag=false
+    end
+
     case params[:status]
     when 'update'
       screen.title=params[:title]
@@ -17,10 +23,12 @@ class Screen < ActiveRecord::Base
       screen.viewer=params[:viewer]
       screen.pausecount=params[:pause]
       screen.save
+      createdflag
     when 'castend'
       screen.casting=false
       screen.viewer=screen.pausecount=0
       screen.save
+      false
     end
   end
   def self.getSorted(limit)
