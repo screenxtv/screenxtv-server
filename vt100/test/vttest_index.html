@@ -1,0 +1,48 @@
+<script>
+var path="vttest.html"
+function Checker(path){
+  var data=null;
+  this.check=function(){
+    var http=new XMLHttpRequest()
+    http.open("GET",path+"?"+Math.random(),false);http.send();
+    var old=data;
+    data=http.responseText
+    return old==data
+  }
+}
+var list=[new Checker(path),new Checker("../vt100.js")]
+
+function check(){
+  var nmod=true;
+  for(var i=0;i<list.length;i++){
+    nmod&=list[i].check()
+  }
+  if(nmod)return;
+  var iframe=document.getElementById("iframe")
+  iframe.src=path+"?"+Math.random()
+}
+var colorstatus=0;
+function notify(msg){
+  colorstatus=msg=='ok'?1:-1;
+  startBGTimer();
+  document.getElementById("status").textContent=msg;
+}
+onload=function(){
+  setInterval(check,1000)
+}
+var bgtimer=null;
+function startBGTimer(){
+  if(bgtimer)return;
+  bgfunc()
+}
+function bgfunc(){
+  colorstatus*=0.95;
+  var col=Math.round(0xff*(1-Math.abs(colorstatus)));
+  document.body.style.background="rgb("+(colorstatus>0?[col,col,0xff]:[0xff,col,col])+")";
+  if(col==0xff)bgtimer=null;
+  else bgtimer=setTimeout(bgfunc,10);
+}
+
+</script>
+<iframe id='iframe' style="width:640px;height:384px;border:none;box-shadow:0 0 5px silver"></iframe>
+<pre id='status'></pre>
