@@ -179,13 +179,14 @@ VT100.prototype.parseEscapeK=function(cmd){esclog("["+cmd);
 			return;
 		}
 		case 'L':{
-			var num=this.escChar?parseInt(this.escChar):1;
-			this.cursorX=0;
-			for(var i=this.scrollEnd;i>=this.cursorY;i--)this.linetmp[i]=this.line[i];
+			var num=parseInt(this.escChar||"1");
+			var linetmp=[];
+			if(this.cursorY<this.scrollStart||this.cursorY>this.scrollEnd)return;
+			for(var i=this.scrollEnd;i>=this.cursorY;i--)linetmp[i]=this.line[i];
 			for(var i=this.scrollEnd;i>=this.cursorY;i--){
 				if(i-num<this.cursorY){
-					(this.line[i]=this.linetmp[i-num+this.scrollEnd-this.cursorY+1]).length=0;
-				}else this.line[i]=this.linetmp[i-num];
+					this.line[i]=new VT100.Line();
+				}else this.line[i]=linetmp[i-num];
 			}
 			return;
 		}
@@ -210,8 +211,10 @@ VT100.prototype.parseEscapeK=function(cmd){esclog("["+cmd);
 			return;
 		}
 		case 'P':{
-			var num=this.escChar?parseInt(this.escChar):1;
 			var ln=this.line[this.cursorY];
+			var num=this.escChar?parseInt(this.escChar):1;
+			if(this.cursorX>=ln.length)return;
+			if(this.cursorX+num>ln.length)num=ln.length-this.cursorX;
 			for(var i=this.cursorX;i<ln.length-num;i++){
 				ln.chars[i]=ln.chars[i+num];
 				ln.fonts[i]=ln.fonts[i+num];

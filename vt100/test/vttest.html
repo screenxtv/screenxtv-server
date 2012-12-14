@@ -143,16 +143,36 @@ var testcase=[
   "\na*a\nbbb\nccc\nddd\n \nf*f\nggg\nhhh"
 ],
 [
+"[nP]",
+"\x1B[2H12345\n12345\n12345\n1234\x1B[2;3H\x1B[P\x1B[3;3H\x1B[10P\x1B[4;5H\x1B[2P\nab\x1B[4Pc",
+"\n1245\n12\n1234\nabc"
+],
+[
   "LR_overflow",
   "\x1B[2Haa\nbb\x1B[2H\x1B[5D*\x1B[82Cabc\x1B[24;79H1234",
   "*a                                                                             a\nbc\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n                                                                              12\n34"
+],
+[
+  "[L normal]",
+  "\x1B[2Habc\ndef\nghi\njkl\nmno\npqr\nstu\nvwx\x1B[3;8r\x1B[5;2H\x1B[2L*",
+  "\nabc\ndef\nghi\n *\n\njkl\nmno\nvwx"
+],
+[
+  "[L over]",
+  "\x1B[2Habc\ndef\nghi\njkl\nmno\npqr\nstu\nvwx\x1B[3;8r\x1B[5;2H\x1B[40L*",
+  "\nabc\ndef\nghi\n *\n\n\n\nvwx"
+],
+[
+  "[L out]",
+  "\x1B[2Habc\ndef\nghi\njkl\nmno\npqr\nstu\nvwx\x1B[3;8r\x1B[2;2H\x1B[40L*\x1B[9;2H\x1B[40L*",
+  "\na*c\ndef\nghi\njkl\nmno\npqr\nstu\nv*x"
 ],
 [
   "emacs",
   "\x1B[?1049h\x1B[?12;25h\x1B[?1h\x1B=\x1B[23;1H\x1B[?25l----:---F1  \x1B[1m*scratch*   \x1B[0m   All L1     (Fundamental)-----------------------------\n\x1B[A\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[?25lLoading subst-ksc...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;21H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;15H\x1B[?25lgb2312...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;24H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;15H\x1B[?25lbig5...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;15H\x1B[?25ljis...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;21H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[H\x1B[2J\x1B[24d\x1B[?25lLoading encoded-kb...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[K\x1B[?1l\x1B>\x1B[?12l\x1B[?25h\x1B[?1049l\x1B[39;49m\n\x1B[?1049h\x1B[?12;25h\x1B[?1h\x1B=\x1B[H\x1B[2J\x1B[24d\x1B[K\x1B[?1l\x1B>\x1B[?12l\x1B[?25h\x1B[?1049l\x1B[39;49m\n\x1B[?1049h\x1B[?12;25h\x1B[?1h\x1B=\x1B[24;1H\x1B[?25lLoading regexp-opt...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25lderived...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;19H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/coffee-mode.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25leasy-mmode...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/coffee-mode.el (source)...done\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lphp-mode.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;61H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lruby-mode/ruby-mode.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;72H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;42H\x1B[?25l/haml-mode.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25ledmacro...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;19H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25lcl-macs...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;19H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/ruby/haml-mode.el (source)...done\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l~/.emacs.d/elisp/ruby/ruby-electric.elc...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;51H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/shell-toggle-patched.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;73H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lauto-complete.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;66H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;51H\x1B[?25l-etags.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;72H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lundo-tree.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;62H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lewb.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;56H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25ladvice...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;18H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[?25lFor information about the GNU Project and its goals, type C-h C-p.\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[?25lFor information about the GNU Project and its goals, type C-h C-p.\x1B[K\x1B[HWelcome to GNU Emacs, a part of the GNU operating system.\x1B[K\n\x1B[K\nType C-l to begin editing.\x1B[K\n\x1B[K\nGet help           C-h  (Hold down CTRL and press h)\x1B[K\nEmacs manual       C-h r\x1B[K\nEmacs tutorial     C-h t           Undo changes     C-x u\x1B[K\nBuy manuals        C-h C-m         Exit Emacs       C-x C-c\x1B[K\nBrowse manuals     C-h i\x1B[K\nActivate menubar   F10  or  ESC `  or   M-`\x1B[K\n(`C-' means use the CTRL key.  `M-' means use the Meta (or Alt) key.\x1B[K\nIf you have no Meta key, you may instead type ESC followed by the character.)\x1B[K\n\x1B[K\nGNU Emacs 22.1.1 (mac-apple-darwin)\x1B[K\n of 2012-01-13 on b1006.apple.com\x1B[K\nCopyright (C) 2007 Free Software Foundation, Inc.\x1B[K\n\x1B[K\nGNU Emacs comes with ABSOLUTELY NO WARRANTY; type C-h C-w for full details.\x1B[K\nEmacs is Free Software--Free as in Freedom--so you can redistribute copies\x1B[K\nof Emacs and modify it; type C-h C-c to see the conditions.\x1B[K\nType C-h C-d for information on getting the latest version.\x1B[K\n\x1B[K\n\x1B[1m\x1B[30m\x1B[48;5;250m---- GNU Emacs -----------------------------------------------------------------\x1B[0m\x1B[39;49m\n\x1B[A\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h",
   "Welcome to GNU Emacs, a part of the GNU operating system.\n\nType C-l to begin editing.\n\nGet help           C-h  (Hold down CTRL and press h)\nEmacs manual       C-h r\nEmacs tutorial     C-h t           Undo changes     C-x u\nBuy manuals        C-h C-m         Exit Emacs       C-x C-c\nBrowse manuals     C-h i\nActivate menubar   F10  or  ESC `  or   M-`\n(`C-' means use the CTRL key.  `M-' means use the Meta (or Alt) key.\nIf you have no Meta key, you may instead type ESC followed by the character.)\n\nGNU Emacs 22.1.1 (mac-apple-darwin)\n of 2012-01-13 on b1006.apple.com\nCopyright (C) 2007 Free Software Foundation, Inc.\n\nGNU Emacs comes with ABSOLUTELY NO WARRANTY; type C-h C-w for full details.\nEmacs is Free Software--Free as in Freedom--so you can redistribute copies\nof Emacs and modify it; type C-h C-c to see the conditions.\nType C-h C-d for information on getting the latest version.\n\n---- GNU Emacs -----------------------------------------------------------------\nFor information about the GNU Project and its goals, type C-h C-p.\n"
 ],
-//nABCD LP left-right-move,overflow,specials
+//STXZ specials
 ];
 
 
