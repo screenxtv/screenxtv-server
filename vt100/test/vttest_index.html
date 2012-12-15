@@ -4,7 +4,7 @@ function Checker(path){
   var data=null;
   this.check=function(){
     var http=new XMLHttpRequest()
-    http.open("GET",path+"?"+Math.random(),false);http.send();
+    http.open("GET",path,false);http.send();
     var old=data;
     data=http.responseText
     return old==data
