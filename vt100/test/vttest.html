@@ -1,0 +1,263 @@
+<script src="../vt100.js"></script>
+<script src="../../RailsXServer/app/assets/javascripts/terminal.js"></script>
+<script>
+function datatest(data,answer){
+  data=data.split("\n").join("\r\n");
+  terminalElement=document.getElementById("terminal");
+  terminal=new Terminal(terminalElement,80,24);
+  for(var i=0;i<data.length;i++)terminal.write(data[i]);
+  terminal.updateView();
+  var s="";
+  var lines=terminal.vt100.line;
+  for(var i=0;i<lines.length;i++){
+    for(var j=0;j<lines[i].length;j++)s+=lines[i].chars[j];
+    s+="\n";
+  }
+  if(answer==undefined)return
+  for(var n=25-answer.split("\n").length;n;n--)answer+="\n";
+  if(answer!=s)throw answer+"\n-----\n"+s
+}
+
+function test(){
+  var err=[];
+  var errcase=null;
+  for(var i=0;i<testcase.length;i++){
+    var item=testcase[i];
+    var name=item[0];
+    try{
+      datatest(item[1],item[2]||"");
+    }catch(e){
+      if(!errcase)errcase=item[1];
+      console.log(e);
+      err.push(item[0]+"\n"+e);
+    }
+  }
+  if(err.length==0)datatest("test passed!");
+  else try{datatest(errcase)}catch(e){}
+  return err;
+}
+onload=function(){
+  try{
+    err=test()
+    if(err.length==0)parent.notify("ok");
+    else parent.notify(err.length+" errors\n\n"+err.join("\n\n"))
+  }catch(e){
+    console.log(e)
+    parent.notify(e);
+  }
+}
+</script>
+<script>
+var testcase=[
+[
+  "insert",
+  "\x1B[4habcdefg\r12345\n",
+  "12345abcdefg"
+],
+[
+  "move_bottom",
+  "\x1B[Ha\x1B[2;2Hb\x1B[25;1Ha",
+  "a\n b\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\na\n"
+],
+[
+  "move_bottom",
+  "\x1B[4h\x1B[Ha\x1B[2;2Hb\x1B[25;1Ha",
+  "a\n b\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\na\n"
+],
+[
+  "normal_down",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[1;24r\x1B[23;1H1\n2\n3",
+  "b\nc\nd\ne\nf\ng\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1\n2\n3\n"
+],
+[
+  "normal_up",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[1;24r\x1B[2;1H1\r\x1B[A2\r\x1B[A3",
+  "3\n1\nc\nd\ne\nf\ng"
+],
+[
+  "[r 2]",
+  "\x1B[2;4r\x1B[32Bb\x1B[32A\ra",
+  "\na\n\nb"
+],
+[
+  "[r 1]",
+  "\x1B[3r\x1B[32Bb\x1B[32A\ra",
+  "\n\na\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb"
+],
+[
+  "[r 9]",
+  "\x1B[2;4r#\x1B[r*\x1B[32B\rb\x1B[32A\ra",
+  "a\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nb"
+],
+[
+  "[r errflip]",
+  "\x1B[2;4r#\x1B[3;5r+\x1B[4;4r*\x1B[32B\rb\x1B[32A\ra",
+  "+*\n\na\n\nb"
+],
+[
+  "[r errover]",
+  "\x1B[2;4r*\x1B[4;30r\x1B[30;31r#\x1B[32B\rb\x1B[32A\ra",
+  "*#\na\n\nb"
+],
+[
+  "[r normal_down]",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[3;6r\x1B[5;1H1\n2\n3",
+  "a\nb\nd\n1\n2\n3\ng"
+],
+[
+  "[r normal_up]",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[3;6r\x1B[4;1H1\r\x1B[A2\r\x1B[A3",
+  "a\nb\n3\n1\ne\nf\ng"
+],
+[
+  "[r bottom_down]",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[3;6r\x1B[23;1H1\n2\n3",
+  "a\nb\nc\nd\ne\nf\ng\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n1\n3\n"
+],
+[
+  "[r bottom_up]",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[3;6r\x1B[7;1H1\r\x1B[A2\r\x1B[A3",
+  "a\nb\nc\nd\n3\n2\n1"
+],
+[
+  "[r top_down]",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[3;6r\x1B[2;1H1\n2\n3",
+  "a\n1\n2\n3\ne\nf\ng"
+],
+[
+  "[r top_up]",
+  "\x1B[1;1Ha\nb\nc\nd\ne\nf\ng\x1B[3;6r\x1B[2;1H1\r\x1B[A2\r\x1B[A3",
+  "3\n1\nc\nd\ne\nf\ng"
+],
+[
+  "[K] [1K] [2K] [0K]",
+  "abcdefg\nabcdefg\nabcdefg\nabcdefg\x1B[1;3H\x1B[K\x1B[2;3H\x1B[1K\x1B[3;3H\x1B[2K\x1B[4;3H\x1B[0K",
+"ab\n   defg\n  \nab"
+],
+[
+  "[J]",
+  "aaaaa\nbbbbb\nccccc\nddddd\neeeee\x1B[3;3H\x1B[J\x1B[2Bx",
+  "aaaaa\nbbbbb\ncc\n\n  x"
+],
+[
+  "[1J]",
+  "aaaaa\nbbbbb\nccccc\nddddd\neeeee\x1B[3;3H\x1B[1J\x1B[2Bx",
+  "\n\n   cc\nddddd\neexee"
+],
+[
+  "[2J]",
+  "aaaaa\nbbbbb\nccccc\nddddd\neeeee\x1B[3;3H\x1B[2J\x1B[2Bx",
+  "\n\n\n\n  x"
+],
+[
+  "[d] [nd]",
+  "\x1B[3;3H#\x1B[8d1\x1B[d2",
+  "    2\n\n  #\n\n\n\n\n   1"
+],
+[
+  "[f] [yf] [y;xf] [H] [yH] [y;xH]",
+  "\x1B[3;5fa\x1B[5fb\x1B[2;2Hc\x1B[fde\x1B[4Hf\x1B[Hg",
+  "ge\n c\n    a\nf\nb"
+],
+[
+  "[nABCD]",
+  "\x1B[5;3H\x1B[A1\x1B[2A2\x1B[B3\x1B[2B4\x1B[C5\x1B[2C66\x1B[D7\x1B[4D8",
+  "\n   2\n    3\n  1\n     4 58 67"
+],
+[
+  "[nAB-with-r over]",
+  "\x1B[2;2Ha\x1B[3;6r0\x1B[4;5H1\x1B[8A2\x1B[10B3\x1B[8;3H\x1B[20A4\x1B[20B5\x1B[9;4H\x1B[20A6\x1B[H\x1B[20B8",
+  "0\n a\n  46 2\n    1\n\n8  5  3"
+],
+[
+  "[nEFGHI",
+  "\x1B[5;3H\x1B[E1\x1B[2;3E2\x1B[F3\x1B[2;3F4\x1B[2;2H\x1B[G5\x1B[3;3G6\x1B[I7\naaa\r\x1B[2;3I8\x1B[Ha",
+  "a\n5 6     7\naaa             8\n\n4\n1\n3\n2"
+],
+[
+  "[nM]",
+  "\x1B[2Haaa\nbbb\nccc\nddd\neee\nfff\nggg\nhhh\x1B[3;6r\x1B[4;2H\x1B[2M*",
+  "\naaa\nbbb\ne*e\nfff\nggg\nhhh"
+],
+[
+  "[nM over]",
+  "\x1B[2Haaa\nbbb\nccc\nddd\neee\nfff\nggg\nhhh\x1B[3;6r\x1B[4;2H\x1B[3M*",
+  "\naaa\nbbb\n *\n\n\nfff\nggg\nhhh"
+],
+[
+  "[nM out]",
+  "\x1B[2Haaa\nbbb\nccc\nddd\neee\nfff\nggg\nhhh\x1B[3;6r\x1B[2;2H\x1B[3M*\x1B[6;2H\x1B[3M\x1B[7;2H\x1B[3M*",
+  "\na*a\nbbb\nccc\nddd\n \nf*f\nggg\nhhh"
+],
+[
+"[nP]",
+"\x1B[2H12345\n12345\n12345\n1234\x1B[2;3H\x1B[P\x1B[3;3H\x1B[10P\x1B[4;5H\x1B[2P\nab\x1B[4Pc",
+"\n1245\n12\n1234\nabc"
+],
+[
+  "LR_overflow",
+  "\x1B[2Haa\nbb\x1B[2H\x1B[5D*\x1B[82Cabc\x1B[24;79H1234",
+  "*a                                                                             a\nbc\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n                                                                              12\n34"
+],
+[
+  "[L normal]",
+  "\x1B[2Habc\ndef\nghi\njkl\nmno\npqr\nstu\nvwx\x1B[3;8r\x1B[5;2H\x1B[2L*",
+  "\nabc\ndef\nghi\n *\n\njkl\nmno\nvwx"
+],
+[
+  "[L over]",
+  "\x1B[2Habc\ndef\nghi\njkl\nmno\npqr\nstu\nvwx\x1B[3;8r\x1B[5;2H\x1B[40L*",
+  "\nabc\ndef\nghi\n *\n\n\n\nvwx"
+],
+[
+  "[L out]",
+  "\x1B[2Habc\ndef\nghi\njkl\nmno\npqr\nstu\nvwx\x1B[3;8r\x1B[2;2H\x1B[40L*\x1B[9;2H\x1B[40L*",
+  "\na*c\ndef\nghi\njkl\nmno\npqr\nstu\nv*x"
+],
+[
+  "[S]",
+  "\x1B[2Ha\nb\nc\nd\ne\nf\ng\nh\x1B[3;8r\x1B[2Sf",
+  "f\na\nd\ne\nf\ng\n\n\nh"
+],
+[
+  "[T]",
+  "\x1B[2Ha\nb\nc\nd\ne\nf\ng\nh\x1B[3;8r\x1B[2Tf",
+  "f\na\n\n\nb\nc\nd\ne\nh"
+],
+[
+  "[X]",
+  "\x1B[2Ha\nb\ncccccc\n123456\neeeeee\nf\ng\nh\x1B[3;8r\x1B[5;4H\x1B[2X\x1B[B\x1B[4X\x1B[B#",
+  "\na\nb\ncccccc\n123  6\neee   \nf  #\ng\nh"
+],
+[
+  "[Z]",
+  "\x1B[2Ha\nb\ncc\ndd\nee\nf\ng\nh\x1B[3;8r\x1B[5;4H\x1B[Z\x1B[B\x1B[4Z\x1B[B#",
+  "\na\nb\ncc\ndd\nee\n#\ng\nh"
+],
+[
+  "[d]",
+  "\x1B[2Haaa\nbbb\nccc\x1B[2;4r\x1B[3d*\x1B[6d#\x1B[40d+",
+  "\naaa\n*bb\nccc\n\n #\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n  +"
+],
+//u(tabstop) specials
+[
+  "^M",
+  "\x1B[H1\n2\n3\n4\n5\n6\n7\n8\x1B[3;6ra\x1BMb\x1B[7H7c\x1BMd\x1BMe\x1BMf\x1BMg\x1BMh",
+  "ab\n2\n      h\n3    g\n4   f\n5  e\n7c\n8"
+],
+[
+  "^D^E",
+  "\x1BH11\n22\n33\n44\n55\n66\n77\x1B[3;5r11\x1B"+"Da\x1B"+"Eb\x1B[5;3H\x1B"+"Dc\x1B[5;3H\x1B"+"Ed\x1B[6H\x1B"+"De\x1B"+"Ef"
+  ,"11\n22a\n55\n  c\nd\n66\ne7\nf"
+],
+[
+  "emacs",
+  "\x1B[?1049h\x1B[?12;25h\x1B[?1h\x1B=\x1B[23;1H\x1B[?25l----:---F1  \x1B[1m*scratch*   \x1B[0m   All L1     (Fundamental)-----------------------------\n\x1B[A\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[?25lLoading subst-ksc...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;21H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;15H\x1B[?25lgb2312...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;24H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;15H\x1B[?25lbig5...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;15H\x1B[?25ljis...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;21H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[H\x1B[2J\x1B[24d\x1B[?25lLoading encoded-kb...\x1B[K\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[K\x1B[?1l\x1B>\x1B[?12l\x1B[?25h\x1B[?1049l\x1B[39;49m\n\x1B[?1049h\x1B[?12;25h\x1B[?1h\x1B=\x1B[H\x1B[2J\x1B[24d\x1B[K\x1B[?1l\x1B>\x1B[?12l\x1B[?25h\x1B[?1049l\x1B[39;49m\n\x1B[?1049h\x1B[?12;25h\x1B[?1h\x1B=\x1B[24;1H\x1B[?25lLoading regexp-opt...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25lderived...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;19H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/coffee-mode.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25leasy-mmode...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;22H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/coffee-mode.el (source)...done\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lphp-mode.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;61H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lruby-mode/ruby-mode.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;72H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;42H\x1B[?25l/haml-mode.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25ledmacro...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;19H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25lcl-macs...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;19H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/ruby/haml-mode.el (source)...done\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l~/.emacs.d/elisp/ruby/ruby-electric.elc...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;51H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25l/Users/tomoya/.emacs.d/elisp/shell-toggle-patched.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;73H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lauto-complete.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;66H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;51H\x1B[?25l-etags.el (source)...\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;72H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lundo-tree.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;62H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;38H\x1B[?25lewb.el (source)...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;56H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;9H\x1B[?25ladvice...\x1B[K\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24;18H\x1B[?25ldone\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[?25lFor information about the GNU Project and its goals, type C-h C-p.\x1B[H\n\x1B[?12l\x1B[?25h\x1B[?12;25h\x1B[24d\x1B[?25lFor information about the GNU Project and its goals, type C-h C-p.\x1B[K\x1B[HWelcome to GNU Emacs, a part of the GNU operating system.\x1B[K\n\x1B[K\nType C-l to begin editing.\x1B[K\n\x1B[K\nGet help           C-h  (Hold down CTRL and press h)\x1B[K\nEmacs manual       C-h r\x1B[K\nEmacs tutorial     C-h t           Undo changes     C-x u\x1B[K\nBuy manuals        C-h C-m         Exit Emacs       C-x C-c\x1B[K\nBrowse manuals     C-h i\x1B[K\nActivate menubar   F10  or  ESC `  or   M-`\x1B[K\n(`C-' means use the CTRL key.  `M-' means use the Meta (or Alt) key.\x1B[K\nIf you have no Meta key, you may instead type ESC followed by the character.)\x1B[K\n\x1B[K\nGNU Emacs 22.1.1 (mac-apple-darwin)\x1B[K\n of 2012-01-13 on b1006.apple.com\x1B[K\nCopyright (C) 2007 Free Software Foundation, Inc.\x1B[K\n\x1B[K\nGNU Emacs comes with ABSOLUTELY NO WARRANTY; type C-h C-w for full details.\x1B[K\nEmacs is Free Software--Free as in Freedom--so you can redistribute copies\x1B[K\nof Emacs and modify it; type C-h C-c to see the conditions.\x1B[K\nType C-h C-d for information on getting the latest version.\x1B[K\n\x1B[K\n\x1B[1m\x1B[30m\x1B[48;5;250m---- GNU Emacs -----------------------------------------------------------------\x1B[0m\x1B[39;49m\n\x1B[A\x1B[H\x1B[?12l\x1B[?25h\x1B[?12;25h",
+  "Welcome to GNU Emacs, a part of the GNU operating system.\n\nType C-l to begin editing.\n\nGet help           C-h  (Hold down CTRL and press h)\nEmacs manual       C-h r\nEmacs tutorial     C-h t           Undo changes     C-x u\nBuy manuals        C-h C-m         Exit Emacs       C-x C-c\nBrowse manuals     C-h i\nActivate menubar   F10  or  ESC `  or   M-`\n(`C-' means use the CTRL key.  `M-' means use the Meta (or Alt) key.\nIf you have no Meta key, you may instead type ESC followed by the character.)\n\nGNU Emacs 22.1.1 (mac-apple-darwin)\n of 2012-01-13 on b1006.apple.com\nCopyright (C) 2007 Free Software Foundation, Inc.\n\nGNU Emacs comes with ABSOLUTELY NO WARRANTY; type C-h C-w for full details.\nEmacs is Free Software--Free as in Freedom--so you can redistribute copies\nof Emacs and modify it; type C-h C-c to see the conditions.\nType C-h C-d for information on getting the latest version.\n\n---- GNU Emacs -----------------------------------------------------------------\nFor information about the GNU Project and its goals, type C-h C-p.\n"
+],
+];
+
+
+</script>
+<body style='background:silver;margin:0;padding:0;'>
+<div id="terminal"></div>
