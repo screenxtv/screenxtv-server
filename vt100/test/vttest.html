@@ -14,7 +14,7 @@ function datatest(data,answer){
     s+="\n";
   }
   if(answer==undefined)return
-  for(var n=25-answer.split("\n").length;n;n--)answer+="\n";
+  for(var n=25-answer.split("\n").length;n>0;n--)answer+="\n";
   if(answer!=s)throw answer+"\n-----\n"+s
 }
 
@@ -53,6 +53,16 @@ var testcase=[
   "insert",
   "\x1B[4habcdefg\r12345\n",
   "12345abcdefg"
+],
+[
+  "insert2",
+  "\x1B[Ha\nb\nc\nd\ne\nf\x1B[2;79H1\x1B[4h234\x1B[5;78H56\x1B[5;3H78\x1B[24;78Habcd",
+  "b                                                                             12\n34c\nd\ne 78                                                                           5\nf\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n                                                                             abc\nd"
+],
+[
+  "insert[r]",
+  "\x1B[Haa\nbb\ncc\ndd\nee\nff\ngg\x1B[3;5r\x1B[1;80H12\x1B[5;80H34\x1B[6;80H56\x1B[24;80H78",
+  "aa                                                                             1\n2b\ndd\nee                                                                             3\n4\nff                                                                             5\n6g\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n8                                                                              7"
 ],
 [
   "move_bottom",
@@ -231,8 +241,8 @@ var testcase=[
 ],
 [
   "[Z]",
-  "\x1B[2Ha\nb\ncc\ndd\nee\nf\ng\nh\x1B[3;8r\x1B[5;4H\x1B[Z\x1B[B\x1B[4Z\x1B[B#",
-  "\na\nb\ncc\ndd\nee\n#\ng\nh"
+  "aaa\x1B[3I12345678\x1B[2Zb\x1B[Zc\x1B[2Zd",
+  "aaa     d       c       12345678"
 ],
 [
   "[d]",

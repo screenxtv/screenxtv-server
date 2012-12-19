@@ -2,28 +2,32 @@ var express = require('express')
 	, http = require('http')
 	, net = require('net')
 	, crypto=require('crypto')
-	, VT100 = require('./vt100/vt100')
+	, VT100 = require('../vt100/vt100')
 	, request = require('request')
 var app = express();
 
-var PORT=8080
-var RAILS_PORT=80;
+var PORT=8800
+var RAILS_PORT=8008;
 var UNIX_PORT=8000;
-
+var RAILS_IP="127.0.0.1"
 function notify(id,data){
-    console.log(new Date()+":"+id)
-    request.post({
-	uri:'http://localhost:'+RAILS_PORT+'/screen_notify/'+id,
-	json:data
-    });
+	request.post({
+		uri:'http://localhost:'+RAILS_PORT+'/screens/notify/'+id,
+		json:data
+	});
+}
+function auth(data,cb){
+	request.post({
+		uri:'http://localhost:'+RAILS_PORT+'/screens/auth',
+		json:data
+	},cb);
 }
 
 
-
 app.configure(function(){
-    RAILS_PORT=process.env.RAILS_PORT||RAILS_PORT;
-    UNIX_PORT=process.env.NODE_UPORT||UNIX_PORT;
-    PORT=process.env.NODE_PORT||PORT;
+	RAILS_PORT=process.env.RAILS_PORT||RAILS_PORT;
+	UNIX_PORT=process.env.NODE_UPORT||UNIX_PORT;
+	PORT=process.env.NODE_PORT||PORT;
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(app.router);
@@ -38,11 +42,13 @@ app.configure('production', function(){
 });
 
 app.get('/:id',function(req,res){
+	if(req.connection.remoteAddress!=RAILS_IP){res.end();return}
 	var channel=ChannelData.channelActiveMap['#'+req.params.id];
     res.end(JSON.stringify(channel&&{info:channel.info,vt100:channel.vt100}));
 });
 
 app.post('/:id',function(req,res){
+	if(req.connection.remoteAddress!=RAILS_IP){res.end();return}
 	var channel=ChannelData.channelActiveMap['#'+req.params.id];
 	if(channel&&req.body.type=='chat')channel.chat({name:req.body.name,message:req.body.message});
 	res.end();
@@ -291,6 +297,6 @@ net.createServer(function(usocket){
 });
 
 process.on('uncaughtException',function(err){
-    console.log('Caught exception:',err);
+	console.log('Caught exception:',err);
 });
 

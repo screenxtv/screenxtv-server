@@ -25,7 +25,14 @@ class ScreensController < ApplicationController
   def notify
     created=Screen.notify params
     if created && params[:title]!="Anonymous Sandbox"
-      spawn ENV[:TWITNEWS_PATH],params[:title],params[:url]
+      Thread.new{
+        title=params[:title]
+        title_max=40
+        title=title[0,title_max-3]+"..." if title.length>title_max
+        url="http://example.com/#{params[:url]}"
+        tweet="'#{title}' started broadcasting! Check this out #{url}"
+        print "NEWS_TWIT #{tweet}"#news_twitter.update tweet
+      }
     end
     render nothing:true
   end

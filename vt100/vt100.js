@@ -7,7 +7,6 @@ function VT100(){
 	this.W=arguments[0];
 	this.H=arguments[1];
 	this.reset();
-	window.vt100=this;/*TEST*/
 }
 VT100.prototype.reset=function(){
 	this.line=[];
@@ -109,6 +108,7 @@ VT100.prototype.parseEscapeL=function(c){/**/esclog("^("+c);/**/}
 VT100.prototype.parseEscapeR=function(c){/**/esclog("^)"+c);/**/}
 VT100.prototype.parseEscape=function(c){
 	/**/esclog("^"+c);/**/
+	//H78g [s] [u] [03g]
 	switch(c){
 		case 'D':this.scrollCursor(this.cursorX,this.cursorY+1);break;
 		case 'E':this.scrollCursor(0,this.cursorY+1);break;
@@ -281,7 +281,8 @@ VT100.prototype.parseEscapeK=function(cmd){
 			return;
 		}
 		case 'Z':{
-			this.cursorX=0;
+			var n=this.escChar?parseInt(this.escChar):1;
+			this.moveCursor(Math.ceil(this.cursorX/8-n)*8,this.cursorY);return;
 			return;
 		}
 		case 'd':{
@@ -352,6 +353,7 @@ VT100.prototype.put=function(c){
 		ln.fonts[this.cursorX]=this.font;
 		ln.length++;
 		this.cursorX++;
+		if(this.W<ln.length)ln.length=this.W;
 	}else{
 		ln.chars[this.cursorX]=c;
 		ln.fonts[this.cursorX]=this.font;

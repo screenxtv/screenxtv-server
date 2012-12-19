@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <title>date - ScreenX TV</title>
+  <meta content="http://screenx.tv/" property="og:url"/>
+  <link rel="canonical" href="http://screenx.tv/"/>
+
+  <script>csrf_token="q9twxM/NI1boJCT9e26QT4Mv+7aVGcIFBGqGd6z8L8w="</script>
+</head>
+<body>
+
+
+<style>
+body{margin:0;padding:0;padding-top:50px;overflow-x:hidden;}
+.header{
+	position:fixed;
+	left:0;top:0;width:100%;height:50px;
+	background:#eee;
+	background:-webkit-linear-gradient(top,#ddd,#fff);
+	background:-moz-linear-gradient(top,#ddd,#fff);
+	box-shadow:0 5px 5px rgba(0,0,0,0.2);
+	z-index:65536;
+}
+div.social{
+	position:absolute;right:120px;top:2px;
+}
+div.twitterbutton{position:relative;top:3px;}
+
+
+.login_text img{position:absolute;width:32px;height:32px;bottom:0px;left:0px;border-radius:4px;}
+.login_text{position:absolute;right:8px;bottom:8px;font-size:20px;text-align:left;vertical-align:bottom;padding-left:40px;}
+.login_text a{color:black;text-decoration:none;font-family:Osaka,Sans-Serif;}
+#header_title{
+	margin-left:160px;
+	margin-right:250px;
+	height:50px;
+	text-align:center;
+	font-size:32px;
+	overflow:hidden;
+}
+</style>
+<div class="header">
+  <div id='header_title'></div>
+  <nobr class='login_text'>
+      <a href='/index/login'>
+	Sign in
+      </a>
+  </nobr>
+</div>
+
+<script src="http://screenx.tv/assets/screen-4b91e2d10a61b952a59f0da37241e96d.js" type="text/javascript"></script>
+<script src="../vt100.js"></script>
+<script>
+channelID="tompng"
+host="screenx.tv"
+port=8800
+var terminalview;
+$(function(){
+	if(!channelID)return;
+	terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true);
+	window.onresize=function(){
+		var w=innerWidth-300;
+		var h=innerHeight-50;
+		if(w<300){
+			w=innerWidth;
+			$("#chatmain").css("display","none")
+		}else{
+			$("#chatmain").css({display:"block",height:h})
+			$("#chatlist").css({height:h-80})
+			$("#chatlist").scrollTop(65536);
+		}
+		$("#terminalmain").css({width:w,height:h});
+		terminalview.resize(w,h);
+	}
+	terminalview.onChatArrive=function(data){
+		try{addChat(JSON.parse(data.name),data.message);}catch(e){console.log(data)}
+	}
+	terminalview.onInit=function(data){
+		title=data.info?data.info.title:""
+		$("#header_title").text(title);
+		document.title=(title?title+" - ":"")+"ScreenX TV";
+		if(data.casting)terminalview.onCastStart();
+		else terminalview.onCastEnd();
+		terminalview.onViewerChange(data.viewer);
+	}
+	terminalview.onCastStart=function(data){
+		$("#terminalstatus").css({color:'black'})
+	}
+	terminalview.onCastEnd=function(){
+		$("#terminalstatus").css({color:'silver'})
+	}
+	terminalview.onViewerChange=function(n){
+		$("#terminalstatus").text("viewer: "+n);
+	}
+	terminalview.onClose=function(){
+		$("#terminalstatus").text("disconnected");	
+	}
+	window.onresize();
+})
+function post(){
+	var message=$("#message").val();
+	$("#message").val("")
+	if(!message.trim())return;
+	var twit=$("#twitpost")[0];
+	var data={
+		authenticity_token:csrf_token,
+		message:message
+	}
+	terminalview.post(message,twit&&twit.checked);
+}
+function addChat(name,message){
+	var div=$("<div class='chat'><img><div/></div>");
+	var imgsrc=name&&name.profile_image;
+	if(!imgsrc)imgsrc="/assets/anonymous.png"
+	div.children().first().attr("src",imgsrc);
+	div.children().last().text(message);
+	var chatlist=$("#chatlist");
+	if(chatlist.children().length>256)chatlist.children().first().remove();
+	chatlist.append(div);
+	chatlist.scrollTop(65536);
+}
+</script>
+<style>
+div.chat{position:relative;border-radius:5px;margin:5px;padding:5px;box-shadow:0 0 8px rgba(0,0,0,0.2);min-height:30px;}
+div.chat img{position:absolute;width:24px;height:24px;left:5px;top:5px;border-radius:4px;}
+div.chat div{margin-left:30px;overflow-x:hidden;}
+#message{
+	border-radius:8px;
+	border:1px solid silver;
+	outline:none;
+	position:absolute;left:10px;top:5px;width:276px;height:40px;
+	font-size:16px;
+}
+#message:focus{box-shadow:0 0 8px blue;}
+#twitcheckbox{position:absolute;left:10px;bottom:2px;font-size:16px;}
+#terminalstatus{
+	position:absolute;right:5px;bottom:2px;font-size:16px;
+	text-align:right;
+}
+</style>
+<div id="terminalmain" style='position:fixed;left:0;top:50;'>
+	<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
+</div>
+<div id='chatmain' style='position:fixed;right:0;top:50;width:300px;box-shadow:0 0 16px black;overflow:hidden;'>
+	<div id='chatlist' style='margin:5px;overflow:auto'></div>
+	<div id='chatform' style='box-shadow:0 0 5px rgba(0,0,0,0.2);position:absolute;left:0;bottom:0;width:300px;height:75px;'>
+		<form onsubmit="try{post()}catch(e){}return false">
+			<input id='message' style='' autocomplete='off'>
+			<div id='terminalstatus'></div>
+		</form>
+	</div>
+</div>
+
+
+
+
+

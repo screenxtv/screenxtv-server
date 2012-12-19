@@ -5,10 +5,12 @@ RailsXServer::Application.routes.draw do
   match 'embed/:url', to:'index#embed'
   match 'doc/howto',to:'index#howto',as:'doc_howto'
   match 'screen_notify/:url', to:'screens#notify'
+  match 'screens/notify/:url', to:'screens#notify'
   match 'post/:url', to:'screens#post',as:'post'
   match 'screens/post/:url', to:'screens#post'
   match 'screens/status/:url(/:key)',to:'screens#status'
-  match ':controller(/:action(/:id))(.:format)'
+  match 'screens/auth',to:'screens#auth'
+  #match ':controller(/:action(/:id))(.:format)'
   match ':url', to:'index#screen'
   # The priority is based upon order of creation:
   # first created -> highest priority.
