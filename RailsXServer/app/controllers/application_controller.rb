@@ -8,8 +8,14 @@ class ApplicationController < ActionController::Base
     OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://twitter.com"})
   end
   def authorized?
-    session[:oauth_token]
+    #session[:oauth_token]
+    !session[:user_id].nil?
   end
+  def current_user
+    uid=session[:user_id]
+    User.where(user_id:uid).first if uid
+  end
+
   Twitter.configure do |config|
     config.consumer_key=CONSUMER_KEY
     config.consumer_secret=CONSUMER_SECRET
