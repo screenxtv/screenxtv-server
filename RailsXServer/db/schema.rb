@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121125102030) do
+ActiveRecord::Schema.define(:version => 20121219074153) do
 
   create_table "screens", :force => true do |t|
     t.string   "url"
@@ -26,5 +26,18 @@ ActiveRecord::Schema.define(:version => 20121125102030) do
   end
 
   add_index "screens", ["url"], :name => "by_url", :unique => true
+
+  create_table "users", :force => true do |t|
+    t.string   "name"
+    t.text     "email"
+    t.string   "password_digest"
+    t.string   "auth_key"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "users", ["auth_key"], :name => "by_auth", :unique => true
+  add_index "users", ["email"], :name => "by_email", :unique => true
+  add_index "users", ["name"], :name => "by_name", :unique => true
 
 end

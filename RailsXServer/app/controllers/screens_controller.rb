@@ -1,6 +1,6 @@
 class ScreensController < ApplicationController
-  before_filter :localfilter, only:[:notify]
-  protect_from_forgery :except=>[:notify]
+  before_filter :localfilter, only:[:notify,:authenticate]
+  protect_from_forgery :except=>[:notify,:authenticate]
   NODE_IP="127.0.0.1"
   NODE_PORT=ENV['NODE_PORT']
   def localfilter
@@ -9,7 +9,8 @@ class ScreensController < ApplicationController
 
   def HTTPPost(host,port,path,hash)
     query=hash.map{|x|x.map{|y|URI.encode(y.to_s).gsub("+","%2B")}.join("=")}.join("&")
-    Net::HTTP.new(host,port).post(path,query).body
+    Net::HTTP.new(host,port).post(path,query)
+
   end
 
   def post
@@ -20,6 +21,32 @@ class ScreensController < ApplicationController
       end
     }
     render nothing:true
+  end
+
+  def authenticate
+    user=User.where(name:params[:url]).first
+    if params[:password]
+      if !user
+        render json:{cast:false,error:'wrong user'}
+      elsif user.check_password params[:password]
+        render json:{cast:true,auth_key:user.auth_key}
+      else
+        render json:{cast:false,error:'wrong password'}
+      end
+    end
+    if !user
+      render json:{cast:true}
+      return
+    end
+    if params[:auth_key]
+      if user.auth_key==params[:auth_key]
+        render json:{cast:true}
+      else
+        render json:{cast:false,error:"wrong auth_key"}
+      end
+    else
+      render json:{cast:false,error:"already in use"}
+    end
   end
 
   def notify

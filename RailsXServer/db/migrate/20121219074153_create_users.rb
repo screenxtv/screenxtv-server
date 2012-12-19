@@ -7,7 +7,8 @@ class CreateUsers < ActiveRecord::Migration
       t.string :auth_key
       t.timestamps
     end
-    add_index :screens,:name,name:'by_name',unique:true
-    add_index :screens,:email,name:'by_email',unique:true
+    add_index :users,:name,name:'by_name',unique:true
+    add_index :users,:email,name:'by_email',unique:true
+    add_index :users,:auth_key,name:'by_auth',unique:true
   end
 end

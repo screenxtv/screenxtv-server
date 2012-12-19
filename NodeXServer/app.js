@@ -16,9 +16,9 @@ function notify(id,data){
 		json:data
 	});
 }
-function auth(data,cb){
+function auth(id,data,cb){
 	request.post({
-		uri:'http://localhost:'+RAILS_PORT+'/screens/auth',
+		uri:'http://localhost:'+RAILS_PORT+'/screens/authenticate/'+id,
 		json:data
 	},cb);
 }
@@ -270,25 +270,50 @@ net.createServer(function(usocket){
 		}catch(e){console.log(e);}
 	}
 	function oninit(data){
+		if(data.user&&data.password){
+			auth(data.user,{user:data.user,password:data.password},function(err,result,data){
+				if(data&&data.auth_key)iosocket.emit('auth',data.auth_key)
+				else iosocket.emit('error',data?data.error:'unknown');
+			});
+			return;
+		}
 		var kv=(data.slug||"").split('#');
 		var info=data.info||{};
-		if(!kv[0].match("^[a-zA-Z0-9_]*$")){
+		var url=kv[0],castkey=data.auth_key||kv[1];
+		if(!url.match("^[a-zA-Z0-9_]*$")){
 			iosocket.emit('errtype','url');
 			iosocket.emit('error','invalid url');
 			iosocket.disconnect();
 			return;
 		}
-		if(!kv[0])kv[0]=ChannelData.genUniqID(info.private?8:2);
-		if(!kv[1])kv[1]=genRandomID(8);
-		channel=ChannelData.getChannelData(kv[0]);
-		try{
-			channel.castStart(iosocket,kv[1],data.width,data.height,info);
-		}catch(e){
-			console.log(e);
-			iosocket.emit('error',e);
-			iosocket.disconnect();
-			return;
+		var randsize=4,anonymousflag=false;
+		if(!url){
+			anonymousflag=true;
+			url=getUniqID(randsize++);
 		}
+		if(!castkey)castkey=genRandomID(8);
+
+		function cb(err,result,data){
+			if(!data||!data.cast){
+				if(anonymousflag){
+					auth(getUniqID(randsize++),{},cb);
+				}else{
+					iosocket.emit('error',data?data.error:'unknown')
+					iosocket.disconnect();
+				}
+			}else{
+				try{
+					channel=ChannelData.getChannelData(url);
+					channel.castStart(iosocket,castkey,data.width,data.height,info);
+				}catch(e){
+					console.log(e);
+					iosocket.emit('error',e);
+					iosocket.disconnect();
+					return;
+				}
+			}
+		}
+		auth(url,{auth_key:data.auth_key},cb);
 	}
 	usocket.on('error',function(){if(channel)channel.castEnd(iosocket);channel=null;});
 	usocket.on('close',function(){if(channel)channel.castEnd(iosocket);channel=null;});
@@ -296,7 +321,7 @@ net.createServer(function(usocket){
 	console.log("NodeX listening on port "+UNIX_PORT)
 });
 
-process.on('uncaughtException',function(err){
-	console.log('Caught exception:',err);
-});
+//process.on('uncaughtException',function(err){
+//	console.log('Caught exception:',err);
+//});
 

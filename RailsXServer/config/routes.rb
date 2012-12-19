@@ -6,10 +6,19 @@ RailsXServer::Application.routes.draw do
   match 'doc/howto',to:'index#howto',as:'doc_howto'
   match 'screen_notify/:url', to:'screens#notify'
   match 'screens/notify/:url', to:'screens#notify'
+  match 'screens/authenticate/:url',to:'screens#authenticate'
   match 'post/:url', to:'screens#post',as:'post'
   match 'screens/post/:url', to:'screens#post'
   match 'screens/status/:url(/:key)',to:'screens#status'
   match 'screens/auth',to:'screens#auth'
+
+  match 'user/login',to:'user#login'
+  match 'user/logout',to:'user#logout',via:'delete'
+  match 'user/new',to:'user#new'
+  match 'user/create',to:'user#create'
+  match 'user/index',to:'user#index'
+
+
   #match ':controller(/:action(/:id))(.:format)'
   match ':url', to:'index#screen'
   # The priority is based upon order of creation:
