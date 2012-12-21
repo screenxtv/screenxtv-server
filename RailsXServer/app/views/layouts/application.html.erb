@@ -6,9 +6,9 @@
   <meta content="http://screenx.tv/" property="og:url"/>
   <link rel="canonical" href="http://screenx.tv/"/>
   <% #stylesheet_link_tag    "application", :media => "all" %>
-  <% #javascript_include_tag "application" %>
-  <% #csrf_meta_tags %>
-  <%= render partial:'/analytics' %>
+  <%= javascript_include_tag "application" %>
+  <%= csrf_meta_tags %>
+  <%#= render partial:'/analytics' %>
   <script>csrf_token="<%= form_authenticity_token %>"</script>
 </head>
 <body>
@@ -54,13 +54,16 @@ div.twitterbutton{position:relative;top:3px;}
     <div class="fb-like" data-href="http://screenx.tv/" data-send="false" data-width="70" data-show-faces="false" data-layout="button_count"></div> 
   </div>
   <nobr class='login_text'>
-    <%if session[:user] %>
-      <img src='<%=session[:user][:profile_image]%>'>
-      <a href='/index/logout'>Sign out</a>
+    <%if user_signed_in? %>
+      <div style='font-size:0.6em'>
+      <%= link_to current_user.name,{controller:'user',action:'index'} %>
+      </div>
+      <div style='font-size:0.6em'>
+      <%= link_to 'Sign out',{controller:'user',action:'signout'},method:'delete' %>
+      </div>
     <% else %>
-      <a href='/index/login'>
-	<img src='/assets/twitlogin.png'>
-	Sign in
+      <a href='/user/signin'>
+      	Sign in
       </a>
     <% end %>
   </nobr>

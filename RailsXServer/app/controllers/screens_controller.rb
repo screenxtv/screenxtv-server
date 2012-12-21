@@ -16,7 +16,7 @@ class ScreensController < ApplicationController
   def post
     Thread.new{
       HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],{type:'chat',name:session[:user].to_json,message:params[:message]})
-      if(authorized? && params[:twitter]=='true')
+      if(user_signed_in? && params[:twitter]=='true')
         twitter.update params[:message]+" http://screenx.tv/"+params[:url]
       end
     }
@@ -24,28 +24,26 @@ class ScreensController < ApplicationController
   end
 
   def authenticate
-    user=User.where(name:params[:url]).first
     if params[:password]
-      if !user
-        render json:{cast:false,error:'wrong user'}
-      elsif user.check_password params[:password]
-        render json:{cast:true,auth_key:user.auth_key}
+      user=User.where(name:params[:name]).first
+      if user && user.check_password(params[:password])
+        render json:{auth_key:user.auth_key}
       else
-        render json:{cast:false,error:'wrong password'}
+        render json:{error:'wrong user or password'}
       end
-    end
-    if !user
-      render json:{cast:true}
       return
     end
-    if params[:auth_key]
-      if user.auth_key==params[:auth_key]
-        render json:{cast:true}
+    screen=Screen.where(url:params[:url]).first
+    if screen.nil? || screen.user.nil?
+      render json:{cast:true}
+    elsif params[:auth_key]&&screen.user.name==params[:name]
+      if screen.user.auth_key==params[:auth_key]
+        render json:{cast:true,info:screen.info}
       else
         render json:{cast:false,error:"wrong auth_key"}
       end
     else
-      render json:{cast:false,error:"already in use"}
+      render json:{cast:false,error:"url reserved"}
     end
   end
 

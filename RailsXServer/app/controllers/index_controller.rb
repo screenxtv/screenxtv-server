@@ -14,7 +14,7 @@ class IndexController < ApplicationController
 
   def screen
     @title=params[:url]
-    render locals:{url:params[:url],user:(authorized? ? session[:user] : nil)}
+    render locals:{url:params[:url],user:(user_signed_in? ? session[:user] : nil)}
   end
 
   # def logout
@@ -24,7 +24,7 @@ class IndexController < ApplicationController
   # end
 
   # def login
-  #   if authorized?
+  #   if user_signed_in?
   #     redirect_to :action=>:index
   #   else
   #     request_token=consumer.get_request_token(oauth_callback:"http://#{request.host_with_port+CALLBACK_PATH}")
@@ -33,7 +33,7 @@ class IndexController < ApplicationController
   #   end
   # end
   # def oauth_callback
-  #   if !authorized?
+  #   if !user_signed_in?
   #     reqtoken=session[:request_token]
   #     request_token=OAuth::RequestToken.new(consumer,reqtoken[:token],reqtoken[:secret])
   #     access_token=request_token.get_access_token({},oauth_token:params[:oauth_token],oauth_verifier:params[:oauth_verifier])

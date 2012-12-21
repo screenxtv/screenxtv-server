@@ -1,6 +1,16 @@
 class Screen < ActiveRecord::Base
   attr_accessible :url
-
+  belongs_to :user
+  STATE_CASTING=2
+  STATE_PAUSED=1
+  STATE_NONE=0
+  def info
+    {
+      total_viewer:total_viewer||0,
+      max_viewer:total_viewer||0,
+      total_time:total_viewer||0
+    }
+  end
   def self.notify(params)
     screen=Screen.where(url:params[:url]).first;
     if params[:status]=='terminate'
@@ -14,28 +24,51 @@ class Screen < ActiveRecord::Base
       createdflag=false
     end
 
-    case params[:status]
-    when 'update'
-      screen.title=params[:title]
-      screen.color=params[:color]
-      screen.vt100=params[:vt100]
-      screen.casting=true
-      screen.viewer=params[:viewer]
-      screen.pausecount=params[:pause]
-      screen.save
-      createdflag
-    when 'castend'
-      screen.casting=false
-      screen.viewer=screen.pausecount=0
-      screen.save
-      false
+    screen.total_viewer=params[:total_viewer]
+    screen.max_viewer=params[:max_viewer]
+    screen.total_time=params[:total_time]
+
+    screen.current_time=params[:current_time]
+    screen.current_viewer=params[:current_viewer]
+    screen.current_max_viewer=params[:current_max_viewer]
+    screen.current_total_viewer=params[:current_total_viewer]
+    screen.pause_count=params[:pause_count]
+    screen.last_cast=Time.now
+    screen.title=params[:title]
+    screen.color=params[:color]
+    screen.vt100=params[:vt100]
+    screen.last_cast=Time.now
+    if params[:status]=='update'
+      screen.state=STATE_CASTING 
+    elsif params[:status]=='castend'
+      screen.state=STATE_PAUSED
+      createflag=false
+    end
+    screen.save
+    createdflag
+  end
+  def terminate
+    state=STATE_NONE
+    title=color=vt100=nil
+    if user
+      save
+    else
+      destroy
     end
   end
   def self.getSorted(limit)
-    Screen.delete_all(["updated_at <= ?",10.minute.ago])
+    terminate_range=0x10000.days.ago..10.minutes.ago
+    Screen.where(state:STATE_PAUSED,updated_at:terminate_range).each{|screen|
+      screen.terminate
+    }
+
     screens=Arel::Table.new :screens
-    arrcasting=Screen.where(casting:true).order(screens[:pausecount],screens[:viewer].desc).limit(limit);
-    arrcasted=Screen.where(casting:false).limit(limit-arrcasting.count);
+    arrcasting=Screen.where(state:STATE_CASTING).order(screens[:pause_count],screens[:current_viewer].desc).limit(limit);
+    if arrcasting.count<limit
+      arrcasted=Screen.where(state:STATE_PAUSED).limit(limit-arrcasting.count)
+    else
+      arrcasted=[]
+    end
     arrcasting+arrcasted
   end
   def to_json

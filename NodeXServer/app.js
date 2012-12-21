@@ -79,6 +79,10 @@ io.sockets.on('connection',function(socket){
 function ChannelData(id){
 	this.channelID=id;
 	this.viewerCount=0;
+	this.totalViewer=0;
+	this.maxViewer=0;
+	this.totalTime=0;
+	this.castInfo=null;
 	this.castSocket=null;
 	this.castPassword=null;
 	this.endTimer=null;
@@ -106,6 +110,11 @@ ChannelData.prototype.getAdminData=function(){
 ChannelData.prototype.join=function(socket){
 	socket.join(this.channelID);
 	this.viewerCount++;
+	this.totalViewer++;
+	this.maxViewer=Math.max(this.maxViewer,this.viewerCount);
+	this.castInfo.total_viewer++;
+	this.castInfo.max_viewer=Math.max(this.castInfo.max_viewer,this.viewerCount);
+	this.castInfo.total_viewer++;
 	socket.emit('init',this.getInitData());
 	this.broadcast('viewer',this.viewerCount,socket)
 }
@@ -142,19 +151,33 @@ ChannelData.removeChannelData=function(channel){
 		delete ChannelData.channelMap['#'+channel.channelID];
 }
 ChannelData.prototype.notify=function(data){notify(this.channelID,this.private?{status:'private'}:data)}
+ChannelData.prototype.createNotifyData=function(status){
+	var time=Math.round((new Date()-this.startTime)/1000);
+	return {
+		status:status,
+		total_viewer:this.castInfo.total_viewer,
+		max_viewer:this.castInfo.max_viewer,
+		total_time:this.castInfo.total_time+time,
+
+		vt100:JSON.stringify(this.vt100.getSubData(40,12)),
+		title:this.info.title,
+		color:this.info.color,
+		current_viewer:this.viewerCount,
+		current_max_viewer:this.maxViewer,
+		current_total_viewer:this.totalViewer,
+		current_time:this.totalTime+time,
+		pause_count:this.pauseCount
+	};
+}
 ChannelData.prototype.notifyStatus=function(){
 	if(this.notifyTimer)clearTimeout(this.notifyTimer);
 	var info=this.info||{};
 	if(this.private)this.notify();
 	else{
-		this.notify({
-			status:'update',
-			vt100:JSON.stringify(this.vt100.getSubData(40,12)),
-			title:info.title,
-			color:info.color,
-			viewer:this.viewerCount,
-			pause:this.pauseCount
-		})
+		var data=this.createNotifyData();
+		data.vt100=JSON.stringify(this.vt100.getSubData(40,12));
+
+		this.notify(this.createNotifyData('update'))
 	}
 	this.pauseCount++;
 	var channel=this;
@@ -167,13 +190,15 @@ ChannelData.prototype.chat=function(data){
 	if(this.chatlist.length>256)this.chatlist.shift();
 	this.broadcast('chat',data);
 }
-ChannelData.prototype.castStart=function(socket,pswd,w,h,info){
+ChannelData.prototype.castStart=function(socket,pswd,w,h,info,castInfo){
 	if(this.castPassword){
 		if(this.castPassword!=pswd||this.private!=info.private)throw 'url already in use';
 	}
 	if(this.castSocket)this.castSocket.disconnect();
 	if(this.chatlist==null)this.chatlist=[];
 	this.info=info;
+	if(!this.castInfo)this.castInfo=castInfo||{total_viewer:0,max_viewer:0,total_time:0};
+	if(!this.startTime)this.startTime=new Date();
 	//this.private=info.private;
 	this.castPassword=pswd;
 	this.castSocket=socket;
@@ -200,9 +225,13 @@ ChannelData.prototype.castData=function(socket,data){
 ChannelData.prototype.castEnd=function(socket){
 	if(this.castSocket!=socket)return;
 	clearTimeout(this.notifyTimer);this.notifyTimer=null;
-	this.notify({status:'castend'})
+	this.notify(this.createNotifyData('castend'))
 	this.broadcast('castEnd','castend',socket);
+	var time=Math.round((new Date()-this.startTime)/1000);
 	this.castSocket=null;
+	this.startTime=null;
+	this.totalTime+=time;
+	this.castInfo.totalTime+=time;
 	var channel=this;
 	this.endTimer=setTimeout(function(){channel.ended()},10*60*1000);
 }
@@ -273,12 +302,13 @@ net.createServer(function(usocket){
 		if(data.user&&data.password){
 			auth(data.user,{user:data.user,password:data.password},function(err,result,data){
 				if(data&&data.auth_key)iosocket.emit('auth',data.auth_key)
-				else iosocket.emit('error',data?data.error:'unknown');
+				else iosocket.emit('error',data?data.error||data:'unknown');
 			});
 			return;
 		}
 		var kv=(data.slug||"").split('#');
 		var info=data.info||{};
+		var width=data.width,height=data.height;
 		var url=kv[0],castkey=data.auth_key||kv[1];
 		if(!url.match("^[a-zA-Z0-9_]*$")){
 			iosocket.emit('errtype','url');
@@ -289,31 +319,30 @@ net.createServer(function(usocket){
 		var randsize=4,anonymousflag=false;
 		if(!url){
 			anonymousflag=true;
-			url=getUniqID(randsize++);
+			url=ChannelData.genUniqID(randsize++);
 		}
-		if(!castkey)castkey=genRandomID(8);
+		if(!castkey)castkey=genRandomID(16);
 
 		function cb(err,result,data){
 			if(!data||!data.cast){
 				if(anonymousflag){
-					auth(getUniqID(randsize++),{},cb);
+					auth(ChannelData.genUniqID(randsize<8?randsize++:8),{},cb);
 				}else{
-					iosocket.emit('error',data?data.error:'unknown')
+					iosocket.emit('error',data&&data.error?data.error:'unknown')
 					iosocket.disconnect();
 				}
 			}else{
 				try{
 					channel=ChannelData.getChannelData(url);
-					channel.castStart(iosocket,castkey,data.width,data.height,info);
+					channel.castStart(iosocket,castkey,width,height,info,data.info);
 				}catch(e){
-					console.log(e);
+					console.log('cb',e);
 					iosocket.emit('error',e);
 					iosocket.disconnect();
-					return;
 				}
 			}
 		}
-		auth(url,{auth_key:data.auth_key},cb);
+		auth(url,{user:data.user,auth_key:data.auth_key},cb);
 	}
 	usocket.on('error',function(){if(channel)channel.castEnd(iosocket);channel=null;});
 	usocket.on('close',function(){if(channel)channel.castEnd(iosocket);channel=null;});

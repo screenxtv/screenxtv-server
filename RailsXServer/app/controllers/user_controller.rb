@@ -1,12 +1,20 @@
 class UserController < ApplicationController
-  def login
-    user=User.authenticate
-    session[:user_id]=user.id
-    redirect_to :index
+  def signin
+    user=User.authenticate params[:username],params[:password]
+    if user
+      session[:user_id]=user.id if user
+      redirect_to action:'index'
+    else
+      @signin_error=true
+      render 'signin'
+    end
   end
 
-  def logout
+
+
+  def signout
     session.delete :user_id
+    redirect_to action:'index'
   end
 
   def new
@@ -14,10 +22,13 @@ class UserController < ApplicationController
   end
 
   def create
-    if User.create_account(params)
-      redirect_to :index
+    user=User.create_account(params)
+    if user
+      session[:user_id]=user.id
+      redirect_to action:'index'
     else
-      render text:'error'
+      @create_error=true
+      render 'signin'
     end
   end
 
@@ -26,7 +37,7 @@ class UserController < ApplicationController
     if @user
       render 'index'
     else
-      render 'login'
+      render 'signin'
     end
   end
 end

@@ -12,8 +12,8 @@ RailsXServer::Application.routes.draw do
   match 'screens/status/:url(/:key)',to:'screens#status'
   match 'screens/auth',to:'screens#auth'
 
-  match 'user/login',to:'user#login'
-  match 'user/logout',to:'user#logout',via:'delete'
+  match 'user/signin',to:'user#signin'
+  match 'user/signout',to:'user#signout',via:'delete'
   match 'user/new',to:'user#new'
   match 'user/create',to:'user#create'
   match 'user/index',to:'user#index'
