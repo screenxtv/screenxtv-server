@@ -28,6 +28,6 @@ class ApplicationController < ActionController::Base
     Twitter::Client.new session[:oauth_token]
   end
   def news_twitter
-      Twitter::Client.new NEWS_TOKEN
+    Twitter::Client.new NEWS_TOKEN
   end
 end

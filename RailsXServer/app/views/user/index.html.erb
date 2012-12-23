@@ -1,5 +1,14 @@
 
 
-
-hogehoge
 <%= link_to 'Sign out',{controller:'user',action:'signout'},method:'delete' %>
+
+<%= current_user.screens.count %>
+<% current_user.screens.each do |screen| %>
+
+<div><%= screen.url %></div>
+<div><%= screen.total_viewer %></div>
+<div><%= screen.max_viewer %></div>
+<div><%= screen.total_time %></div>
+<div><%= screen.casting? %></div>
+
+<% end %>

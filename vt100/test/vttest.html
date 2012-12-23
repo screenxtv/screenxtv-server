@@ -187,7 +187,12 @@ var testcase=[
 [
   "[nM]",
   "\x1B[2Haaa\nbbb\nccc\nddd\neee\nfff\nggg\nhhh\x1B[3;6r\x1B[4;2H\x1B[2M*",
-  "\naaa\nbbb\ne*e\nfff\nggg\nhhh"
+  "\naaa\nbbb\ne*e\n\n\nfff\nggg\nhhh"
+],
+[
+  "[nM under]",
+  "\x1B[2Haaa\nbbb\nccc\nddd\neee\nfff\nggg\nhhh\x1B[3;6r\x1B[2;2H\x1B[2M*",
+  "\na*a\nbbb\nccc\nddd\neee\nfff\nggg\nhhh"
 ],
 [
   "[nM over]",

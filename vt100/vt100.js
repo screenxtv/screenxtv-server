@@ -237,8 +237,8 @@ VT100.prototype.parseEscapeK=function(cmd){
 					ln.length++;
 				}
 			}else{
-				for(var y=this.cursorY;y<this.H;y++){
-					this.line[y]=this.line[y+n]||new VT100.Line();
+				for(var y=this.cursorY;y<=this.scrollEnd;y++){
+					this.line[y]=y+n<=this.scrollEnd?this.line[y+n]:new VT100.Line();
 				}
 			}
 			return;

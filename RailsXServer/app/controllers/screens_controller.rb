@@ -25,7 +25,8 @@ class ScreensController < ApplicationController
 
   def authenticate
     if params[:password]
-      user=User.where(name:params[:name]).first
+      user=User.where(name:params[:user]).first
+      p user
       if user && user.check_password(params[:password])
         render json:{auth_key:user.auth_key}
       else
@@ -36,11 +37,13 @@ class ScreensController < ApplicationController
     screen=Screen.where(url:params[:url]).first
     if screen.nil? || screen.user.nil?
       render json:{cast:true}
-    elsif params[:auth_key]&&screen.user.name==params[:name]
-      if screen.user.auth_key==params[:auth_key]
-        render json:{cast:true,info:screen.info}
-      else
+    elsif params[:auth_key]&&params[:user]
+      if screen.user.name!=params[:user]
+        render json:{cast:false,error:"wrong user"}
+      elsif screen.user.auth_key!=params[:auth_key]
         render json:{cast:false,error:"wrong auth_key"}
+      else
+        render json:{cast:true,info:screen.info}
       end
     else
       render json:{cast:false,error:"url reserved"}

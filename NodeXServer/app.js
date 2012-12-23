@@ -103,7 +103,7 @@ ChannelData.prototype.broadcast=function(type,data,except){
 ChannelData.prototype.getInitData=function(){
 	return {info:this.info,casting:this.castSocket?true:false,vt100:this.vt100,viewer:this.viewerCount,chatlist:this.chatlist};
 }
-ChannelData.prototype.getSlugData=function(){return this.channelID+'#'+this.castPassword;}
+ChannelData.prototype.getSlugData=function(){return this.channelID+(this.castPassword&&'#'+this.castPassword);}
 ChannelData.prototype.getAdminData=function(){
 	return {viewer:this.viewerCount,chatlist:this.chatlist,slug:this.channelID+'#'+this.castPassword}
 }
@@ -112,9 +112,11 @@ ChannelData.prototype.join=function(socket){
 	this.viewerCount++;
 	this.totalViewer++;
 	this.maxViewer=Math.max(this.maxViewer,this.viewerCount);
-	this.castInfo.total_viewer++;
-	this.castInfo.max_viewer=Math.max(this.castInfo.max_viewer,this.viewerCount);
-	this.castInfo.total_viewer++;
+	if(this.castInfo){
+		this.castInfo.total_viewer++;
+		this.castInfo.max_viewer=Math.max(this.castInfo.max_viewer,this.viewerCount);
+		this.castInfo.total_viewer++;
+	}
 	socket.emit('init',this.getInitData());
 	this.broadcast('viewer',this.viewerCount,socket)
 }
@@ -155,9 +157,9 @@ ChannelData.prototype.createNotifyData=function(status){
 	var time=Math.round((new Date()-this.startTime)/1000);
 	return {
 		status:status,
-		total_viewer:this.castInfo.total_viewer,
-		max_viewer:this.castInfo.max_viewer,
-		total_time:this.castInfo.total_time+time,
+		total_viewer:this.castInfo?this.castInfo.total_viewer:0,
+		max_viewer:this.castInfo?this.castInfo.max_viewer:0,
+		total_time:this.castInfo?this.castInfo.total_time+time:0,
 
 		vt100:JSON.stringify(this.vt100.getSubData(40,12)),
 		title:this.info.title,
@@ -231,7 +233,7 @@ ChannelData.prototype.castEnd=function(socket){
 	this.castSocket=null;
 	this.startTime=null;
 	this.totalTime+=time;
-	this.castInfo.totalTime+=time;
+	if(this.castInfo)this.castInfo.totalTime+=time;
 	var channel=this;
 	this.endTimer=setTimeout(function(){channel.ended()},10*60*1000);
 }
@@ -257,6 +259,10 @@ net.createServer(function(usocket){
 	var key={data:[],lengthRead:0,lengthReadSize:1,length:0};
 	var val={data:[],lengthRead:0,lengthReadSize:2,length:0};
 	var current=key;
+	var trafficParam=0;
+	var trafficTime=0.1;
+	var trafficDate=0;
+	var trafficBPS=800000;
 	usocket.on('data',function(data){
 		for(var i=0;i<data.length;){
 			if(current.lengthRead<current.lengthReadSize){
@@ -280,6 +286,15 @@ net.createServer(function(usocket){
 				}
 			}
 		}
+		var time=new Date();
+		var exp=Math.exp(-(time-trafficTime)/(1000*trafficTime));
+		trafficTime=time;
+		trafficParam=trafficParam*exp+data.length*8;
+		var currentBps=trafficParam/trafficTime;
+		if(currentBps>trafficBps){
+			usocket.pause();
+			setTimeout(1000*trafficTime*currentBps/trafficBps,function(){usocket.resume})
+		}
 	})
 	function ondata(key,value){
 	    try{
@@ -300,16 +315,19 @@ net.createServer(function(usocket){
 	}
 	function oninit(data){
 		if(data.user&&data.password){
+			console.log(data.user+" "+data.password);
 			auth(data.user,{user:data.user,password:data.password},function(err,result,data){
+				console.log(data)
 				if(data&&data.auth_key)iosocket.emit('auth',data.auth_key)
 				else iosocket.emit('error',data?data.error||data:'unknown');
+				iosocket.disconnect();
 			});
 			return;
 		}
 		var kv=(data.slug||"").split('#');
 		var info=data.info||{};
 		var width=data.width,height=data.height;
-		var url=kv[0],castkey=data.auth_key||kv[1];
+		var url=kv[0],castkey=kv[1]||genRandomID(16);
 		if(!url.match("^[a-zA-Z0-9_]*$")){
 			iosocket.emit('errtype','url');
 			iosocket.emit('error','invalid url');
@@ -321,9 +339,9 @@ net.createServer(function(usocket){
 			anonymousflag=true;
 			url=ChannelData.genUniqID(randsize++);
 		}
-		if(!castkey)castkey=genRandomID(16);
 
 		function cb(err,result,data){
+			console.log(data)
 			if(!data||!data.cast){
 				if(anonymousflag){
 					auth(ChannelData.genUniqID(randsize<8?randsize++:8),{},cb);

@@ -17,10 +17,6 @@ class UserController < ApplicationController
     redirect_to action:'index'
   end
 
-  def new
-    @user=User.new
-  end
-
   def create
     user=User.create_account(params)
     if user
@@ -33,8 +29,7 @@ class UserController < ApplicationController
   end
 
   def index
-    @user=current_user
-    if @user
+    if user_signed_in?
       render 'index'
     else
       render 'signin'

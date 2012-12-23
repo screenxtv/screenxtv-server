@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
     User.where({name:name,password_digest:digest(password)}).first
   end
   def check_password(password)
-    password_digest==digest(password)
+    password_digest==User.digest(password)
   end
   def self.create_account(params)
     user=User.new()
@@ -22,6 +22,7 @@ class User < ActiveRecord::Base
       user.screens.create(url:user.name)
       user
     rescue
+      user.destroy
     end
   end
 end
