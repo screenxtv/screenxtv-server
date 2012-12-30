@@ -8,21 +8,25 @@ $(function(){
 	if(!channelID)return;
 	terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true);
 	window.onresize=function(){
-		var w=innerWidth-300;
+		var cw=Math.round(innerWidth/3);
+		if(cw<200)cw=200;
+		if(cw>320)cw=320;
+		var w=innerWidth-cw;
 		var h=innerHeight-50;
-		if(w<300){
+		if(w<400){
 			w=innerWidth;
 			$("#chatmain").css("display","none")
 		}else{
-			$("#chatmain").css({display:"block",height:h})
-			$("#chatlist").css({height:h-80})
-			$("#chatlist").scrollTop(65536);
+			$("#chatmain").css({display:"block",height:h,width:cw})
+			$("#chatlist").css({height:h-$("#chatform").height()})
 		}
 		$("#terminalmain").css({width:w,height:h});
 		terminalview.resize(w,h);
 	}
-	terminalview.onChatArrive=function(data){
-		try{addChat(JSON.parse(data.name),data.message);}catch(e){console.log(data)}
+	terminalview.onChatArrive=function(chat){
+		try{
+			addChat(chat,true);
+		}catch(e){console.log(chat)}
 	}
 	terminalview.onInit=function(data){
 		title=data.info?data.info.title:""
@@ -30,6 +34,12 @@ $(function(){
 		document.title=(title?title+" - ":"")+"ScreenX TV";
 		if(data.casting)terminalview.onCastStart();
 		else terminalview.onCastEnd();
+		for(var i=0,chat;chat=data.chatlist[i];i++){
+			try{
+				addChat(chat);
+			}catch(e){console.log(chat)}
+		}
+
 		terminalview.onViewerChange(data.viewer);
 	}
 	terminalview.onCastStart=function(data){
@@ -57,27 +67,78 @@ function post(){
 	}
 	terminalview.post(message,twit&&twit.checked);
 }
-function addChat(name,message){
-	var div=$("<div class='chat'><img><div/></div>");
-	var imgsrc=name&&name.profile_image;
+function animate(f,time){
+	var starttime=new Date();
+	function func(){
+		var t=(new Date()-starttime)/time
+		if(t>=1)t=1;
+		try{f(t)}catch(e){console.log(e);}
+		if(t<1)setTimeout(func,10);
+	}
+	setTimeout(func,10);
+	try{f(0)}catch(e){console.log(e)}
+}
+function updateTime(){
+	for(var i=0,c;c=chatArray[i];i++)c.update()
+}
+setInterval(updateTime,1000);
+var chatArray=[];
+function addChat(chat,addedFlag){
+	var div=$("<div class='chat'><img><div class='name'/><div class='message'/><div class='time'/></div>");
+	if(addedFlag)chat.time=new Date().getTime();
+	else chat.time=Math.min(new Date().getTime(),chat.time);
+	var imgsrc=chat.icon;
 	if(!imgsrc)imgsrc="/assets/anonymous.png"
-	div.children().first().attr("src",imgsrc);
-	div.children().last().text(message);
+	div.children().eq(0).attr("src",imgsrc);
+	if(chat.name)div.children().eq(1).text(chat.name);
+	div.children().eq(2).text(chat.message);
+	var time=div.children().eq(3);
 	var chatlist=$("#chatlist");
-	if(chatlist.children().length>256)chatlist.children().first().remove();
-	chatlist.append(div);
-	chatlist.scrollTop(65536);
+	var wrap=$("<div class='chat_wrap'/>");
+	wrap.append(div)
+	var updateFunc=function(){
+		var sec=Math.round((new Date().getTime()-chat.time)/1000);
+		var s10=Math.floor(sec/10)*10;
+		var min=Math.floor(sec/60);
+		var hour=Math.floor(min/60);
+		var day=Math.floor(hour/24);
+		if(day)day+=(day==1?'day':'days')+' ago';
+		if(hour)hour+=(hour==1?'hour':'hours')+' ago';
+		if(min)min+='min'+' ago';
+		if(s10)s10+='sec'+' ago';
+		time.text(day||hour||min||s10||'just now');
+	}
+	updateFunc();
+	chatlist.prepend(wrap);
+	if(addedFlag){
+		animate(
+			function(t){
+				var h=div.outerHeight();
+				if(t<1){
+					div.css({top:-h*(1-t)});
+					wrap.css({height:h*t});
+				}else{
+					div.css({top:''});
+					wrap.css({height:''});
+				}
+			},200);
+	}
+	chatArray.push({obj:wrap,update:updateFunc});
+	if(chatArray.length>256)chatArray.shift().obj.remove();
 }
 </script>
 <style>
+div.chat_wrap{position:relative;margin:0;padding:0;width:100%;}
 div.chat{position:relative;border-radius:5px;margin:5px;padding:5px;box-shadow:0 0 8px rgba(0,0,0,0.2);min-height:30px;}
 div.chat img{position:absolute;width:24px;height:24px;left:5px;top:5px;border-radius:4px;}
-div.chat div{margin-left:30px;overflow-x:hidden;}
+div.chat .name{margin-left:30px;font-size:12px;font-weight:bold;overflow:hidden;line-height:1em;}
+div.chat .message{margin-left:30px;margin-top:2px;font-size:16px;overflow-x:hidden;color:#444;word-break:break-all;}
+div.chat .time{text-align:right;font-size:10px;color:silver;overflow:hidden;line-height:1em;}
 #message{
 	border-radius:8px;
 	border:1px solid silver;
 	outline:none;
-	position:absolute;left:10px;top:5px;width:276px;height:40px;
+	width:100%;height:40px;
 	font-size:16px;
 }
 #message:focus{box-shadow:0 0 8px blue;}
@@ -90,17 +151,17 @@ div.chat div{margin-left:30px;overflow-x:hidden;}
 <div id="terminalmain" style='position:fixed;left:0;top:50;'>
 	<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
 </div>
-<div id='chatmain' style='position:fixed;right:0;top:50;width:300px;box-shadow:0 0 16px black;overflow:hidden;'>
-	<div id='chatlist' style='margin:5px;overflow:auto'></div>
-	<div id='chatform' style='box-shadow:0 0 5px rgba(0,0,0,0.2);position:absolute;left:0;bottom:0;width:300px;height:75px;'>
-		<form onsubmit="try{post()}catch(e){}return false">
-			<input id='message' style='' autocomplete='off'>
+<div id='chatmain' style='position:fixed;right:0;top:50;width:300px;box-shadow:0 0 16px black;overflow:hidden;background:white'>
+	<div id='chatform' style='box-shadow:0 0 5px rgba(0,0,0,0.2);position:absolute;left:0;top:0;width:100%;height:96px;'>
+		<form onsubmit="try{post()}catch(e){}return false" style="margin:10px;">
+			<input id='message' style='' maxlength=100 autocomplete='off'>
 			<% if user %>
 			<div id='twitcheckbox'><input type=checkbox id='twitpost'>post to twitter</div>
 			<% end %>
 			<div id='terminalstatus'></div>
 		</form>
 	</div>
+	<div id='chatlist' style='position:absolute;width:100%;top:96px;overflow:auto'></div>
 </div>
 
 

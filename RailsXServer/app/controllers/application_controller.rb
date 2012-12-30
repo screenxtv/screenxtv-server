@@ -9,6 +9,13 @@ class ApplicationController < ActionController::Base
     OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://twitter.com"})
   end
   
+  def current_user_icon
+    n=session[:user_id] || request.session_options[:id][0,4].hex
+    "/assets/icon/#{n%32}.png"
+  end
+  def current_user_name
+    current_user.name if user_signed_in?
+  end
   def current_user
     uid=session[:user_id]
     if uid
@@ -18,7 +25,7 @@ class ApplicationController < ActionController::Base
     end
   end
   def user_signed_in?
-    !current_user.nil?
+    session[:user_id]!=nil
   end
   Twitter.configure do |config|
     config.consumer_key=CONSUMER_KEY

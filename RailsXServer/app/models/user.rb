@@ -1,12 +1,13 @@
 class User < ActiveRecord::Base
-  # attr_accessible :title, :body
   has_many :screens,dependent: :destroy
+
   def self.digest(password)
     Digest::SHA2.hexdigest(password)
   end
   def self.authenticate(name,password)
-    return if name.nil? || password.nil?
-    User.where({name:name,password_digest:digest(password)}).first
+    if name&&password 
+      User.where({name:name,password_digest:digest(password)}).first
+    end
   end
   def check_password(password)
     password_digest==User.digest(password)

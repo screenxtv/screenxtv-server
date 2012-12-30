@@ -1,5 +1,5 @@
 class Screen < ActiveRecord::Base
-  attr_accessible :url,:total_viewer,:max_viewer,:total_time,:last_cast
+  attr_accessible :url,:total_viewer,:max_viewer,:total_time,:last_cast,:state,
     :current_time,:current_viewer,:current_max_viewer,:current_total_viewer,
     :pause_count,:title,:color,:vt100
   belongs_to :user
@@ -18,17 +18,16 @@ class Screen < ActiveRecord::Base
   end
   def self.notify(params)
     screen=Screen.where(url:params[:url]).first;
-    if params[:status]=='terminate'
-      screen.destroy if screen
+    case params[:status]
+    when 'terminate'
+      screen.terminate if screen
       return false
-    end
-    params[:last_cast]=Time.now
-    if params[:status]=='update'
+    when 'update'
       params[:state]=STATE_CASTING
-    elsif params[:status]=='castend'
+    when 'castend'
       params[:state]=STATE_PAUSED
     end
-
+    params[:last_cast]=Time.now
     if !screen
       screen=Screen.create(params)
       true
@@ -38,11 +37,12 @@ class Screen < ActiveRecord::Base
     end
   end
   def terminate
-    state=STATE_NONE
-    title=color=vt100=nil
-    current_time=current_viewer=current_max_viewer=current_total_viewer=pause_count=0
     if user
-      save
+      update_attributes(
+          state:STATE_NONE,title:nil,color:nil,vt100:nil,
+          current_viewer:0,current_max_viewer:0,current_total_viewer:0,
+          current_time:0,pause_count:0
+        )
     else
       destroy
     end

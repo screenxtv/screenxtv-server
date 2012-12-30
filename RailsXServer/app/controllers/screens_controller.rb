@@ -8,16 +8,18 @@ class ScreensController < ApplicationController
   end
 
   def HTTPPost(host,port,path,hash)
-    query=hash.map{|x|x.map{|y|URI.encode(y.to_s).gsub("+","%2B")}.join("=")}.join("&")
-    Net::HTTP.new(host,port).post(path,query)
-
+    Net::HTTP.new(host,port).post(path,URI.encode_www_form(hash))
   end
 
   def post
     Thread.new{
-      HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],{type:'chat',name:session[:user].to_json,message:params[:message]})
+      max_length=100
+      msg=params[:message].strip[0,max_length]
+      return if msg.size==0
+      data={type:'chat',name:current_user_name,icon:current_user_icon,message:msg}
+      HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],data)
       if(user_signed_in? && params[:twitter]=='true')
-        twitter.update params[:message]+" http://screenx.tv/"+params[:url]
+        twitter.update msg+" http://screenx.tv/"+params[:url]
       end
     }
     render nothing:true

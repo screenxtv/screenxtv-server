@@ -7,10 +7,8 @@ RailsXServer::Application.routes.draw do
   match 'screen_notify/:url', to:'screens#notify'
   match 'screens/notify/:url', to:'screens#notify'
   match 'screens/authenticate/:url',to:'screens#authenticate'
-  match 'post/:url', to:'screens#post',as:'post'
-  match 'screens/post/:url', to:'screens#post'
+  match 'screens/post/:url', to:'screens#post',via:'post',as:'post'
   match 'screens/status/:url(/:key)',to:'screens#status'
-  match 'screens/auth',to:'screens#auth'
 
   match 'user/signin',to:'user#signin'
   match 'user/signout',to:'user#signout',via:'delete'

@@ -50,7 +50,7 @@ app.get('/:id',function(req,res){
 app.post('/:id',function(req,res){
 	if(req.connection.remoteAddress!=RAILS_IP){res.end();return}
 	var channel=ChannelData.channelActiveMap['#'+req.params.id];
-	if(channel&&req.body.type=='chat')channel.chat({name:req.body.name,message:req.body.message});
+	if(channel&&req.body.type=='chat')channel.chat({name:req.body.name,icon:req.body.icon,message:req.body.message});
 	res.end();
 })
 
@@ -65,12 +65,15 @@ function md5_hex(){return crypto.createHash('md5').update('a').digest('hex')}
 
 
 var socketio=require('socket.io');
-var io=socketio.listen(server);
-io.set("log level",0);
+var io_option={'destroy buffer size':10E6};
+var io=socketio.listen(server,io_option);
+io.set("log level",1);
 
 io.sockets.on('connection',function(socket){
+	console.log('connection!')
 	socket.on('init',function(data){
 		var channel=ChannelData.getChannelData(data.channel);
+		console.log('joined',data.channel)
 		channel.join(socket);
 		socket.on('disconnect',function(){channel.leave(socket)});
 	});
@@ -256,44 +259,53 @@ net.createServer(function(usocket){
 		emit:function(key,value){if(usocket.writable)usocket.write(key+"\n"+JSON.stringify(value)+"\n")},
 		disconnect:function(){usocket.end();}
 	}
-	var key={data:[],lengthRead:0,lengthReadSize:1,length:0};
-	var val={data:[],lengthRead:0,lengthReadSize:2,length:0};
+	var key={data:[],lengthRead:0,lengthReadSize:1,length:0,position:0};
+	var val={data:[],lengthRead:0,lengthReadSize:2,length:0,position:0};
 	var current=key;
-	var trafficParam=0;
-	var trafficTime=0.1;
-	var trafficDate=0;
-	var trafficBPS=800000;
+	var trafficParam=trafficTime=0;
+	var trafficSpan=1,trafficBps=256*1000;
+	usocket.setKeepAlive(true,60*1000);
 	usocket.on('data',function(data){
-		for(var i=0;i<data.length;){
+		var i=0;
+		while(i<data.length){
 			if(current.lengthRead<current.lengthReadSize){
 				current.lengthRead++;
 				current.length=(current.length<<8)|data[i++];
-			}else{
-				if(current.data.length<current.length){
-					var rlen=current.length-current.data.length;
-					var dlen=data.length-i;
-					var len=Math.min(rlen,dlen);
-					for(var j=0;j<len;j++)current.data.push(data[i++]);
+				if(current.lengthRead==current.lengthReadSize){
+					current.data=new Buffer(current.length);
+					current.position=0;
 				}
-				if(current.data.length==current.length){
-					if(current==key)current=val;
-					else{
-					    try{ondata(new Buffer(key.data).toString(),new Buffer(val.data).toString());}catch(e){console.log(e)}
-						current=key;
-					}
-					current.length=current.lengthRead=0;
-					current.data=[];
+				continue;
+			}
+			if(current.position<current.length){
+				var rlen=current.length-current.position;
+				var dlen=data.length-i;
+				var len=Math.min(rlen,dlen);
+				for(var j=0;j<len;j++)current.data[current.position++]=data[i++];
+			}
+			if(current.position==current.length){
+				if(current==key)current=val;
+				else{
+				    try{ondata(key.data.toString(),val.data.toString());}catch(e){console.log(e)}
+					current=key;
 				}
+				current.length=current.lengthRead=0;
+				current.data=[];
 			}
 		}
+
 		var time=new Date();
-		var exp=Math.exp(-(time-trafficTime)/(1000*trafficTime));
+		var dt=time-trafficTime;
+		var exp=Math.exp(-dt/(1000*trafficSpan));
 		trafficTime=time;
-		trafficParam=trafficParam*exp+data.length*8;
-		var currentBps=trafficParam/trafficTime;
-		if(currentBps>trafficBps){
-			usocket.pause();
-			setTimeout(1000*trafficTime*currentBps/trafficBps,function(){usocket.resume})
+		trafficParam=trafficParam*exp+(dt?data.length*(1-exp)*(1000*trafficSpan)/dt:data.length);
+		var currentBps=trafficParam/trafficSpan;
+		if(currentBps>trafficBps/2){
+			var time=Math.round(1000*65536*currentBps/trafficBps/trafficBps);
+			if(time>0){
+				usocket.pause();
+				setTimeout(function(){usocket.resume()},time)
+			}
 		}
 	})
 	function ondata(key,value){

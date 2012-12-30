@@ -63,9 +63,8 @@ Terminal.prototype.setSpanFont=function(span,font){
 Terminal.prototype.createHalfChar=function(s){
 	var span=document.createElement("SPAN");
 	span.textContent=s;
-	var w2=Math.floor(this.char_w/1);
-	span.style.marginRight=-w2+"px";
-	span.style.marginLeft=-(this.char_w-w2)+"px";
+	span.style.width=this.char_w+"px";
+	span.style.display="inline-block";
 	return span;
 }
 Terminal.prototype.updateView=function(){
