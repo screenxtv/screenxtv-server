@@ -12,16 +12,24 @@ class ScreensController < ApplicationController
   end
 
   def post
+    name=current_user_name
+    icon=current_user_icon
+    max_length=100
+    max_chats=256
+    message=params[:message].strip[0,max_length]
     Thread.new{
-      max_length=100
-      msg=params[:message].strip[0,max_length]
-      return if msg.size==0
-      data={type:'chat',name:current_user_name,icon:current_user_icon,message:msg}
+      return if message.size==0
+      data={type:'chat',name:name,icon:icon,message:message}
       HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],data)
       if(user_signed_in? && params[:twitter]=='true')
-        twitter.update msg+" http://screenx.tv/"+params[:url]
+        twitter.update message+" http://screenx.tv/"+params[:url]
       end
     }
+    screen=Screen.where(url:params[:url]).first
+    if screen&&screen.user
+      screen.chats.create(name:name,icon:icon,message:message)
+      screen.chats.order('created_at DESC').offset(max_chats).destroy_all
+    end
     render nothing:true
   end
 
@@ -37,6 +45,9 @@ class ScreensController < ApplicationController
       return
     end
     screen=Screen.where(url:params[:url]).first
+    if screen
+      chats=screen.chats_for_js
+    end
     if screen.nil? || screen.user.nil?
       render json:{cast:true}
     elsif params[:auth_key]&&params[:user]
@@ -45,7 +56,7 @@ class ScreensController < ApplicationController
       elsif screen.user.auth_key!=params[:auth_key]
         render json:{cast:false,error:"wrong auth_key"}
       else
-        render json:{cast:true,info:screen.info}
+        render json:{cast:true,info:screen.info,chats:chats}
       end
     else
       render json:{cast:false,error:"url reserved"}

@@ -3,14 +3,15 @@ class Screen < ActiveRecord::Base
     :current_time,:current_viewer,:current_max_viewer,:current_total_viewer,
     :pause_count,:title,:color,:vt100
   belongs_to :user
+  has_many :chats,dependent: :destroy
   STATE_CASTING=2
   STATE_PAUSED=1
   STATE_NONE=0
   def info
     {
-      total_viewer:total_viewer||0,
-      max_viewer:max_viewer||0,
-      total_time:total_time||0
+      total_viewer:total_viewer,
+      max_viewer:max_viewer,
+      total_time:total_time
     }
   end
   def casting?
@@ -36,6 +37,9 @@ class Screen < ActiveRecord::Base
       false
     end
   end
+  def chats_for_js
+    chats.map{|c|{name:c.name,icon:c.icon,message:c.message,time:c.created_at.to_i}}
+  end
   def terminate
     if user
       update_attributes(
@@ -49,9 +53,7 @@ class Screen < ActiveRecord::Base
   end
   def self.cleanup
     range=0x10000.days.ago..10.minutes.ago
-    Screen.where(state:[STATE_PAUSED,STATE_CASTING],updated_at:range).each{|screen|
-      screen.terminate
-    }
+    Screen.where(state:[STATE_PAUSED,STATE_CASTING],updated_at:range).each(&:terminate)
   end
   def self.getSorted(limit)
     cleanup

@@ -15,10 +15,10 @@
 
 
 <style>
-body{margin:0;padding:0;padding-top:50px;overflow-x:hidden;}
+body{margin:0;padding:0;padding-top:30px;overflow-x:hidden;}
 .header{
 	position:fixed;
-	left:0;top:0;width:100%;height:50px;
+	left:0;top:0;width:100%;height:30px;
 	background:#eee;
 	background:-webkit-linear-gradient(top,#ddd,#fff);
 	background:-moz-linear-gradient(top,#ddd,#fff);
@@ -37,22 +37,23 @@ div.twitterbutton{position:relative;top:3px;}
 #header_title{
 	margin-left:160px;
 	margin-right:250px;
-	height:50px;
+	height:30px;
 	text-align:center;
-	font-size:32px;
+	font-size:24px;
+  line-height:30px;
 	overflow:hidden;
 }
 </style>
 <div class="header">
-  <a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536'></a>
+  <a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536;height:30px;'></a>
   <div id='header_title'></div>
-  <div class='social'>
+  <!--div class='social'>
     <div class='twitterbutton'>
       <iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/" style="width:120px; height:20px;"></iframe>
     </div>
     <script id="facebook-jssdk" src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
-    <div class="fb-like" data-href="http://screenx.tv/" data-send="false" data-width="70" data-show-faces="false" data-layout="button_count"></div> 
-  </div>
+    <div class="fb-like" data-href="http://screenx.tv/" data-send="false" data-width="70" data-show-faces="false" data-layout="button_count"></div>
+  </div-->
   <nobr class='login_text'>
     <%if user_signed_in? %>
       <div style='font-size:0.6em'>

@@ -2,9 +2,9 @@ class CreateScreens < ActiveRecord::Migration
   def change
     create_table :screens do |t|
       t.string     :url, null:false
-      t.references :user, null:false
+      t.references :user
 
-      t.datetime :last_cast, null:false
+      t.datetime :last_cast
       t.integer  :total_viewer, default:0
       t.integer  :max_viewer, default:0
       t.integer  :total_time, default:0

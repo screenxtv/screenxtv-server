@@ -1,6 +1,6 @@
 <%= javascript_include_tag "top" %>
 <script>
-terminalList=[<%= screens.map(&:to_json).join(",").html_safe %>];
+terminalList=[<%= @screens.map(&:to_json).join(",").html_safe %>];
 </script>
 <script>
 $(function(){

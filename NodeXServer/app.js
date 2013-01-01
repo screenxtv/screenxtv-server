@@ -23,7 +23,6 @@ function auth(id,data,cb){
 	},cb);
 }
 
-
 app.configure(function(){
 	RAILS_PORT=process.env.RAILS_PORT||RAILS_PORT;
 	UNIX_PORT=process.env.NODE_UPORT||UNIX_PORT;
@@ -49,7 +48,8 @@ app.get('/:id',function(req,res){
 
 app.post('/:id',function(req,res){
 	if(req.connection.remoteAddress!=RAILS_IP){res.end();return}
-	var channel=ChannelData.channelActiveMap['#'+req.params.id];
+	//var channel=ChannelData.channelActiveMap['#'+req.params.id];
+	var channel=ChannelData.channelMap['#'+req.params.id];
 	if(channel&&req.body.type=='chat')channel.chat({name:req.body.name,icon:req.body.icon,message:req.body.message});
 	res.end();
 })
@@ -93,7 +93,7 @@ function ChannelData(id){
 	this.info=null;
 	this.notifyTimer=null;
 	this.pauseCount=0;
-	this.chatlist=[];
+	this.chatlist=null;
 }
 ChannelData.prototype.broadcast=function(type,data,except){
 	if(this.castSocket){
@@ -189,18 +189,19 @@ ChannelData.prototype.notifyStatus=function(){
 	this.notifyTimer=setTimeout(function(){channel.notifyStatus()},10*1000);
 }
 ChannelData.prototype.chat=function(data){
-	if(!this.chatlist)return;
-	data.time=new Date().getTime();
-	this.chatlist.push(data);
-	if(this.chatlist.length>256)this.chatlist.shift();
+	data.time=Math.floor(new Date().getTime()/1000);
+	if(this.chatlist){
+		this.chatlist.push(data);
+		if(this.chatlist.length>256)this.chatlist.shift();
+	}
 	this.broadcast('chat',data);
 }
-ChannelData.prototype.castStart=function(socket,pswd,w,h,info,castInfo){
+ChannelData.prototype.castStart=function(socket,pswd,w,h,info,castInfo,chats){
 	if(this.castPassword){
 		if(this.castPassword!=pswd||this.private!=info.private)throw 'url already in use';
 	}
 	if(this.castSocket)this.castSocket.disconnect();
-	if(this.chatlist==null)this.chatlist=[];
+	if(this.chatlist==null)this.chatlist=chats||[];
 	this.info=info;
 	if(!this.castInfo)this.castInfo=castInfo||{total_viewer:0,max_viewer:0,total_time:0};
 	if(!this.startTime)this.startTime=new Date();
@@ -259,8 +260,8 @@ net.createServer(function(usocket){
 		emit:function(key,value){if(usocket.writable)usocket.write(key+"\n"+JSON.stringify(value)+"\n")},
 		disconnect:function(){usocket.end();}
 	}
-	var key={data:[],lengthRead:0,lengthReadSize:1,length:0,position:0};
-	var val={data:[],lengthRead:0,lengthReadSize:2,length:0,position:0};
+	var key={lengthRead:0,lengthReadSize:1,length:0,position:0};
+	var val={lengthRead:0,lengthReadSize:2,length:0,position:0};
 	var current=key;
 	var trafficParam=trafficTime=0;
 	var trafficSpan=1,trafficBps=256*1000;
@@ -290,7 +291,6 @@ net.createServer(function(usocket){
 					current=key;
 				}
 				current.length=current.lengthRead=0;
-				current.data=[];
 			}
 		}
 
@@ -364,7 +364,7 @@ net.createServer(function(usocket){
 			}else{
 				try{
 					channel=ChannelData.getChannelData(url);
-					channel.castStart(iosocket,castkey,width,height,info,data.info);
+					channel.castStart(iosocket,castkey,width,height,info,data.info,data.chats);
 				}catch(e){
 					console.log('cb',e);
 					iosocket.emit('error',e);
@@ -380,7 +380,7 @@ net.createServer(function(usocket){
 	console.log("NodeX listening on port "+UNIX_PORT)
 });
 
-//process.on('uncaughtException',function(err){
-//	console.log('Caught exception:',err);
-//});
+process.on('uncaughtException',function(err){
+	console.log('Caught exception:',err);
+});
 

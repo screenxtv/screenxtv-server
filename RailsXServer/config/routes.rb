@@ -16,7 +16,8 @@ RailsXServer::Application.routes.draw do
   match 'user/create',to:'user#create'
   match 'user/index',to:'user#index'
 
-
+  match 'oauth/connect',to:'oauth#connect'
+  match 'oauth/callback',to:'oauth#callback'
   #match ':controller(/:action(/:id))(.:format)'
   match ':url', to:'index#screen'
   # The priority is based upon order of creation:

@@ -1,6 +1,6 @@
 class IndexController < ApplicationController
   def index
-    render locals:{screens:Screen.getSorted(100)}
+    @screens=Screen.getSorted(100)
   end
 
   def howto
@@ -9,12 +9,16 @@ class IndexController < ApplicationController
 
   def embed
     @title=params[:url]
-    render layout:false,locals:{url:params[:url],link:params[:link]}
+    @url=params[:url]
+    @link=params[:link]
+    render layout:false
   end
 
   def screen
-    @title=params[:url]
-    render locals:{url:params[:url],user:(user_signed_in? ? session[:user] : nil)}
+    #@title=params[:url]
+    @url=params[:url]
+    screen=Screen.where(url:@url).first
+    @chats=screen ? screen.chats_for_js : []
   end
 
   # def logout

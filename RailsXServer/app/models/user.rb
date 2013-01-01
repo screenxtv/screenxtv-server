@@ -14,10 +14,10 @@ class User < ActiveRecord::Base
   end
   def self.create_account(params)
     user=User.new()
-    user.name=params[:username]
+    user.name=params[:name]
     user.email=params[:email]
     user.password_digest=digest params[:password]
-    user.auth_key=digest "#{params[:username]}#{params[:password]}#{rand}"
+    user.auth_key=digest "#{params[:name]}#{params[:password]}#{rand}"
     begin
       user.save!
       user.screens.create(url:user.name)

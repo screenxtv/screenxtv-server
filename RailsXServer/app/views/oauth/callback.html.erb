@@ -1,0 +1,5 @@
+<script>
+var info=<%= safe_json @info %>
+try{window.opener.onSocialConnect(info)}catch(e){}
+window.close();
+</script>
