@@ -18,6 +18,7 @@ class IndexController < ApplicationController
     #@title=params[:url]
     @url=params[:url]
     screen=Screen.where(url:@url).first
+    @share=screen && screen.user ? true : false;
     @chats=screen ? screen.chats_for_js : []
   end
 

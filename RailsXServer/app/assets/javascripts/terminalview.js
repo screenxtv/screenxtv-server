@@ -56,15 +56,12 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 		delay_string="";
 		delay_timer=setTimeout(function(){delay_timer=0;delay_func();},100);
 	}
-	var socket=io.connect('http://'+host+":"+port);
+	var socket=io.connect('http://'+host+":"+port,{'reconnect':true,'reconnection delay':500,'max reconnection attempts':10});
 	socket.on('connect',function(){
 		socket.emit('init',{channel:channelID},function(){console.log('init')});
-		window.socket=socket;
 	});
-	socket.on('disconnect',function(){
-		socket=null;
-		if(self.onClose)self.onClose();
-	})
+	socket.on('reconnect_failed',function(){socket=null;if(self.onClose)self.onClose();})
+	socket.on('disconnect',function(){})
 	socket.on('init',function(data){initTerminal(data);if(self.onInit)self.onInit(data);});
 	socket.on('viewer',function(data){console.log('viewer',data);if(self.onViewerChange)self.onViewerChange(data)});
 	socket.on('chat',function(data){console.log('chat',data);if(self.onChatArrive)self.onChatArrive(data)});
@@ -75,7 +72,9 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 	this.resize=resizeUpdate;
 	this.post=function(message,twitter){
 		if(!socket)return;
-		$.post('/screens/post/'+channelID,{authenticity_token:csrf_token,twitter:twitter,message:message})
+		data={authenticity_token:csrf_token,message:message};
+		if(twitter)data.twitter=true;
+		$.post('/screens/post/'+channelID,data);
 	}
 }
 

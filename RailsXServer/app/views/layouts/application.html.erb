@@ -15,13 +15,14 @@
 
 
 <style>
-body{margin:0;padding:0;padding-top:30px;overflow-x:hidden;}
+body{margin:0;padding:0;padding-top:40px;overflow-x:hidden;}
 .header{
 	position:fixed;
-	left:0;top:0;width:100%;height:30px;
+	left:0;top:0;width:100%;height:40px;
 	background:#eee;
 	background:-webkit-linear-gradient(top,#ddd,#fff);
 	background:-moz-linear-gradient(top,#ddd,#fff);
+  background:-o-linear-gradient(top,#ddd,#fff);
 	box-shadow:0 5px 5px rgba(0,0,0,0.2);
 	z-index:65536;
 }
@@ -29,43 +30,92 @@ div.social{
 	position:absolute;right:120px;top:2px;
 }
 div.twitterbutton{position:relative;top:3px;}
-
-
-.login_text img{position:absolute;width:32px;height:32px;bottom:0px;left:0px;border-radius:4px;}
-.login_text{position:absolute;right:8px;bottom:8px;font-size:20px;text-align:left;vertical-align:bottom;padding-left:40px;}
-.login_text a{color:black;text-decoration:none;font-family:Osaka,Sans-Serif;}
+.menu_button{position:absolute;right:0;top:0;height:40px;}
 #header_title{
 	margin-left:160px;
 	margin-right:250px;
-	height:30px;
+	height:40px;
 	text-align:center;
-	font-size:24px;
-  line-height:30px;
+  line-height:40px;
 	overflow:hidden;
 }
+.popupbutton{
+  position:relative;
+}
+.popup{
+  display:none;
+  position:absolute;
+  background:white;
+  right:5px;top:45px;
+  border-radius:5px;
+  box-shadow:0 0 5px silver;
+}
+.popupbutton_active .popup{display:block;}
+
+.menu_button a{color:black;text-decoration:none;}
+.menu_button .popupbutton,.header_sign_in{
+  height:100%;
+  background:#ddd;
+  background:-webkit-linear-gradient(top,#ccc,#eee);
+  background:-moz-linear-gradient(top,#ccc,#eee);
+  background:-o-linear-gradient(top,#ccc,#eee);
+}
+.menu_button .popupbutton:hover,.header_sign_in:hover{
+  background:#ccc;
+  background:-webkit-linear-gradient(top,#bbb,#ddd);
+  background:-moz-linear-gradient(top,#bbb,#ddd);
+  background:-o-linear-gradient(top,#bbb,#ddd);
+}
+.menu_button .popup a{
+  display:block;
+  color:black;
+  font-size:16px;
+  padding:0 10px;
+}
+.menu_button .popup a:hover{background:#eee;}
+.menu_button .popupbutton_active{
+  background:#aaa;
+  background:-webkit-linear-gradient(top,#999,#bbb);
+  background:-moz-linear-gradient(top,#999,#bbb);
+  background:-o-linear-gradient(top,#999,#bbb);
+}
+.menu_button .popupbutton_active:hover{
+  background:#aaa;
+  background:-webkit-linear-gradient(top,#888,#aaa);
+  background:-moz-linear-gradient(top,#888,#aaa);
+  background:-o-linear-gradient(top,#888,#aaa);
+}
+.header_sign_in{
+  font-size:20px;
+  padding:0 4px;
+  line-height:40px;
+}
 </style>
+<script>
+$(function(){
+  $(".popupbutton").live('click',function(){
+    var classactive='popupbutton_active';
+    var flag=$(this).hasClass(classactive);
+    $('.popupbutton').removeClass(classactive);
+    if(!flag)$(this).addClass(classactive);
+  })
+})
+</script>
 <div class="header">
-  <a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536;height:30px;'></a>
+  <a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536;height:40px;'></a>
   <div id='header_title'></div>
-  <!--div class='social'>
-    <div class='twitterbutton'>
-      <iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/" style="width:120px; height:20px;"></iframe>
-    </div>
-    <script id="facebook-jssdk" src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
-    <div class="fb-like" data-href="http://screenx.tv/" data-send="false" data-width="70" data-show-faces="false" data-layout="button_count"></div>
-  </div-->
-  <nobr class='login_text'>
+  <nobr class='menu_button'>
     <%if user_signed_in? %>
-      <div style='font-size:0.6em'>
-      <%= link_to current_user.name,{controller:'user',action:'index'} %>
-      </div>
-      <div style='font-size:0.6em'>
-      <%= link_to 'Sign out',{controller:'user',action:'signout'},method:'delete' %>
+      <div class='popupbutton'><img src='/assets/menu.png' width=40 height=40>
+        <div class='popup'>
+          <%= link_to 'My Page',{controller:'user',action:'index'} %>
+          <%= link_to 'Sign out',{controller:'user',action:'signout'},method:'delete' %>
+        </div>
       </div>
     <% else %>
-      <a href='/user/signin'>
-      	Sign in
-      </a>
+      <div class='header_sign_in'>
+        <%= link_to 'Sign in',{controller:'user',action:'signin'} %>
+      </div>
     <% end %>
   </nobr>
 </div>

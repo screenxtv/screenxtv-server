@@ -17,13 +17,12 @@ class ScreensController < ApplicationController
     max_length=100
     max_chats=256
     message=params[:message].strip[0,max_length]
+    twitterclient=twitter if social_info && params[:twitter]
     Thread.new{
       return if message.size==0
       data={type:'chat',name:name,icon:icon,message:message}
       HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],data)
-      if(user_signed_in? && params[:twitter]=='true')
-        twitter.update message+" http://screenx.tv/"+params[:url]
-      end
+      #twitterclient.update message+" http://screenx.tv/"+params[:url] if twitterclient
     }
     screen=Screen.where(url:params[:url]).first
     if screen&&screen.user

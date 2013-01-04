@@ -7,7 +7,7 @@ var chats=<%= safe_json @chats %>;
 var social=<%= safe_json social_info %>;
 var terminalview;
 function onSocialConnect(s){
-	setSocial(social=s);
+	setSocial(s);
 }
 $(function(){
 	if(!channelID)return;
@@ -20,7 +20,7 @@ $(function(){
 		if(cw<200)cw=200;
 		if(cw>320)cw=320;
 		var w=innerWidth-cw;
-		var h=innerHeight-30;
+		var h=innerHeight-40;
 		if(w<400){
 			w=innerWidth;
 			$("#chatmain").css("display","none")
@@ -28,7 +28,7 @@ $(function(){
 			$("#chatmain").css({display:"block",height:h,width:cw})
 			$("#chatlist").css({height:h-$("#chatform").height()})
 		}
-		$("#terminalmain").css({width:w,height:h,top:70});
+		$("#terminalmain").css({width:w,height:h,top:80});
 		terminalview.resize(w,h-40);
 		$("#terminal_nav").css("width",w);
 	}
@@ -38,6 +38,9 @@ $(function(){
 		}catch(e){console.log(chat)}
 	}
 	terminalview.onInit=function(data){
+		if(!data.vt100){
+			$("#terminal").text('OFF AIR')	
+		}
 		title=data.info?data.info.title:""
 		$("#terminaltitle").text(title);
 		document.title=(title?title+" - ":"")+"ScreenX TV";
@@ -55,21 +58,30 @@ $(function(){
 		terminalview.onViewerChange(data.viewer);
 	}
 	terminalview.onCastStart=function(data){
-		$("#terminalstatus").css({color:'black'})
+		$("#terminal").css({opacity:1})
 	}
 	terminalview.onCastEnd=function(){
-		$("#terminalstatus").css({color:'silver'})
+		$("#terminal").css({opacity:0.5})
 	}
-	terminalview.onViewerChange=function(n){
-		$("#terminalstatus").text("viewer: "+n);
+	terminalview.onViewerChange=function(info){
+		$("#viewer").text(info.viewer+"/"+info.total_viewer);
 	}
 	terminalview.onClose=function(){
-		$("#terminalstatus").text("disconnected");	
+		console.log('closed');
+		setTimeout(function(){console.log('restart');
+			terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true)
+		},10*1000);
 	}
 	$("#chatform form").mousedown(function(){$("#message").focus();return false;})
 	$("#message").focus(function(){$("#chatform form").css('box-shadow','0 0 8px blue')})
 	$("#message").blur(function(){$("#chatform form").css('box-shadow','none')})
 	window.onresize();
+	$("#social_anonymous").click(function(){
+		if(social)$.post('/oauth/disconnect',{authenticity_token:csrf_token,_method:'delete'},function(){setSocial(null)});
+	})
+	$("#social_twitter").click(function(){
+		if(!social)window.open('/oauth/connect','socialconnect','width=600,height=400,toolbar=no,menubar=no,status=no')
+	})
 	setSocial(social);
 })
 function post(){
@@ -77,10 +89,6 @@ function post(){
 	$("#message").val("")
 	if(!message.trim())return;
 	var twit=$("#twitpost")[0];
-	var data={
-		authenticity_token:csrf_token,
-		message:message
-	}
 	terminalview.post(message,twit&&twit.checked);
 }
 function animate(f,time){
@@ -103,23 +111,23 @@ function clearChat(){
 	chatArray=[];
 	$("#chatlist").text('');
 }
+
 function setSocial(s){
+	social=s;
 	var img=$("<img/>")
+	twitterConnceted=s?true:false;
 	if(s){
-		var img=$("<img/>");
-		img.attr('src',s.icon)
-		$("#form_icon").text('').append(img);
+		$("#social_anonymous").css({opacity:''});
+		$("#social_twitter").css({opacity:1});
+		$("#mysocial span").css({display:''})
+		$("#form_icon").text('').append($("<img/>").attr('src',s.icon));
 		$("#chatform form").css('padding-left',40);
 	}else{
+		$("#social_anonymous").css({opacity:1});
+		$("#social_twitter").css({opacity:''});
+		$("#mysocial span").css({display:'none'})
+		$("#form_icon").text('')
 		$("#chatform form").css('padding-left','');
-		var img=$("<img/>")
-		img.click(function(){window.open("/oauth/connect","_blank","toolbar=no,menubar=no,status=no,width=600,height=400")});
-		var attr={width:32,height:32,src:"/assets/twitlogin.png"};
-		img.attr(attr);
-		atag=$("<a>connect with twitter</a>");
-		atag.css('margin-left',10);
-		atag.attr('href','/oauth/connect');
-		$("#mysocial").text('').append(atag);
 	}
 }
 function addChat(chat,addedFlag){
@@ -170,8 +178,8 @@ function addChat(chat,addedFlag){
 div.chat_wrap{position:relative;margin:0;padding:0;width:100%;}
 div.chat{position:relative;border-radius:5px;margin:5px;padding:5px;box-shadow:0 0 8px rgba(0,0,0,0.2);min-height:30px;}
 div.chat img{position:absolute;width:24px;height:24px;left:5px;top:5px;border-radius:4px;}
-div.chat .name{margin-left:30px;font-size:12px;font-weight:bold;overflow:hidden;line-height:1em;}
-div.chat .message{margin-left:30px;margin-top:2px;font-size:16px;overflow-x:hidden;color:#444;word-break:break-all;}
+div.chat .name{margin-left:30px;font-size:12px;overflow:hidden;line-height:1em;color:#444;}
+div.chat .message{margin-left:30px;margin-top:2px;font-size:16px;overflow-x:hidden;color:black;word-break:break-all;}
 div.chat .time{text-align:right;font-size:10px;color:silver;overflow:hidden;line-height:1em;}
 #chatform form{
 	border-radius:8px;
@@ -182,7 +190,7 @@ div.chat .time{text-align:right;font-size:10px;color:silver;overflow:hidden;line
 	font-size:16px;
 	position:relative;
 }
-#chatform img{
+#chatform form img{
 	position:absolute;
 	left:6px;top:6px;
 	width:30px;height:30px;
@@ -196,46 +204,109 @@ div.chat .time{text-align:right;font-size:10px;color:silver;overflow:hidden;line
 	width:100%;
 	font-size:16px;
 }
+#message:-moz-placeholder,#message::-webkit-input-placeholder{
+	color: #F00;
+}
+#mysocial{
+	margin:0 10px;padding:0;
+	height:24px;line-height:24px;
+}
+#mysocial img{
+	background:#666;
+	background:-webkit-linear-gradient(top,#777,#555);
+	background:-moz-linear-gradient(top,#777,#555);
+	background:-o-linear-gradient(top,#777,#555);
+	opacity:0.5;
+	border-radius:4px;
+	width:24px;height:24px;
+	cursor:pointer;
+}
+
 #twitcheckbox{position:absolute;left:10px;bottom:2px;font-size:16px;}
 #terminal_nav{
 	position:fixed;
-	left:0;top:30px;
+	left:0;top:40px;
 	height:40px;
 	background:#ddd;
 }
-#terminal_nav div{
-	position:absolute;font-size:24px;height:40px;line-height:40px;
+#terminal_nav .popupbutton{
+	cursor:pointer;
+}
+#terminal_nav .popupbutton:hover{
+	background:#ccc;
+}
+#terminal_nav .popupbutton_active{
+	background:#bbb;
+}
+#terminal_nav .popupbutton_active:hover{
+	background:#aaa;
 }
 #terminaltitle{
+	position:absolute;font-size:24px;height:40px;line-height:40px;
 	left:10px;
 }
+#terminalstatus img{
+	position:absolute;left:0;top:0;
+}
 #terminalstatus{
-	right:80px;
-	text-align:right;
+	position:relative;
+	display:inline-block;
+	position:absolute;
+	height:40px;
+	right:60px;
+
+}
+#terminalstatus #viewer{
+	font-size:20px;
+	line-height:40px;
+	padding:0 10px;
+	padding-left:40px;
+	color:#666;
 }
 #terminallike{
-	right:20px;
+	position:absolute;
+	right:0;
+	height:40px;
+	padding:0 10px;
 }
+
 </style>
 <div id="terminalmain" style='position:fixed;left:0;top:50;'>
 	<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
 </div>
 <div id='terminal_nav'>
 	<div id='terminaltitle'></div>
-	<div id='terminalstatus'></div>
-	<div id='terminallike'>♡</div>
+	<div id='terminalstatus' style="<%= @share ? '' : 'right:0' %>">
+		<img src='/assets/screen/eye.png' width=40 height=40>
+		<span id='viewer'>0/0</span>
+	</div>
+	<% if @share %>
+	<div id='terminallike' class='popupbutton'>
+		<img src='/assets/screen/like.png' width=40 height=40>
+		<div class='popup' style='padding:5px;'>
+			<iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/<%= @url %>" style="width:100px; height:20px;"></iframe>
+			<div id="fb-root"></div>
+			<script>(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="//connect.facebook.net/en_US/all.js#xfbml=1";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));</script>
+			<div class="fb-like" data-href="http://screenx.tv/<%= @url %>" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
+		</div>
+	</div>
+	<% end %>
 </div>
 <div id='chatmain' style='position:fixed;right:0;top:50;width:300px;box-shadow:0 0 16px black;overflow:hidden;background:white'>
-	<div id='chatform' style='box-shadow:0 0 5px rgba(0,0,0,0.2);position:absolute;left:0;top:0;width:100%;height:80px;'>
+	<div id='chatform' style='box-shadow:0 0 5px rgba(0,0,0,0.2);position:absolute;left:0;top:0;width:100%;height:90px;'>
 		<form onsubmit="try{post()}catch(e){}return false" style="margin:10px;margin-bottom:4px;">
 			<div id='form_icon'></div>
 			<div style='position:relative;height:100%;'>
 				<input id='message' style='' maxlength=100 autocomplete='off' placeholder='social stream'>
 			</div>
 		</form>
-		<div id='mysocial'></div>
+		<div id='mysocial'>
+			<img src='/assets/screen/anonymous.png' id='social_anonymous' alt='anonymous' title='anonymous'>
+			<img src='/assets/screen/twitter.png' id='social_twitter' alt='twitter' title='twitter'>
+			<span style='font-size:12px;'><nobr><input id='twitpost' type='checkbox'>post to twitter</nobr></span>
+		</div>
 	</div>
-	<div id='chatlist' style='position:absolute;width:100%;top:80px;overflow:auto'></div>
+	<div id='chatlist' style='position:absolute;width:100%;top:90px;overflow:auto'></div>
 </div>
 
 

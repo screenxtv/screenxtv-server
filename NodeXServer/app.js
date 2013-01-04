@@ -81,11 +81,8 @@ io.sockets.on('connection',function(socket){
 
 function ChannelData(id){
 	this.channelID=id;
-	this.viewerCount=0;
-	this.totalViewer=0;
-	this.maxViewer=0;
-	this.totalTime=0;
-	this.castInfo=null;
+	this.castInfo={viewer:0,total_viewer:0,max_viewer:0,total_time:0};
+	this.statistics=null;
 	this.castSocket=null;
 	this.castPassword=null;
 	this.endTimer=null;
@@ -104,29 +101,29 @@ ChannelData.prototype.broadcast=function(type,data,except){
 	else io.sockets.in(this.channelID).emit(type,data);
 }
 ChannelData.prototype.getInitData=function(){
-	return {info:this.info,casting:this.castSocket?true:false,vt100:this.vt100,viewer:this.viewerCount,chatlist:this.chatlist};
+	return {info:this.info,casting:this.castSocket?true:false,vt100:this.vt100,viewer:this.castInfo,chatlist:this.chatlist};
 }
 ChannelData.prototype.getSlugData=function(){return this.channelID+(this.castPassword&&'#'+this.castPassword);}
 ChannelData.prototype.getAdminData=function(){
-	return {viewer:this.viewerCount,chatlist:this.chatlist,slug:this.channelID+'#'+this.castPassword}
+	return {viewer:this.castInfo,chatlist:this.chatlist,slug:this.channelID+'#'+this.castPassword}
 }
 ChannelData.prototype.join=function(socket){
 	socket.join(this.channelID);
-	this.viewerCount++;
-	this.totalViewer++;
-	this.maxViewer=Math.max(this.maxViewer,this.viewerCount);
-	if(this.castInfo){
-		this.castInfo.total_viewer++;
-		this.castInfo.max_viewer=Math.max(this.castInfo.max_viewer,this.viewerCount);
-		this.castInfo.total_viewer++;
+	this.castInfo.viewer++;
+	this.castInfo.total_viewer++;
+	this.castInfo.max_viewer=Math.max(this.castInfo.max_viewer,this.castInfo.viewer);
+	if(this.statistics){
+		this.statistics.total_viewer++;
+		this.statistics.max_viewer=Math.max(this.statistics.max_viewer,this.castInfo.viewer);
+		this.statistics.total_viewer++;
 	}
 	socket.emit('init',this.getInitData());
-	this.broadcast('viewer',this.viewerCount,socket)
+	this.broadcast('viewer',this.castInfo,socket)
 }
 ChannelData.prototype.leave=function(socket){
 	socket.leave(this.channelID);
-	this.viewerCount--;
-	this.broadcast('viewer',this.viewerCount,socket)
+	this.castInfo.viewer--;
+	this.broadcast('viewer',this.castInfo,socket)
 	ChannelData.removeChannelData(this);
 };
 ChannelData.channelMap={};
@@ -152,7 +149,7 @@ ChannelData.getChannelData=function(id){
 	return ChannelData.channelMap[key]=new ChannelData(id);
 }
 ChannelData.removeChannelData=function(channel){
-	if(channel.chatlist==null&&channel.viewerCount==0)
+	if(channel.chatlist==null&&channel.castInfo.viewer==0)
 		delete ChannelData.channelMap['#'+channel.channelID];
 }
 ChannelData.prototype.notify=function(data){notify(this.channelID,this.private?{status:'private'}:data)}
@@ -160,17 +157,17 @@ ChannelData.prototype.createNotifyData=function(status){
 	var time=Math.round((new Date()-this.startTime)/1000);
 	return {
 		status:status,
-		total_viewer:this.castInfo?this.castInfo.total_viewer:0,
-		max_viewer:this.castInfo?this.castInfo.max_viewer:0,
-		total_time:this.castInfo?this.castInfo.total_time+time:0,
+		total_viewer:this.statistics?this.statistics.total_viewer:0,
+		max_viewer:this.statistics?this.statistics.max_viewer:0,
+		total_time:this.statistics?this.statistics.total_time+time:0,
 
 		vt100:JSON.stringify(this.vt100.getSubData(40,12)),
 		title:this.info.title,
 		color:this.info.color,
-		current_viewer:this.viewerCount,
-		current_max_viewer:this.maxViewer,
-		current_total_viewer:this.totalViewer,
-		current_time:this.totalTime+time,
+		current_viewer:this.castInfo.viewer,
+		current_max_viewer:this.castInfo.max_viewer,
+		current_total_viewer:this.castInfo.total_viewer,
+		current_time:this.castInfo.total_time+time,
 		pause_count:this.pauseCount
 	};
 }
@@ -203,7 +200,7 @@ ChannelData.prototype.castStart=function(socket,pswd,w,h,info,castInfo,chats){
 	if(this.castSocket)this.castSocket.disconnect();
 	if(this.chatlist==null)this.chatlist=chats||[];
 	this.info=info;
-	if(!this.castInfo)this.castInfo=castInfo||{total_viewer:0,max_viewer:0,total_time:0};
+	if(!this.statistics)this.statistics=castInfo||{total_viewer:0,max_viewer:0,total_time:0};
 	if(!this.startTime)this.startTime=new Date();
 	//this.private=info.private;
 	this.castPassword=pswd;
@@ -236,8 +233,8 @@ ChannelData.prototype.castEnd=function(socket){
 	var time=Math.round((new Date()-this.startTime)/1000);
 	this.castSocket=null;
 	this.startTime=null;
-	this.totalTime+=time;
-	if(this.castInfo)this.castInfo.totalTime+=time;
+	this.castInfo.total_time+=time;
+	if(this.statistics)this.statistics.castInfo.total_time+=time;
 	var channel=this;
 	this.endTimer=setTimeout(function(){channel.ended()},10*60*1000);
 }

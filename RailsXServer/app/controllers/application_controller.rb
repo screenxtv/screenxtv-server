@@ -41,8 +41,8 @@ class ApplicationController < ActionController::Base
     config.consumer_key=CONSUMER_KEY
     config.consumer_secret=CONSUMER_SECRET
   end
-  def twitter(token)
-    Twitter::Client.new token
+  def twitter(token=nil)
+    Twitter::Client.new token||session[:oauth][:token]
   end
   def news_twitter
     Twitter::Client.new NEWS_TOKEN

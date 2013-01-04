@@ -5,6 +5,10 @@ class OauthController < ApplicationController
     session[:request_token]={token:request_token.token,secret:request_token.secret}
     redirect_to request_token.authorize_url
   end
+  def disconnect
+    session.delete :oauth
+    render nothing:true
+  end
   def callback
     reqtoken=session[:request_token]
     if reqtoken
@@ -16,11 +20,7 @@ class OauthController < ApplicationController
     end
     if info
       @info={name:info.name||info.screen_name,icon:info.profile_image_url}
-      session[:oauth]={
-        id:info.id,
-        token:token,
-        info:@info
-      }
+      session[:oauth]={id:info.id,token:token,info:@info}
     end
     render layout:false
   end

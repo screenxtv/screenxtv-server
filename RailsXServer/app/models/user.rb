@@ -16,6 +16,10 @@ class User < ActiveRecord::Base
     user=User.new()
     user.name=params[:name]
     user.email=params[:email]
+
+    return nil if !user.name.match(/^[_a-zA-Z0-9]{4,}$/)
+    return nil if !user.email.match(/^[a-zA-Z0-9]+[a-zA-Z0-9\._-]*@[a-zA-Z0-9_-]+[a-zA-Z0-9\._-]+$/)
+
     user.password_digest=digest params[:password]
     user.auth_key=digest "#{params[:name]}#{params[:password]}#{rand}"
     begin
