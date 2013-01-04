@@ -1,14 +1,38 @@
-
-
-<%= link_to 'Sign out',{controller:'user',action:'signout'},method:'delete' %>
-
-<%= current_user.screens.count %>
-<% current_user.screens.each do |screen| %>
-
-<div><%= screen.url %></div>
-<div><%= screen.total_viewer %></div>
-<div><%= screen.max_viewer %></div>
-<div><%= screen.total_time %></div>
-<div><%= screen.casting? %></div>
-
-<% end %>
+<style>
+div.main{
+	margin:5px 20px;
+	font-size:18px;
+}
+#sign_in,#sign_up{
+	margin:16px;
+	border-radius:8px;
+	background:white;
+	box-shadow:0 0 8px silver;
+	width:300px;
+}
+div.item{
+	box-shadow:0 0 8px silver;
+	margin:16px;
+	padding:4px;
+}
+div.item div{font-size:18px;}
+div.item div.url{font-size:24px;}
+</style>
+<div class='main'>
+	<h1>User Profile</h1>
+	<div class='item'>
+		<div>user name: <%= current_user.name %></div>
+		<div>email: <%= current_user.email %></div>
+	</div>
+	<br>
+	<h1>Reserved URLs</h1>
+	<% current_user.screens.each do |screen| %>
+	<div class='item'>
+		<div class='url'><a href="/<%= screen.url %>"><%= screen.url %></a>
+		<div>Total Viewer: <%= screen.total_viewer %></div>
+		<div>Max Viewer: <%= screen.max_viewer %></div>
+		<% time=screen.total_time %>
+		<div>Total Time: <%= time/60/60/24 %>days <%= h=time/60/60%24;"#{h/10}#{h%10}"%>:<%= m=time/60%60;"#{m/10}#{m%10}" %></div>
+	</div>
+	<% end %>
+</div>
