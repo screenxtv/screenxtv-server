@@ -115,7 +115,6 @@ ChannelData.prototype.join=function(socket){
 	if(this.statistics){
 		this.statistics.total_viewer++;
 		this.statistics.max_viewer=Math.max(this.statistics.max_viewer,this.castInfo.viewer);
-		this.statistics.total_viewer++;
 	}
 	socket.emit('init',this.getInitData());
 	this.broadcast('viewer',this.castInfo,socket)

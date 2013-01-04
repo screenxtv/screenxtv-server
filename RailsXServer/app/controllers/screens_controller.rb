@@ -22,7 +22,7 @@ class ScreensController < ApplicationController
       return if message.size==0
       data={type:'chat',name:name,icon:icon,message:message}
       HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],data)
-      #twitterclient.update message+" http://screenx.tv/"+params[:url] if twitterclient
+      twitterclient.update message+" http://screenx.tv/"+params[:url] if twitterclient
     }
     screen=Screen.where(url:params[:url]).first
     if screen&&screen.user
@@ -69,9 +69,9 @@ class ScreensController < ApplicationController
         title=params[:title]
         title_max=40
         title=title[0,title_max-3]+"..." if title.length>title_max
-        url="http://example.com/#{params[:url]}"
+        url="http://screenx.tv/#{params[:url]}"
         tweet="'#{title}' started broadcasting! Check this out #{url}"
-        print "NEWS_TWIT #{tweet}"#news_twitter.update tweet
+        news_twitter.update tweet
       }
     end
     render nothing:true

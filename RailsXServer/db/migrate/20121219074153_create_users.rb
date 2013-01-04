@@ -5,6 +5,7 @@ class CreateUsers < ActiveRecord::Migration
       t.text     :email,null:false
       t.string   :password_digest,null:false
       t.string   :auth_key,null:false
+      t.boolean  :email_verified,default:false
 
      # t.date     :last_sign_in_at
      # t.integer  :sign_in_count, default:0

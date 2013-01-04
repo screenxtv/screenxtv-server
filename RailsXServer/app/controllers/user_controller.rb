@@ -12,7 +12,7 @@ class UserController < ApplicationController
 
   def signout
     session.delete :user_id
-    redirect_to action:'index'
+    redirect_to '/'
   end
 
   def create
