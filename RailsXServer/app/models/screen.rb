@@ -33,8 +33,9 @@ class Screen < ActiveRecord::Base
       screen=Screen.create(params)
       true
     else
+      state=screen.state
       screen.update_attributes params.slice *screen.attribute_names.map(&:to_sym)
-      false
+      state==STATE_NONE
     end
   end
   def chats_for_js

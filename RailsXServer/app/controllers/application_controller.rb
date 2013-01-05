@@ -3,7 +3,9 @@ class ApplicationController < ActionController::Base
   helper_method :user_signed_in?,:current_user,:social_info
   CONSUMER_KEY=ENV['CONSUMER_KEY']
   CONSUMER_SECRET=ENV['CONSUMER_SECRET']
-  NEWS_TOKEN={oauth_token:ENV['NEWS_ACCESS_TOKEN'],oauth_token_secret:ENV['NEWS_TOKEN_SECRET']}
+  NEWS_TOKEN={
+    consumer_key:ENV['NEWS_CONSUMER_KEY'],consumer_secret:ENV['NEWS_CONSUMER_SECRET'],
+    oauth_token:ENV['NEWS_ACCESS_TOKEN'],oauth_token_secret:ENV['NEWS_TOKEN_SECRET']}
   def consumer
     OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://twitter.com"})
   end
