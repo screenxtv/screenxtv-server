@@ -43,7 +43,7 @@ app.configure('production', function(){
 app.get('/:id',function(req,res){
 	if(req.connection.remoteAddress!=RAILS_IP){res.end();return}
 	var channel=ChannelData.channelActiveMap['#'+req.params.id];
-    res.end(JSON.stringify(channel&&{info:channel.info,vt100:channel.vt100}));
+	res.end(JSON.stringify(channel&&{info:channel.info,vt100:channel.vt100}));
 });
 
 app.post('/:id',function(req,res){
@@ -233,7 +233,7 @@ ChannelData.prototype.castEnd=function(socket){
 	this.castSocket=null;
 	this.startTime=null;
 	this.castInfo.total_time+=time;
-	if(this.statistics)this.statistics.castInfo.total_time+=time;
+	if(this.statistics)this.statistics.total_time+=time;
 	var channel=this;
 	this.endTimer=setTimeout(function(){channel.ended()},10*60*1000);
 }

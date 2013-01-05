@@ -86,11 +86,11 @@ class ScreensController < ApplicationController
       when 'color'
       out=info ? info.color : nil
       when 'viewer'
-      out=info ? info.viewer : 0
+      out=info ? info.current_viewer : 0
       when 'casting'
-      out=info ? info.casting : false
+      out=info ? info.casting? : false
       when nil
-      out={title:info.title,color:info.color,viewer:info.viewer,casting:info.casting} if info
+      out={title:info.title,color:info.color,viewer:info.current_viewer,casting:info.casting?} if info
     end
     render json:out
   end
