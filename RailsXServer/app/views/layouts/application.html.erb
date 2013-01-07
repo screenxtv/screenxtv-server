@@ -121,3 +121,28 @@ $(function(){
 </div>
 
 <%= yield %>
+
+
+<% if @footer %>
+<style>
+div.footer{
+  border-top:1px solid#eee;
+  text-align:right;
+  margin-top:20px;
+  padding:10px 20px;
+  font-size:14px;
+  color:gray;
+}
+div.footer a{color:#444}
+div.footer span{margin-right:20px;}
+</style>
+<div class='footer'>
+  <span class=contact>News:
+    <a href='http://twitter.com/screenx_tv'>@screenx_tv</a>
+  </span>
+  <span class=contact>Contact:
+    <a href='http://twitter.com/tompng'>@tompng</a>
+  </span>
+  <a href='/doc/team'>Team</a>
+</div>
+<% end %>

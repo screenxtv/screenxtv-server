@@ -1,10 +1,16 @@
 class IndexController < ApplicationController
   def index
+    @footer=true
     @screens=Screen.getSorted(100)
   end
 
   def howto
+    @footer=true
     @title='Install'
+  end
+  def team
+    @footer=true
+    @title='Team'
   end
 
   def embed
@@ -15,6 +21,7 @@ class IndexController < ApplicationController
   end
 
   def screen
+    @title=params[:url]
     @url=params[:url]
     screen=Screen.where(url:@url).first
     @share=screen && screen.user ? true : false;

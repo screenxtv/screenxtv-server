@@ -39,9 +39,10 @@ $(function(){
 	}
 	terminalview.onInit=function(data){
 		if(!data.vt100){
-			$("#terminal").text('OFF AIR')	
+			$("#terminal").text('OFF AIR');
+			window.onresize();
 		}
-		title=data.info?data.info.title:""
+		var title=data.info?data.info.title:""
 		$("#terminaltitle").text(title);
 		document.title=(title?title+" - ":"")+"ScreenX TV";
 		if(data.casting)terminalview.onCastStart();

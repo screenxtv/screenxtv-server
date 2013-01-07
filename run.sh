@@ -10,10 +10,6 @@ export NEWS_ACCESS_TOKEN=1003487647-27gvEUidncxAJJ506TOu5CbpmtCwPziqtbf17B3
 export NEWS_TOKEN_SECRET=lZvuckd6MRTcNvySGZmCHZjkhkIhdMDJIbtB7js4aak
 
 cd NodeXServer
-#curl localhost:$NODE_PORT/ ||nohup node app.js&
+curl localhost:$NODE_PORT/ ||nohup node app.js&
 cd ../RailsXServer
-#unicorn_rails -E production -p $RAILS_PORT -D
-RAILS_ENV=production rails s -p $RAILS_PORT
-
-
-
+unicorn_rails -E production -p $RAILS_PORT -D -c config/unicorn.rb

@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
     user=User.new()
     user.name=params[:name]
     user.email=params[:email]
-
+    return nil if not params[:password].match /^[\x21-\x7e]+$/
     user.password_digest=digest params[:password]
     user.auth_key=digest "#{params[:name]}#{params[:password]}#{rand}"
     begin
