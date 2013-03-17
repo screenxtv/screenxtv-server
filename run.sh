@@ -13,3 +13,4 @@ cd NodeXServer
 curl localhost:$NODE_PORT/ ||nohup node app.js&
 cd ../RailsXServer
 unicorn_rails -E production -p $RAILS_PORT -D -c config/unicorn.rb
+#RAILS_ENV=production rails s -p 4000

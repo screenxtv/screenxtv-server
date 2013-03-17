@@ -11,6 +11,11 @@ RailsXServer::Application.routes.draw do
   match 'screens/post/:url', to:'screens#post',via:'post',as:'post'
   match 'screens/status/:url(/:key)',to:'screens#status'
 
+  match 'screens.:format',to:'screens#index'
+
+  match 'screens/post/:room/:id', to:'screens#post',via:'post',as:'post'
+  match 'private/:url', to: 'index#private_screen'
+
   match 'user/signin',to:'user#signin'
   match 'user/signout',to:'user#signout',via:'delete'
   match 'user/new',to:'user#new'

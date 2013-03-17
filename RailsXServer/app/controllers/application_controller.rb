@@ -7,9 +7,9 @@ class ApplicationController < ActionController::Base
     consumer_key:ENV['NEWS_CONSUMER_KEY'],consumer_secret:ENV['NEWS_CONSUMER_SECRET'],
     oauth_token:ENV['NEWS_ACCESS_TOKEN'],oauth_token_secret:ENV['NEWS_TOKEN_SECRET']}
   def consumer
-    OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://twitter.com"})
+    OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://api.twitter.com"})
   end
-  
+
   def current_user_icon
     if social_info
       social_info[:icon]

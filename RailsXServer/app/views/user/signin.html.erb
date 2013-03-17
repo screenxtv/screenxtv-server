@@ -1,18 +1,24 @@
 <style>
 div.main{
-  min-width:500px;
+  width:680px;
   margin:20px;
   text-align:left;
-  display:inline-block;
   padding:5px 20px;
-  box-shadow:0 0 4px silver;
 }
-#sign_in,#sign_up{
+#sign_in{background:#eef;}
+#sign_up{background:#fed;}
+#sign_in_button{background:#aaf;}
+#sign_up_button{background:#fb8;}
+
+.main>form{
+	width:300px;
 	margin:16px;
+	float:left;
+}
+form{
 	border-radius:8px;
 	background:white;
 	box-shadow:0 0 8px silver;
-	width:300px;
 }
 input{
 	width:240px;
@@ -24,7 +30,7 @@ input{
 	padding:2px 5px;
 	margin:5px;
 }
-	input.text{
+input.text{
 	box-shadow:-1px -1px 2px silver inset;
 }
 div.sign_head{
@@ -33,24 +39,31 @@ div.sign_head{
 
 </style>
 <center>
-	<div class='main'>
-		<div id='sign_in'>
-			<div class='sign_head'>Sign in</div>
-			<%= form_tag '/user/signin' do |f|%>
-				<div><input name=name placeholder='username' class='text'></div>
-				<div><input type=password name=password placeholder=password class='text'></div>
-				<%= submit_tag 'Sign in'%>
-			<% end %>
-		</div>
-		<br>
-		<div id='sign_up'>
-			<div class='sign_head'>Create your account</div>
-			<%= form_tag '/user/create' do |f|%>
-				<input name=name placeholder='username' class='text'>
-				<input name=email placeholder=email class='text'>
-				<input type=password name=password placeholder=password class='text'>
-				<%= submit_tag 'Create account'%>
-			<% end %>
-		</div>
+<div class='main'>
+	<%= form_tag '/user/signin',id:'sign_in' do |f|%>
+		<div class='sign_head'>Sign in</div>
+		<div><input name='name_or_email' placeholder='username or email' class='text'></div>
+		<div><input type=password name=password placeholder=password class='text'></div>
+		<%= submit_tag 'Sign in',id:'sign_in_button' %>
+	<% end %>
+	<%= form_tag '/user/create',id:'sign_up' do |f|%>
+		<div class='sign_head'>Create your account</div>
+		<input name=name placeholder='username' class='text'>
+		<input name=email placeholder=email class='text'>
+		<input type=password name=password placeholder=password class='text'>
+		<%= submit_tag 'Create account',id:'sign_up_button' %>
+	<% end %>
+	<div style='clear:left;'></div>
+	<div style='font-size:24px;'>
+		If you create your account:
+		<ul>
+			<li>
+			  You can get a reserved url
+			  (e.g. if your username is 'tompng', you'll get 'http://screenx.tv/tompng').
+			</li>
+			<li>
+			  Chat logs in your broadcasting page are stored and not flushed.
+			</li>
+		</ul>
 	</div>
 </center>

@@ -1,6 +1,6 @@
 class UserController < ApplicationController
   def signin
-    user=User.authenticate params[:name],params[:password]
+    user=User.authenticate params[:name_or_email],params[:password]
     if user
       session[:user_id]=user.id if user
       redirect_to action:'index'

@@ -11,6 +11,14 @@ class ScreensController < ApplicationController
     Net::HTTP.new(host,port).post(path,URI.encode_www_form(hash))
   end
 
+  def index
+    @screens=Screen.getSorted(100).select{|s|s.casting?}.map{|s|{url:s.url,title:s.title}}
+    respond_to do |format|
+      format.html{render nothing:true}
+      format.json{render json:@screens}
+    end
+  end
+
   def post
     name=current_user_name
     icon=current_user_icon
@@ -18,16 +26,25 @@ class ScreensController < ApplicationController
     max_chats=256
     message=params[:message].strip[0,max_length]
     twitterclient=twitter if social_info && params[:twitter]
+    if params[:url]
+      url=params[:url]
+      private_flag=false
+    else
+      url=params[:room]+'/'+params[:id]
+      private_flag=true
+    end
     Thread.new{
       return if message.size==0
       data={type:'chat',name:name,icon:icon,message:message}
-      HTTPPost(NODE_IP,NODE_PORT,"/"+params[:url],data)
-      twitterclient.update message+" http://screenx.tv/"+params[:url] if twitterclient
+      HTTPPost(NODE_IP,NODE_PORT,"/"+url,data)
+      twitterclient.update message+" http://screenx.tv/"+url if twitterclient
     }
-    screen=Screen.where(url:params[:url]).first
-    if screen&&screen.user
-      screen.chats.create(name:name,icon:icon,message:message)
-      screen.chats.order('created_at DESC').offset(max_chats).destroy_all
+    if !private_flag
+      screen=Screen.where(url:url).first
+      if screen&&screen.user
+        screen.chats.create(name:name,icon:icon,message:message)
+        screen.chats.order('created_at DESC').offset(max_chats).destroy_all
+      end
     end
     render nothing:true
   end

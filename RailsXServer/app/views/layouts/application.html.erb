@@ -8,7 +8,7 @@
   <% #stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag "application" %>
   <%= csrf_meta_tags %>
-  <%#= render partial:'/analytics' %>
+  <%= render partial:'/analytics' %>
   <script>csrf_token="<%= form_authenticity_token %>"</script>
 </head>
 <body>
@@ -114,7 +114,7 @@ $(function(){
       </div>
     <% else %>
       <div class='header_sign_in'>
-        <%= link_to 'Sign in',{controller:'user',action:'signin'} %>
+        <%= link_to 'Create your account or Sign in',{controller:'user',action:'signin'} %>
       </div>
     <% end %>
   </nobr>
@@ -126,23 +126,29 @@ $(function(){
 <% if @footer %>
 <style>
 div.footer{
-  border-top:1px solid#eee;
-  text-align:right;
-  margin-top:20px;
-  padding:10px 20px;
-  font-size:14px;
-  color:gray;
+min-width: 1040px;
+border-top: 1px solid #EEE;
+text-align: right;
+margin-top: 20px;
+padding: 10px 20px;
+font-size: 14px;
+color: gray;
 }
-div.footer a{color:#444}
-div.footer span{margin-right:20px;}
+div.footer span{margin-right: 20px;}
+div.footer a{color: #444;}
 </style>
 <div class='footer'>
-  <span class=contact>News:
+  <span style="float:left;">
+    ©2013 Tomoya Ishida and Yohei Yasukawa
+  </span>
+  <span>
+    <a href='mailto:team@yasulab.jp'>Contact us</a>
+  </span>
+  <span>
+    <a href='/doc/team'>Team</a>
+  </span>
+  <span>News:
     <a href='http://twitter.com/screenx_tv'>@screenx_tv</a>
   </span>
-  <span class=contact>Contact:
-    <a href='http://twitter.com/tompng'>@tompng</a>
-  </span>
-  <a href='/doc/team'>Team</a>
 </div>
 <% end %>

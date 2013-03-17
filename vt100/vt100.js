@@ -11,7 +11,7 @@ function VT100(){
 VT100.prototype.reset=function(){
 	this.line=[];
 	for(var i=0;i<this.H;i++)this.line[i]=new VT100.Line();
-	this.font=this.fontDefault=0x00088;
+	this.font=this.fontDefault=0x300000;
 	this.scrollStart=0;this.scrollEnd=this.H-1;
 	this.cursorX=0;this.cursorY=0;
 	this.insertMode=false;
@@ -303,21 +303,45 @@ VT100.prototype.parseEscapeK=function(cmd){
 			}
 			return;
 		}
-		case 'm':{
+		case 'm':{//console.log('^['+this.escChar+'m');
 			if(!this.escChar){this.font=this.fontDefault;return;}
 			var params=this.escChar.split(";");
 			for(var i=0;i<params.length;i++){
+				if(params[i]==0){this.font=this.fontDefault;continue;}
 				var val=params[i]%10;
 				var key=(params[i]-val)/10;
-				if(key==0){
-					if(val==0){this.font=this.fontDefault;continue;}
-					else if(val==1)this.font|=0x00100;
-					else if(val==4)this.font|=0x01000;
-					else if(val==7)this.font|=0x10000;
-				}else if(key==3){
-					if(val<8)this.font=(this.font&0x1110f)|(val<<4);
-				}else if(key==4){
-					if(val<8)this.font=(this.font&0x111f0)|val;
+				switch(key){
+					case 0:{
+						if(val==1)this.font|=0x10000;
+						else if(val==4)this.font|=0x20000;
+						else if(val==7)this.font|=0x40000;
+						else if(val==8)this.font|=0x80000;
+					}break;
+					case 2:{
+						if(val==4)this.font&=~0x20000;
+						else if(val==7)this.font&=~0x40000;
+						else if(val==8)this.font&=~0x80000;
+					}break;
+					case 3:{
+						if(val<8)this.font=(this.font&0x1f00ff)|(val<<8);
+						else if(val==8){
+							var type=params[++i],color=params[++i]&0xff;
+							if(type==5)this.font=(this.font&0x1f00ff)|(color<<8);
+						}else if(val==9)this.font=(this.font&0x1f00ff)|0x200000;
+					}break;
+					case 4:{
+						if(val<8)this.font=(this.font&0x2fff00)|val;
+						else if(val==8){
+							var type=params[++i],color=params[++i]&0xff;
+							if(type==5)this.font=(this.font&0x2fff00)|color;
+						}else if(val==9)this.font=(this.font&0x2fff00)|0x100000;
+					}break;
+					case 9:{
+					    this.font=(this.font&0x1f00ff)|((8+val)<<8);
+					}break;
+					case 10:{
+						this.font=(this.font&0x2fff00)|(8+val);
+					}break;
 				}
 			}
 			return;

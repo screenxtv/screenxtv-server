@@ -8,6 +8,7 @@ div.main{
 }
 div.description{
   font-size:20px;
+  font-weight:bold;
   margin-bottom:20px;
 }
 div.howto{font-size:16px;}
@@ -74,7 +75,7 @@ h1.install a:active{
       </h1>
       <h1 id='ruby'>Install with Ruby</h1>
         <div class=description>
-          If you have <a href='http://rubygems.org'>rubygems</a> and Ruby 1.9.x or higher, you can install by:
+          If you have <a href='http://rubygems.org'>rubygems</a> and Ruby 1.9.3 or higher, you can install by:
           <div class='gemcode'>gem install screenxtv</div>
         </div>
       <div class='shell'>
@@ -101,6 +102,14 @@ h1.install a:active{
         &gt; <span class=cursor>&nbsp;</span><br>
       </div>
       <div class=description>
+	To stop broadcasting, `exit` from the screen.
+      </div>
+      <div class='shell'>
+	<span class=prompt>bash$</span> <span class=input>exit</span><br>
+	[screen is terminating]<br>
+	broadcast end
+      </div>
+      <div class=description>
         Options are:
       </div>
       <div class='shell'>
@@ -110,6 +119,7 @@ h1.install a:active{
         &nbsp;&nbsp;&nbsp;&nbsp;-c [color]<br>
         &nbsp;&nbsp;&nbsp;&nbsp;-t [title]<br>
         &nbsp;&nbsp;&nbsp;&nbsp;-reset<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;-private<br>
         &nbsp;&nbsp;&nbsp;&nbsp;-f config_file<br><br>
         <span class=comment>Examples:</span><br>
         <span class=prompt>bash$</span> <span class=input>screenxtv -u myurl2 -t "New Title"</span><br>
@@ -120,6 +130,12 @@ h1.install a:active{
         <span class=comment>&nbsp;Reset configurations</span><br>
         <span class=prompt>bash$</span> <span class=input>screenxtv -f ./conf.yml</span><br>
         <span class=comment>&nbsp;Save the config to "./conf.yml" instead of "~/.screenxtv.yml"</span><br>
+        <span class=prompt>bash$</span> <span class=input>screenxtv -private</span><br>
+        <span class=comment>&nbsp;Starting private broadcasting.<br>
+	  &nbsp;Screens won't be displayed on the top page.<br>
+	  &nbsp;The only user who knows the url can watch your screen.<br>
+	  &nbsp;URL would be like http://screenxtv/private/[random_id]
+	</span><br>
       </div>
       <h1 id='gcc'>Install with GCC</h1>
       <div class=description>

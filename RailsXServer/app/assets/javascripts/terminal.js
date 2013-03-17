@@ -7,7 +7,10 @@ function Terminal(element,w,h,color){
 	pre.style.userSelect=pre.style.WebkitUserSelect=pre.style.KhtmlUserSelect="text";
 	pre.style.fontFamily="Osaka-Mono,MS-Gothic,MS-Mincho,SimSun,monospace";
 	pre.style.lineHeight="1em";
-	pre.style.display="inline";
+	pre.style.display="block";
+	pre.style.margin=pre.style.padding=0;
+	pre.style.background="transparent";
+	pre.style.border="none";
 	cur.style.position="absolute";cur.style.opacity=cur.style.MozOpacity=0.5;
 	var front=document.createElement("DIV");
 	front.style.userSelect=front.style.WebkitUserSelect=front.style.KhtmlUserSelect="none";
@@ -21,6 +24,7 @@ function Terminal(element,w,h,color){
 	this.W=w;this.H=h;
 	this.calcSize();
 	this.setColor(color?color:Terminal.defaultColorMap.white);
+	window.term=this
 }
 Terminal.prototype.resize=function(w,h){
 	this.W=w;this.H=h;
@@ -33,7 +37,7 @@ Terminal.prototype.setColor=function(color){
 	this.color=color;
 	this.main.style.background=color.background;
 	this.cursor.style.background=color.cursor;
-	if(color.backgroundColor)this.main.style.backgroundColor=color.backgroundColor;
+	if(color.background)this.main.style.background=color.background;
 	this.updateView();
 }
 Terminal.prototype.calcSize=function(){
@@ -47,21 +51,26 @@ Terminal.prototype.calcSize=function(){
 	this.text.innerHTML="";
 };
 Terminal.prototype.setSpanFont=function(span,font){
-	var highlight=font&0x00100;
-	var flip=font&0x10000;
-	if(font&0x01000)span.style.textDecoration="underline";
-	var fg=(highlight?this.color.highlight:this.color.normal)[(font&0x000f0)>>4];
-	var bg=(highlight?this.color.highlight:this.color.normal)[font&0x0000f];
-	if(flip){
-		span.style.color=bg?bg:this.color.backgroundColor||this.color.background;
-		span.style.background=fg?fg:highlight?this.color.emphasis:this.color.foreground;
+	var highlight=font&0x10000;
+	var underline=font&0x20000;
+	var flipcolor=font&0x40000;
+	var hidefgcol=font&0x80000;
+	var defaultfg=font&0x200000;
+	var defaultbg=font&0x100000;
+	if(underline)span.style.textDecoration="underline";
+	var table=highlight?this.color.highlight:this.color.normal;
+	var fg=defaultfg?null:table[(font&0xff00)>>8];
+	var bg=defaultbg?null:table[font&0x00ff];
+	if(flipcolor){
+		span.style.color=hidefgcol?'transparent':bg||this.color.background;
+		span.style.background=fg||(highlight?this.color.emphasis:this.color.foreground);
 	}else{
-		span.style.color=fg?fg:highlight?this.color.emphasis:this.color.foreground;
+		span.style.color=hidefgcol?'transparent':fg?fg:highlight?this.color.emphasis:this.color.foreground;
 		span.style.background=bg?bg:null;
 	}
 };
 Terminal.prototype.createHalfChar=function(s){
-	var span=document.createElement("SPAN");
+	var span=document.createElement("span");
 	span.textContent=s;
 	span.style.width=this.char_w+"px";
 	span.style.display="inline-block";
@@ -71,7 +80,9 @@ Terminal.prototype.updateView=function(){
 	this.text.innerHTML="";
 	for(var i=0;i<this.vt100.H;i++){
 		var s="";
-		var div=document.createElement("SPAN");div.style.display="block";
+		var div=document.createElement("nobr");
+		div.style.display="block";
+		div.style.whiteSpace='pre'
 		div.style.height=this.char_h+"px";
 		var fontprev=-1;
 		var specialhalfprev=-1;
@@ -86,7 +97,7 @@ Terminal.prototype.updateView=function(){
 				s+=c;
 			}else{
 				if(s){
-					var span=document.createElement("SPAN");
+					var span=document.createElement("span");
 					if(specialhalfprev){
 						for(var k=0;k<s.length;k++)span.appendChild(this.createHalfChar(s.charAt(k)));
 					}else span.textContent=s;
@@ -98,7 +109,7 @@ Terminal.prototype.updateView=function(){
 				specialhalfprev=specialhalf;
 			}
 		}
-		var span=document.createElement("SPAN");
+		var span=document.createElement("span");
 		if(specialhalfprev){
 			for(var k=0;k<s.length;k++)span.appendChild(this.createHalfChar(s.charAt(k)));
 		}else span.textContent=s;
@@ -130,5 +141,24 @@ Terminal.defaultColorMap={
 		normal:["#000000","#990000","#00A600","#999900","#0000B3","#B300B3","#00A6B3","#BFBFBF"],
 		highlight:["#000000","#990000","#00A600","#999900","#0000B3","#B300B3","#00A6B3","#BFBFBF"],
 		foreground:"#BFFFBF",background:"#001F00",emphasis:"#7FFF7F",cursor:"#FFFFFF"
-	},
+	},//kore!
 };
+(function(){
+	function toHex(n){s="0123456789ABCDEF";return s[n>>4]+s[n&0xf]}
+	var color=[
+		"#000000","#990000","#00A600","#999900","#0000B3","#B300B3","#00A6B3","#BfBfBf",
+		"#666666","#E60000","#00D900","#E6E600","#0000FF","#E600E6","#00E6E6","#E6E6E6"
+	];
+	for(var r=0;r<6;r++)for(var g=0;g<6;g++)for(var b=0;b<6;b++){
+		color[16+r*36+g*6+b]="#"+toHex(51*r)+toHex(51*g)+toHex(51*b);
+	}
+	for(var i=0;i<24;i++){
+		var c=toHex(8+10*i);
+		color[232+i]="#"+c+c+c;
+	}
+	for(var key in Terminal.defaultColorMap){
+		cmap=Terminal.defaultColorMap[key];
+		for(var i=cmap.normal.length;i<color.length;i++)cmap.normal[i]=color[i];
+		for(var i=cmap.highlight.length;i<color.length;i++)cmap.highlight[i]=color[i];
+	}
+})()

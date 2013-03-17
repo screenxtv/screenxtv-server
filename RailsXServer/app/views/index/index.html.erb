@@ -1,23 +1,22 @@
 <%= javascript_include_tag "top" %>
+<%= stylesheet_link_tag "application" %>
 <script>
 terminalList=[<%= @screens.map(&:to_json).join(",").html_safe %>];
-</script>
-<script>
+
+
 $(function(){
 	var first=terminalList[0];
 	if(first&&first.casting){
-		var embed=$("<iframe/>");
-		var embed=
-		embed.attr("src","/embed/"+first.url+"?link=true");
-		$("#demo").append(embed);
+		$("#demoframe").attr("src","/embed/"+first.url);
+    $("#demohref").attr('href','/'+first.url)
 	}
-	var main=$('#main');
+	var main=$('#terminal-list');
 	var tiles=[];
 	for(var i=0;i<terminalList.length;i++){
-		var data=terminalList[i]
+		var data=terminalList[i];
 		var vt100=data.vt100;
 		var div=document.createElement('div');
-		div.className='terminal';
+		div.className='terminal-thumbnail';
 		main.append(div);
 		console.log(vt100)
 		var terminal=new Terminal(div,vt100.W,vt100.H,Terminal.defaultColorMap[data.color]);
@@ -34,106 +33,39 @@ $(function(){
 		if(!data.casting)div.style.opacity=0.5;
 		tiles.push(div);
 	}
-	while(tiles.length<4){
+	while(tiles.length<6){
 		var div=document.createElement("div");
-		div.className='terminal dummy';
+		div.className='terminal-thumbnail-dummy';
 		main.append(div);
 		tiles.push(div);
 	}
 	console.log(tiles[0])
-	tompngTile('.terminal','#main',tiles[0].offsetWidth,24,24);
+  main.append("<div style='clear:both'/>");
 });
 
-</script>
-
-<style>
-a.title{
-	font-size:32px;
-	color:white;
-	text-shadow:0 0 10px black;
-	text-decoration:none;
-	text-align:center;
-	position:absolute;left:0;top:0;width:100%;height:100%;
-}
-a.title div{
-	position:absolute;left:0;bottom:0;width:100%;
-	background:rgba(64,64,64,0.5);
-}
-.terminal{
-	position:relative;
-	font-size:16px;
-	box-shadow:0 0 8px gray;
-}
-.terminal,.dummy{width:320px;height:192px;}
-.terminal:hover{
-	box-shadow:0 0 32px gray;
-}
-.dummy{
-	box-shadow:0 0 8px rgba(127,127,127,0.2);
-}
-.dummy:hover{
-	box-shadow:0 0 8px rgba(127,127,127,0.2);
-}
-#main{position:relative;margin:0;padding:0;}
-iframe{
-	border:none;
-	width:100%;
-	height:400px;
-}
-div.whatis{
-  margin:20px;
-  text-align:left;
-  display:inline-block;
-  padding:5px 20px;
-  box-shadow:0 0 4px silver;
-}
-div.description{
-  font-size:20px;
-  margin-bottom:20px;
-}
-div.howto{font-size:16px;}
-div.code{
-  font-family:Osaka-Mono,monospace;
-  padding:0 5px;margin:0;
-  height:20px;
-  line-height:20px;
-  background:#eee;
-}
-</style>
-<script>
 function textselect(e){
-  var range=document.createRange();
-  range.setStart(e,0);
-  range.setEnd(e,1);
-  var sel=getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
+  e.select(0,e.value.length);			     
 }
 </script>
 <center>
-<div class="whatis">
-<% lang=request.env['HTTP_ACCEPT_LANGUAGE']%>
-<% if lang&&lang.scan(/[a-z]{2}/).first=='ja' %>
-  <div class='description'>
-    ScreenX TVを使えばあなたのターミナル画面を生中継できます。<br>
-    勉強会の配信、講義、ペアプログラミングなどのシーンでご活用ください。<br>
+<div class='contents'>
+  <div class='contents_top'>
+    <div class="top_info">
+      <center><img src='/assets/logo_large.png' width=300></center>
+      <div class='description'>
+        The best way to broadcast your terminal to the world.<br>
+        Show your live coding for a presentation, hackathon, or pair code reading.<br>
+      </div>
+      <div class='howto'>
+	To broadcast, install <a href='/doc/howto' style='text-decoration:underline;font-weight:bold;border-radius:2px;border:1px solid silver;background:#ddd;color:#800;margin:1px;padding:1px 2px;'>this broadcasting tool</a> or type this command:<br>
+        <input class='code' onclick='textselect(this)' style='display:block;width:500px;' value="curl -s -L https://raw.github.com/yasulab/screenxtv-sandbox/master/run.sh | bash">
+      </div>
+    </div>
+    <div class='top_demo'>
+      <iframe id='demoframe'></iframe>
+      <a id='demohref'></a>
+    </div>
   </div>
-  <div class='howto'>
-    次のコマンドを実行するか、<a href='/doc/howto'>配信ツール</a>をインストールしてください。
-    <div class='code' onclick='textselect(this)'>curl -s -L https://raw.github.com/yasulab/screenxtv-sandbox/master/run.sh | bash</div>
-  </div>
-<% else %>
-  <div class='description'>
-    ScreenX TV is the best way to broadcast your terminal to the world.<br>
-    Show your live coding for a presentation, hackathon, or remote pair programming.<br>
-  </div>
-  <div class='howto'>
-    Install <a href='/doc/howto'>broadcasting tools</a>, or run this command:<br>
-    <div class='code' onclick='textselect(this)'>curl -s -L https://raw.github.com/yasulab/screenxtv-sandbox/master/run.sh | bash</div>
-  </div>
-<% end %>
+  <div id='terminal-list'></div>
 </div>
 </center>
-
-<center id='demo'></center>
-<div id='main'></div>

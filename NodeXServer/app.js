@@ -1,3 +1,4 @@
+
 var express = require('express')
 	, http = require('http')
 	, net = require('net')
@@ -40,19 +41,45 @@ app.configure('production', function(){
 	console.log('production')
 });
 
+
+function filter(req){return req.connection.remoteAddress==RAILS_IP}
+function apigetinfo(channelID){
+	var channel=ChannelData.channelActiveMap['#'+channelID];
+	return JSON.stringify(channel&&{info:channel.info,vt100:channel.vt100});
+}
+function apipost(channelID,reqbody){
+	var channel=ChannelData.channelMap['#'+channelID];
+	if(!channel||reqbody.type!='chat')return;
+	channel.chat({name:reqbody.name,icon:reqbody.icon,message:reqbody.message});
+}
 app.get('/:id',function(req,res){
-	if(req.connection.remoteAddress!=RAILS_IP){res.end();return}
-	var channel=ChannelData.channelActiveMap['#'+req.params.id];
-	res.end(JSON.stringify(channel&&{info:channel.info,vt100:channel.vt100}));
+	if(!filter(req)){res.end();return;}
+	res.end(apigetinfo(req.params.id));
+});
+app.get('/:room/:id',function(req,res){
+	if(!filter(req)){res.end();return;}
+	res.end(apigetinfo(req.params.room+'/'+req.params.id));
 });
 
 app.post('/:id',function(req,res){
-	if(req.connection.remoteAddress!=RAILS_IP){res.end();return}
-	//var channel=ChannelData.channelActiveMap['#'+req.params.id];
-	var channel=ChannelData.channelMap['#'+req.params.id];
-	if(channel&&req.body.type=='chat')channel.chat({name:req.body.name,icon:req.body.icon,message:req.body.message});
+	if(!filter(req)){res.end();return;}
+	apipost(req.params.id,req.body);
 	res.end();
-})
+});
+app.post('/:room/:id',function(req,res){
+	if(!filter(req)){res.end();return;}
+	apipost(req.params.room+'/'+req.params.id,req.body);
+	res.end();
+});
+app.get('/admin/reload/:module/',function(req,res){
+	if(!filter(req)){res.end();return;}
+	switch(req.params.module){
+		case 'vt100':VT100=require('../vt100/vt100');break;
+		case 'request':request=require('request');break;
+	}
+	res.end();
+});
+
 
 var server=http.createServer(app).listen(PORT,function(){
 	console.log("Express server listening on port " + PORT);
@@ -103,7 +130,7 @@ ChannelData.prototype.broadcast=function(type,data,except){
 ChannelData.prototype.getInitData=function(){
 	return {info:this.info,casting:this.castSocket?true:false,vt100:this.vt100,viewer:this.castInfo,chatlist:this.chatlist};
 }
-ChannelData.prototype.getSlugData=function(){return this.channelID+(this.castPassword&&'#'+this.castPassword);}
+ChannelData.prototype.getSlugData=function(){return this.channelID.split('/').pop()+'#'+this.castPassword;}
 ChannelData.prototype.getAdminData=function(){
 	return {viewer:this.castInfo,chatlist:this.chatlist,slug:this.channelID+'#'+this.castPassword}
 }
@@ -134,9 +161,10 @@ function genRandomID(n){
 	for(var i=0;i<n;i++)name+=chars.charAt(chars.length*Math.random());
 	return name;
 }
-ChannelData.genUniqID=function(n){
-	for(var len=n||2;len<16;len++){
-		var name=genRandomID(len);
+ChannelData.genUniqID=function(n,prefix){
+	if(!prefix)prefix=''
+	for(var len=n||2;len<=16||len==n;len++){
+		var name=prefix+genRandomID(len);
 		if(!ChannelData.channelMap['#'+name])return name;
 	}
 	return null;
@@ -151,7 +179,7 @@ ChannelData.removeChannelData=function(channel){
 	if(channel.chatlist==null&&channel.castInfo.viewer==0)
 		delete ChannelData.channelMap['#'+channel.channelID];
 }
-ChannelData.prototype.notify=function(data){notify(this.channelID,this.private?{status:'private'}:data)}
+ChannelData.prototype.notify=function(data){if(!this.private)notify(this.channelID,data)}
 ChannelData.prototype.createNotifyData=function(status){
 	var time=Math.round((new Date()-this.startTime)/1000);
 	return {
@@ -173,13 +201,9 @@ ChannelData.prototype.createNotifyData=function(status){
 ChannelData.prototype.notifyStatus=function(){
 	if(this.notifyTimer)clearTimeout(this.notifyTimer);
 	var info=this.info||{};
-	if(this.private)this.notify();
-	else{
-		var data=this.createNotifyData();
-		data.vt100=JSON.stringify(this.vt100.getSubData(40,12));
-
-		this.notify(this.createNotifyData('update'))
-	}
+	var data=this.createNotifyData();
+	data.vt100=JSON.stringify(this.vt100.getSubData(40,12));
+	this.notify(this.createNotifyData('update'))
 	this.pauseCount++;
 	var channel=this;
 	this.notifyTimer=setTimeout(function(){channel.notifyStatus()},10*1000);
@@ -194,20 +218,21 @@ ChannelData.prototype.chat=function(data){
 }
 ChannelData.prototype.castStart=function(socket,pswd,w,h,info,castInfo,chats){
 	if(this.castPassword){
-		if(this.castPassword!=pswd||this.private!=info.private)throw 'url already in use';
+		if(this.castPassword!=pswd)throw 'url already in use';
 	}
 	if(this.castSocket)this.castSocket.disconnect();
 	if(this.chatlist==null)this.chatlist=chats||[];
+	this.private=info.private?true:false;
 	this.info=info;
 	if(!this.statistics)this.statistics=castInfo||{total_viewer:0,max_viewer:0,total_time:0};
 	if(!this.startTime)this.startTime=new Date();
-	//this.private=info.private;
 	this.castPassword=pswd;
 	this.castSocket=socket;
-	socket.emit('slug',this.getSlugData());
+	if(this.private)socket.emit('private_url',this.getSlugData());
+	else socket.emit('slug',this.getSlugData());
 	socket.emit('init',this.getAdminData());
 	this.vt100=new VT100(w,h);
-	this.notifyStatus();
+	if(!this.private)this.notifyStatus();
 	this.broadcast('castStart',{info:this.info,vt100:this.vt100},socket);
 	ChannelData.channelActiveMap['#'+this.channelID]=this;
 	if(this.endTimer){clearTimeout(this.endTimer);this.endTimer=null;}
@@ -226,8 +251,11 @@ ChannelData.prototype.castData=function(socket,data){
 }
 ChannelData.prototype.castEnd=function(socket){
 	if(this.castSocket!=socket)return;
-	clearTimeout(this.notifyTimer);this.notifyTimer=null;
-	this.notify(this.createNotifyData('castend'))
+	if(this.notifyTimer){
+		clearTimeout(this.notifyTimer);
+		this.notifyTimer=null;
+	}
+	if(!this.private)this.notify(this.createNotifyData('castend'))
 	this.broadcast('castEnd','castend',socket);
 	var time=Math.round((new Date()-this.startTime)/1000);
 	this.castSocket=null;
@@ -243,7 +271,7 @@ ChannelData.prototype.ended=function(){
 	this.vt100=null;
 	this.info=null;
 	this.chatlist=null;
-	this.notify({status:'terminate'})
+	if(!this.private)this.notify({status:'terminate'})
 	this.broadcast('terminate','terminate');
 	delete ChannelData.channelActiveMap['#'+this.channelID];
 	ChannelData.removeChannelData(this);
@@ -259,7 +287,7 @@ net.createServer(function(usocket){
 	var key={lengthRead:0,lengthReadSize:1,length:0,position:0};
 	var val={lengthRead:0,lengthReadSize:2,length:0,position:0};
 	var current=key;
-	var trafficParam=trafficTime=0;
+	var trafficParam=0,trafficTime=0;
 	var trafficSpan=1,trafficBps=256*1000;
 	usocket.setKeepAlive(true,60*1000);
 	usocket.on('data',function(data){
@@ -332,10 +360,37 @@ net.createServer(function(usocket){
 			});
 			return;
 		}
-		var kv=(data.slug||"").split('#');
+
 		var info=data.info||{};
+		if(data.private){
+			info.private=true
+			if(data.private_url){
+				var kv=data.private_url.split('#');
+				var url='private/'+kv[0];
+				console.log(url)
+				var key=kv[1]||genRandomID(16);
+				console.log()
+				try{
+					channel=ChannelData.getChannelData(url);
+					channel.castStart(iosocket,key,width,height,info);
+					return;
+				}catch(e){}
+			}
+			try{
+				var url=ChannelData.genUniqID(16,'private/');
+				channel=ChannelData.getChannelData(url);
+				channel.castStart(iosocket,genRandomID(16),width,height,info);
+			}catch(e){
+				console.log('private',e);
+				iosocket.emit('error',e);
+				iosocket.disconnect();
+			}
+			return;
+		}
+
+		var kv=(data.slug||"").split('#');
 		var width=data.width,height=data.height;
-		var url=kv[0],castkey=kv[1]||genRandomID(16);
+		var url=kv[0],castkey=data.auth_key||kv[1]||genRandomID(16);
 		if(!url.match("^[a-zA-Z0-9_]*$")){
 			iosocket.emit('errtype','url');
 			iosocket.emit('error','invalid url');
@@ -360,7 +415,11 @@ net.createServer(function(usocket){
 			}else{
 				try{
 					channel=ChannelData.getChannelData(url);
-					channel.castStart(iosocket,castkey,width,height,info,data.info,data.chats);
+					if(data.info){
+						channel.castStart(iosocket,url+"/"+castkey,width,height,info,data.info,data.chats);
+					}else{
+						channel.castStart(iosocket,castkey,width,height,info,null,null);
+					}
 				}catch(e){
 					console.log('cb',e);
 					iosocket.emit('error',e);

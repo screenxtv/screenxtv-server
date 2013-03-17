@@ -1,0 +1,56 @@
+<style>
+div.main{
+  min-width:500px;
+  margin:20px;
+  text-align:left;
+  display:inline-block;
+  padding:5px 20px;
+  box-shadow:0 0 4px silver;
+}
+#sign_in,#sign_up{
+	margin:16px;
+	border-radius:8px;
+	background:white;
+	box-shadow:0 0 8px silver;
+	width:300px;
+}
+input{
+	width:240px;
+	border-radius:4px;
+	font-size:24px;
+	line-height:30px;
+	height:30px;
+	border:1px solid gray;
+	padding:2px 5px;
+	margin:5px;
+}
+	input.text{
+	box-shadow:-1px -1px 2px silver inset;
+}
+div.sign_head{
+	font-size:32px;
+}
+
+</style>
+<center>
+	<div class='main'>
+		<div id='sign_in'>
+			<div class='sign_head'>Sign in</div>
+			<%= form_tag '/user/signin' do |f|%>
+				<div><input name=name placeholder='username' class='text'></div>
+				<div><input type=password name=password placeholder=password class='text'></div>
+				<%= submit_tag 'Sign in'%>
+			<% end %>
+		</div>
+		<br>
+		<div id='sign_up'>
+			<div class='sign_head'>Create your account</div>
+			<%= form_tag '/user/create' do |f|%>
+				<input name=name placeholder='username' class='text'>
+				<input name=email placeholder=email class='text'>
+				<input type=password name=password placeholder=password class='text'>
+				<%= submit_tag 'Create account'%>
+			<% end %>
+		</div>
+	</div>
+</center>
