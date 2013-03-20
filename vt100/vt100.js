@@ -78,7 +78,7 @@ VT100.prototype.write=function(c){
 				else{this.parseEscape(c);this.escMode=0;}
 				return;
 			case 2:
-				if(('A'<=c&&c<='Z')||('a'<=c&&c<='z')){
+				if(('A'<=c&&c<='Z')||('a'<=c&&c<='z')||c=='@'){
 					this.parseEscapeK(c);
 					this.escMode=0;
 					this.escChar='';
@@ -130,6 +130,11 @@ VT100.prototype.parseEscape=function(c){
 VT100.prototype.parseEscapeK=function(cmd){
 	/**/esclog("^["+cmd);/**/
 	switch(cmd){
+		case '@':{
+			var n=this.escChar?parseInt(this.escChar):1;
+			this.insertCount=n;
+			return;
+		}
 		case 'A':{
 			var n=this.escChar?parseInt(this.escChar):1;
 			this.scrollCursor(this.cursorX,this.cursorY-n);
@@ -290,12 +295,6 @@ VT100.prototype.parseEscapeK=function(cmd){
 			this.moveCursor(this.cursorX,n-1)
 			return;
 		}
-		case 'f':{
-			var n=this.escChar?parseInt(this.escChar):1;
-			alert(n)
-			this.moveCursor(0,n-1)
-			return;
-		}
 		case 'h':case 'l':{
 			var flag=(cmd=='h');
 			switch(this.escChar){
@@ -368,7 +367,8 @@ VT100.prototype.put=function(c){
 		ln.fonts[ln.length]=this.fontDefault;
 		ln.length++;
 	}
-	if(this.insertMode){
+	if(this.insertMode||this.insertCount){
+		if(this.insertCount)this.insertCount--;
 		for(var i=ln.length;i>this.cursorX;i--){
 			ln.chars[i]=ln.chars[i-1];
 			ln.fonts[i]=ln.fonts[i-1];
