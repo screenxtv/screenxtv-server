@@ -312,13 +312,13 @@ VT100.prototype.parseEscapeK=function(cmd){
 				switch(key){
 					case 0:{
 						if(val==1)this.font|=0x10000;
-						else if(val==4)this.font|=0x20000;
-						else if(val==7)this.font|=0x40000;
+						else if(val==2||val==4)this.font|=0x20000;
+						else if(val==3||val==7)this.font|=0x40000;
 						else if(val==8)this.font|=0x80000;
 					}break;
 					case 2:{
-						if(val==4)this.font&=~0x20000;
-						else if(val==7)this.font&=~0x40000;
+						if(val==2||val==4)this.font&=~0x20000;
+						else if(val==3||val==7)this.font&=~0x40000;
 						else if(val==8)this.font&=~0x80000;
 					}break;
 					case 3:{

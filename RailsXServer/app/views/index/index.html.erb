@@ -47,18 +47,58 @@ function textselect(e){
   e.select(0,e.value.length);			     
 }
 </script>
+<style>
+  .codefor{
+    font-size:20px;
+    font-weight:bold;
+    position:relative;
+    font-family:Sans-Serif;
+  }
+  .codefor:after{
+    content:':';
+    position:absolute;
+    right:10px;
+  }
+  .codeto{
+    font-family:Courier;
+    font-size:22px;
+    border:2px solid gray;
+    background:#666;
+    color:white;
+    border-radius:4px;
+    overflow:hidden;
+    text-shadow:0 0 4px black;
+    margin-bottom:6px;
+  }
+  .codeto:before{
+    content:'$ ';
+  }
+  .more{
+    font-family:Sans-Serif;
+    font-size:22px;
+    padding:0 2px;
+    overflow:hidden;
+    font-family:Courier;
+  }
+</style>
 <center>
 <div class='contents'>
   <div class='contents_top'>
     <div class="top_info">
-      <center><img src='/assets/logo_large.png' width=300></center>
-      <div class='description'>
+      <center><img src='/assets/logo_large.png' width='256'></center>
+      <div class='description' style='font-size:18px;'>
         The best way to broadcast your terminal to the world.<br>
         Show your live coding for a presentation, hackathon, or pair code reading.<br>
       </div>
       <div class='howto'>
-	To broadcast, install <a href='/doc/howto' style='text-decoration:underline;font-weight:bold;border-radius:2px;border:1px solid silver;background:#ddd;color:#800;margin:1px;padding:1px 2px;'>this broadcasting tool</a> or type this command:<br>
-        <input class='code' onclick='textselect(this)' style='display:block;width:500px;' value="curl -s -L https://raw.github.com/yasulab/screenxtv-sandbox/master/run.sh | bash">
+<div class='codefor' style='float:left;width:150px;'>Install</div>
+<div class='codeto'>gem install screenxtv</div>
+<div class='codefor' style='float:left;width:150px;'>Broadcast</div>
+<div class='codeto'>screenxtv [--private]</div>
+<div class='codefor' style='float:left;width:150px;'>For details</div>
+<div class='more'>See <a href="http://screenx.tv/doc/howto">this document</a>.</div>
+<!--	To broadcast, install <a href='/doc/howto' style='text-decoration:underline;font-weight:bold;border-radius:2px;border:1px solid silver;background:#ddd;color:#800;margin:1px;padding:1px 2px;'>this broadcasting tool</a> or type this command:<br>
+        <input class='code' onclick='textselect(this)' style='display:block;width:500px;' value="curl -s -L https://raw.github.com/screenxtv/screenxtv-sandbox/master/run.sh | bash">-->
       </div>
     </div>
     <div class='top_demo'>
