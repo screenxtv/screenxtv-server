@@ -9,10 +9,13 @@ gem 'omniauth-twitter'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'sqlite3'
+gem 'mysql2'
+
 
 
 group :development,:test do
+  gem 'taps'
+  gem 'sqlite3'
 #  gem 'factory_girl_rails'
 #  gem 'rspec-rails'
 end
