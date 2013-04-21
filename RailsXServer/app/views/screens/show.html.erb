@@ -5,7 +5,7 @@
 var csrf_token="<%= form_authenticity_token %>";
 var channelID="<%= @url %>";
 var host=location.hostname;
-var port=<%= node_port %>;
+var port=<%= node_port.to_i %>;
 var chats=<%= safe_json @chats %>;
 var social=<%= safe_json social_info %>;
 var terminalview;

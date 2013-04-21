@@ -12,37 +12,4 @@ class IndexController < ApplicationController
     @footer=true
     @title='Team'
   end
-
-  def embed
-    @title=params[:url]
-    @url=params[:url]
-    @link=params[:link]
-    render layout:false
-  end
-
-  def screen
-    @title=params[:url]
-    @url=params[:url]
-    screen=Screen.where(url:@url).first
-    @share=screen && screen.user ? true : false;
-    @chats=screen ? screen.chats_for_js : []
-    if params.include? :chat
-      render 'chat',layout:false
-    else
-      render layout:false
-    end
-  end
-
-  def private_screen
-    @title=params[:url]
-    @url="private/#{params[:url]}"
-    @share=false
-    @chats=[]
-    @private=true
-    if params.include? :chat
-      render action:'chat',layout:false
-    else
-      render action:'screen',layout:false
-    end
-  end
 end

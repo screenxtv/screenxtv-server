@@ -48,9 +48,9 @@ div.sign_head{
 	<% end %>
 	<%= form_tag '/user/create',id:'sign_up' do |f|%>
 		<div class='sign_head'>Create your account</div>
-		<input name=name placeholder='username' class='text'>
-		<input name=email placeholder=email class='text'>
-		<input type=password name=password placeholder=password class='text'>
+		<input name=signup[name] placeholder='username' class='text'>
+		<input name=signup[email] placeholder=email class='text'>
+		<input name=signup[password] type=password placeholder=password class='text'>
 		<%= submit_tag 'Create account',id:'sign_up_button' %>
 	<% end %>
 	<div style='clear:left;'></div>

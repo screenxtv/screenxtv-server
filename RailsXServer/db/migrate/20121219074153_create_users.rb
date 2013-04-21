@@ -7,9 +7,6 @@ class CreateUsers < ActiveRecord::Migration
       t.string   :auth_key,null:false
       t.boolean  :email_verified,default:false
 
-     # t.date     :last_sign_in_at
-     # t.integer  :sign_in_count, default:0
-
       t.string   :oauth_provider
       t.integer  :oauth_uid, limit:8
       t.string   :oauth_token

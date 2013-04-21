@@ -1,5 +1,6 @@
 class UserController < ApplicationController
   def signin
+    redirect_to user_index_path and return if user_signed_in?
     user=User.authenticate params[:name_or_email],params[:password]
     if user
       session[:user_id]=user.id if user
@@ -16,7 +17,8 @@ class UserController < ApplicationController
   end
 
   def create
-    user=User.create_account(params)
+    @params=params
+    user=User.create_account(params[:signup])
     if user
       session[:user_id]=user.id
       redirect_to action:'index'

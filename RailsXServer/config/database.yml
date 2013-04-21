@@ -1,6 +1,7 @@
-B1;2cdevelopment:
+development:
   adapter: mysql2
   encoding: utf8
+  collation: utf8_bin
   reconnect: false
   database: screenxtv_development
   pool: 5
@@ -11,6 +12,7 @@ B1;2cdevelopment:
 test:
   adapter: mysql2
   encoding: utf8
+  collation: utf8_bin
   reconnect: false
   database: screenxtv_test
   pool: 5

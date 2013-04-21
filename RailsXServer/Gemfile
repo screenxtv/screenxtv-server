@@ -16,8 +16,8 @@ gem 'mysql2'
 group :development,:test do
   gem 'taps'
   gem 'sqlite3'
+  gem 'rspec-rails'
 #  gem 'factory_girl_rails'
-#  gem 'rspec-rails'
 end
 
 # Gems used only for assets and not required
