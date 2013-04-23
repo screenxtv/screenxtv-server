@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
     Digest::SHA2.hexdigest(password)
   end
   def self.oauth_authenticate(oauth)
-    Oauth.where(provider:oauth.provider,id:oauth.id).first.try :user
+    Oauth.where(provider:oauth[:provider],uid:oauth[:uid]).first.try :user
   end
   def self.authenticate(name_or_email,password)
     if name_or_email&&password

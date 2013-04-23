@@ -12,37 +12,26 @@ class OauthController < ApplicationController
   end
 
   def callback
-    connect_info=session[:connect_info]
-    session.delete :connect_info
-    provider=connect_info[:provider]
-    render nothing:true and return unless connect_info
-    request_token=OAuth::RequestToken.new(consumer(connect_info[:provider]),connect_info[:token],connect_info[:secret])
-    access_token=request_token.get_access_token({},oauth_token:params[:oauth_token],oauth_verifier:params[:oauth_verifier])
-    oauth_user=oauth_info provider, access_token
-    render nothing:true and return unless oauth_user
+    auth = request.env["omniauth.auth"]
+    render nothing:true and return unless auth
+    oauth_user = {
+      provider: auth[:provider],
+      uid: auth[:uid],
+      name: auth[:info][:nickname],
+      icon: auth[:info][:image],
+      display_name: auth[:info][:name],
+      token: auth[:credentials][:token],
+      secret: auth[:credentials][:secret],
+    }
     session[:oauth]||={}
-    session[:oauth][:main]=session[:oauth][provider]=oauth_user
+    session[:oauth][:main]=session[:oauth][oauth_user[:provider]]=oauth_user
     user=User.oauth_authenticate oauth_user
     session[:user_id]=user.id if user
     render layout:false
   end
 
-
-  def oauth_info provider,access_token
-    self.send "oauth_info_#{provider}", provider, access_token
-  end
-
-  def oauth_info_twitter provider, access_token
-    user = twitter(oauth_token:access_token.token,oauth_token_secret:access_token.secret).user
-    return nil unless user
-    {
-      provider: provider,
-      uid: user.id,
-      token: access_token.token,
-      secret: access_token.secret,
-      name: user.screen_name,
-      display_name: user.name || user.screen_name,
-      icon: user.profile_image_url
-    }
+  def consumer provider
+    info=OAuthConsumers[provider]
+    OAuth::Consumer.new(info[:consumer_key],info[:consumer_secret],{site:info[:site]})
   end
 end

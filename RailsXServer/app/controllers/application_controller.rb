@@ -3,17 +3,9 @@ class ApplicationController < ActionController::Base
   helper_method :user_signed_in?,:current_user,:social_info
 
   Twitter.configure do |config|
-    info=OAuthConsumers::TWITTER
+    info=OAuthConsumers['twitter']
     config.consumer_key=info[:consumer_key]
     config.consumer_secret=info[:consumer_secret]
-  end
-  
-  def consumer provider
-    case provider
-      when 'twitter'
-        info=OAuthConsumers::TWITTER
-    end
-    OAuth::Consumer.new(info[:consumer_key],info[:consumer_secret],{site:info[:site]}) if info
   end
 
   def current_user_icon

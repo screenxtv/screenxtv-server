@@ -1,3 +1,4 @@
+
 if Rails.env.production?
   TWITTER_NEWS={
     consumer_key:"Ve2c9FEbmgBxTD3Tcg5mWw",
@@ -14,11 +15,19 @@ else
   }
 end
 
-module OAuthConsumers
-  PROVIDERS=[:twitter]
-  TWITTER={
-    site:"http://api.twitter.com",
+OAuthConsumers = {
+  'twitter' => {
     consumer_key:"pJ2F7coxlc5jlKcmSPrLqQ",
     consumer_secret:"n0qURhYbR8ugJfET12fhb1ko4vJD18e8Kmuxlk3M884"
+  },
+  'facebook' => {
+    consumer_key:"508541325870692",
+    consumer_secret:"a625d91dec4d294f484e563e35e8d381"
   }
+}
+
+Rails.application.config.middleware.use OmniAuth::Builder do
+  OAuthConsumers.each do |provider, data|
+    provider provider.to_sym, data[:consumer_key], data[:consumer_secret]
+  end
 end
