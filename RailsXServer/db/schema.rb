@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20121230172805) do
+ActiveRecord::Schema.define(:version => 20130422013027) do
 
   create_table "chats", :force => true do |t|
     t.integer  "screen_id",  :null => false
@@ -21,6 +21,22 @@ ActiveRecord::Schema.define(:version => 20121230172805) do
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
+
+  create_table "oauths", :force => true do |t|
+    t.integer  "user_id"
+    t.string   "provider"
+    t.string   "uid"
+    t.string   "token"
+    t.string   "secret"
+    t.string   "name"
+    t.string   "icon"
+    t.string   "display_name"
+    t.datetime "created_at",   :null => false
+    t.datetime "updated_at",   :null => false
+  end
+
+  add_index "oauths", ["provider", "uid"], :name => "index_oauths_on_provider_and_uid", :unique => true
+  add_index "oauths", ["user_id"], :name => "index_oauths_on_user_id"
 
   create_table "screens", :force => true do |t|
     t.string   "url",                                 :null => false
@@ -40,26 +56,23 @@ ActiveRecord::Schema.define(:version => 20121230172805) do
     t.integer  "pause_count",          :default => 0
     t.datetime "created_at",                          :null => false
     t.datetime "updated_at",                          :null => false
+    t.integer  "cast_count",           :default => 0
   end
 
   add_index "screens", ["url"], :name => "by_url", :unique => true
 
   create_table "users", :force => true do |t|
-    t.string   "name",                                            :null => false
-    t.string   "email",                                           :null => false
-    t.string   "password_digest",                                 :null => false
-    t.string   "auth_key",                                        :null => false
-    t.boolean  "email_verified",               :default => false
-    t.string   "oauth_provider"
-    t.integer  "oauth_uid",       :limit => 8
-    t.string   "oauth_token"
-    t.string   "oauth_secret"
-    t.datetime "created_at",                                      :null => false
-    t.datetime "updated_at",                                      :null => false
+    t.string   "name",                               :null => false
+    t.string   "email",                              :null => false
+    t.string   "password_digest",                    :null => false
+    t.string   "auth_key",                           :null => false
+    t.boolean  "email_verified",  :default => false
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
+    t.string   "display_name"
   end
 
   add_index "users", ["email"], :name => "by_email", :unique => true
   add_index "users", ["name"], :name => "by_name", :unique => true
-  add_index "users", ["oauth_provider", "oauth_uid"], :name => "by_oauth", :unique => true
 
 end

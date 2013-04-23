@@ -22,8 +22,8 @@ RailsXServer::Application.routes.draw do
   match 'user/create',to:'user#create',via:'post'
   match 'user/index',to:'user#index'
 
-  match 'oauth/connect',to:'oauth#connect'
-  match 'oauth/disconnect',to:'oauth#disconnect',via:'delete'
+  match 'oauth/connect/:provider',to:'oauth#connect'
+  match 'oauth/disconnect/:provider',to:'oauth#disconnect',via:'delete'
   match 'oauth/callback',to:'oauth#callback'
 
   match ':url', to:'screens#show'

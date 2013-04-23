@@ -1,13 +1,23 @@
 class User < ActiveRecord::Base
-  attr_accessible :name,:email,:password
+  attr_accessible :name, :display_name, :email, :password, :icon
   attr_accessor :password
-  has_many :screens,dependent: :destroy
-  validates_format_of :name,with:/^[_a-zA-Z0-9]{4,}$/
-  validates_format_of :email,with:/^[a-zA-Z0-9_-][a-zA-Z0-9\._-]*@[a-zA-Z0-9_-][a-zA-Z0-9\._-]*$/
+  has_many :screens, dependent: :destroy
+  has_many :oauths, dependent: :destroy
+  validates_format_of :name, with:/^[_a-zA-Z0-9]{4,}$/
+  validates_uniqueness_of :name
+  validates_format_of :email, with:/^[a-zA-Z0-9_-][a-zA-Z0-9\._-]*@[a-zA-Z0-9_-][a-zA-Z0-9\._-]*$/
   validates_presence_of :password_digest
+
+  # User.create(name: 'hogehoge')
+  # u = User.new(name: 'hogehoge')
+  # u.valid?
+  # u.errors[:name] # => ['error', 'messages']
 
   def self.digest(password)
     Digest::SHA2.hexdigest(password)
+  end
+  def self.oauth_authenticate(oauth)
+    Oauth.where(provider:oauth.provider,id:oauth.id).first.try :user
   end
   def self.authenticate(name_or_email,password)
     if name_or_email&&password
@@ -38,5 +48,13 @@ class User < ActiveRecord::Base
       user
     rescue
     end
+  end
+  def connect_with oauth
+    oauths.where(provider:oauth[:provider]).create_or_update(oauth)
+    self.display_name ||= oauth.display_name
+    self.icon ||= oauth.icon
+  end
+  def oauth_disconnect provider
+    oauths.where(provider:provider).destroy
   end
 end

@@ -1,13 +1,19 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
   helper_method :user_signed_in?,:current_user,:social_info
-  CONSUMER_KEY=ENV['CONSUMER_KEY']
-  CONSUMER_SECRET=ENV['CONSUMER_SECRET']
-  NEWS_TOKEN={
-    consumer_key:ENV['NEWS_CONSUMER_KEY'],consumer_secret:ENV['NEWS_CONSUMER_SECRET'],
-    oauth_token:ENV['NEWS_ACCESS_TOKEN'],oauth_token_secret:ENV['NEWS_TOKEN_SECRET']}
-  def consumer
-    OAuth::Consumer.new(CONSUMER_KEY,CONSUMER_SECRET,{site:"http://api.twitter.com"})
+
+  Twitter.configure do |config|
+    info=OAuthConsumers::TWITTER
+    config.consumer_key=info[:consumer_key]
+    config.consumer_secret=info[:consumer_secret]
+  end
+  
+  def consumer provider
+    case provider
+      when 'twitter'
+        info=OAuthConsumers::TWITTER
+    end
+    OAuth::Consumer.new(info[:consumer_key],info[:consumer_secret],{site:info[:site]}) if info
   end
 
   def current_user_icon
@@ -33,20 +39,19 @@ class ApplicationController < ActionController::Base
       user
     end
   end
+  def user_signed_in!
+    redirect_to user_signin_path unless user_signed_in?
+  end
   def user_signed_in?
     session[:user_id]!=nil&&current_user!=nil
   end
   def social_info
     session[:oauth][:info] if session[:oauth]
   end
-  Twitter.configure do |config|
-    config.consumer_key=CONSUMER_KEY
-    config.consumer_secret=CONSUMER_SECRET
-  end
   def twitter(token=nil)
-    Twitter::Client.new token||session[:oauth][:token]
+    Twitter::Client.new token||session[:oauth_twitter][:token]
   end
   def news_twitter
-    Twitter::Client.new NEWS_TOKEN
+    Twitter::Client.new TWITTER_NEWS
   end
 end

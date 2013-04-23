@@ -17,20 +17,34 @@ describe User do
     before do
       user = User.create_account(name:'hoge',email:'foo@bar',password:'piyo')
     end
-    it 'should validate' do
-      keys=[:name,:email,:password]
-      keys.length.times.each do |i|
-        ngkey=keys[i]
-        ng[ngkey].each do |ngval|
-          data={}.tap{|h|keys.each{|k,v|h[k]=v}}
-          data[ngkey]=ngval
-          User.create_account(data).should be_nil
-        end
+
+    context 'when valid user params passed' do
+      it 'should create user' do
+        User.create_account(ok).should_not be_nil
+      end
+      it 'should create user' do
+        expect {
+          User.create_account(ok)
+        }.to change(User, :count).by(1)
       end
     end
-    it 'should save valid data' do
-      User.create_account(ok).should_not be_nil
+
+    context 'when invalid user params passed' do
+      it 'should not create user' do
+        expect {
+          keys=[:name,:email,:password]
+          keys.length.times.each do |i|
+            ngkey=keys[i]
+            ng[ngkey].each do |ngval|
+              data={}.tap{|h|keys.each{|k,v|h[k]=v}}
+              data[ngkey]=ngval
+              User.create_account(data).should be_nil
+            end
+          end
+        }.to_not change(User, :count)
+      end
     end
+
     it 'should save valid data only once' do
       User.create_account(name:'hoge',email:ok[:email],password:ok[:password]).should be_nil
       User.create_account(name:ok[:name],email:'foo@bar',password:ok[:password]).should be_nil
@@ -49,6 +63,7 @@ describe User do
         user.screens.create(url:'aaa').should_not be_nil
         user.screens.create(url:'bbb').should_not be_nil
         expect{user.screens.create(url:'aaa')}.to raise_error
+        expect{user.create(url:'ccc')}.to change(Screen,:count).by(1)
       end
       context 'when screen exists' do
         it 'should fail creating account' do
