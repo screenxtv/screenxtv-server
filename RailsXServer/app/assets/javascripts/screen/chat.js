@@ -118,14 +118,18 @@ $(function(){
   $("#message").focus(function(){$("#chatform form").css('box-shadow','0 0 8px blue')})
   $("#message").blur(function(){$("#chatform form").css('box-shadow','none')})
   $(".social_connect").click(function(){
-    var s=$(this).data('social');
-    if(s=='anonymous')social_info.main=null;
-    else if(social_info[s]){social_info.main=s;}
+    var provider=$(this).data('provider');
+    if(provider=='anonymous')social_info.main=null;
+    else if(social_info[provider]){social_info.main=provider;}
     else {
-      window.open('/auth/'+s,'socialconnect','width=600,height=400,toolbar=no,menubar=no,status=no');
+      window.open('/auth/'+provider,'socialconnect','width=600,height=400,toolbar=no,menubar=no,status=no');
       return;
     }
-    //if(social_info)$.post('/oauth/disconnect',{authenticity_token:csrf_token,_method:'delete'},function(){setSocial(null)});
+    $.post(
+      "/auth/switch",
+      {authenticity_token:csrf_token, provider: provider},
+      function(info){onSocialConnect(info);}
+    );
     onSocialConnect(social_info)
   })
   onSocialConnect(social_info);

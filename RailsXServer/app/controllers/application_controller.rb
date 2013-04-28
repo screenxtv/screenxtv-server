@@ -41,7 +41,7 @@ class ApplicationController < ActionController::Base
     info={}
     if session[:oauth]
       session[:oauth].each do|social,data|
-        info[social]=data.slice(:name,:display_name,:icon)
+        info[social]=data.slice(:name,:display_name,:icon) if social!=:main
       end
       info[:main]=session[:oauth][:main]
     end

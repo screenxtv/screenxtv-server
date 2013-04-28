@@ -1,5 +1,4 @@
 class OauthController < ApplicationController
-  CALLBACK_PATH="/oauth/callback"
 
   def callback
     auth = request.env["omniauth.auth"]
@@ -17,12 +16,20 @@ class OauthController < ApplicationController
     session[:oauth] ||= {}
     provider = oauth_user[:provider]
     session[:oauth][provider] = oauth_user
-    user=User.find_by_oauth oauth_user
-    session[:user_id]=user.id if user
+    session[:oauth][:main] = provider
+    user = User.find_by_oauth oauth_user
+    session[:user_id] = user.id if user
     render layout:false
   end
 
-  def destroy
-    session[:oauth].delete params[:provider]
+  def switch
+    render nothing:true and return unless session[:oauth]
+    provider = params[:provider]
+    if(session[:oauth][provider])
+      session[:oauth][:main] = provider
+    else
+      session[:oauth].delete :main
+    end
+    render json:social_info
   end
 end

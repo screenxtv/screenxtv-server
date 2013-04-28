@@ -1,7 +1,7 @@
 <%= javascript_include_tag "application" %>
 <%= stylesheet_link_tag    "application", :media => "all" %>
+<%= csrf_meta_tags %>
 <script>
-var csrf_token="<%= form_authenticity_token %>";
 var channelID="<%= @url %>";
 var host=location.hostname;
 var port=<%= node_port.to_i %>;
