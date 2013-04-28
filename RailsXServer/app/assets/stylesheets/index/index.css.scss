@@ -54,21 +54,46 @@
     min-height:300px;
     margin:20px;
     padding:20px;
-    .top_info{;
+    .top_info{
       width:500px;
-      div.description{
-        font-size:20px;
+      .description{
+        font-size:18px;
         margin-bottom:20px;
       }
-      div.howto{
-        font-size:16px;
-      }
-      div.code{
-        font-family:Osaka-Mono,monospace;
-        padding:0 5px;margin:0;
-        height:20px;
-        line-height:20px;
-        background:#ccc;
+      .howto{
+        .codefor{
+          font-size:20px;
+          font-weight:bold;
+          position:relative;
+          font-family:Sans-Serif;
+          float:left;width:150px;
+        }
+        .codefor:after{
+          content:':';
+          position:absolute;
+          right:10px;
+        }
+        .codeto{
+          font-family:Courier;
+          font-size:22px;
+          border:2px solid gray;
+          background:#666;
+          color:white;
+          border-radius:4px;
+          overflow:hidden;
+          text-shadow:0 0 4px black;
+          margin-bottom:6px;
+        }
+        .codeto:before{
+          content:'$ ';
+        }
+        .more{
+          font-family:Sans-Serif;
+          font-size:22px;
+          padding:0 2px;
+          overflow:hidden;
+          font-family:Courier;
+        }
       }
     }
     .top_demo{
