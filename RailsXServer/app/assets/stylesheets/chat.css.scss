@@ -1,0 +1,104 @@
+@import 'mixin';
+
+#chatform{
+  box-shadow:0 0 5px rgba(0,0,0,0.2);
+  position:absolute;
+  left:0;
+  top:0;
+  width:100%;
+  height:100px;
+  form{
+    border-radius:8px;
+    border:1px solid silver;
+    padding:2px 4px;
+    margin:0px;
+    height:50px;
+    font-size:16px;
+    position:relative;
+    img{
+      position:absolute;
+      left:6px;top:6px;
+      width:30px;height:30px;
+      border-radius:4px;
+    }
+    #message{
+      margin:0;
+      padding:12px 6;
+      outline:none;
+      border:none;
+      height:100%;
+      width:100%;
+      font-size:16px;
+      resize:none;
+    }
+  }
+  #mysocial{
+    margin:0 10px;padding:0;
+    height:24px;line-height:24px;
+    img{
+      @include gradient(#bbb,#999);
+      border-radius:4px;
+      width:24px;height:24px;
+      cursor:pointer;
+      &.active{
+        @include gradient(#777,#555);
+      }
+    }
+  }
+  #twitcheckbox{position:absolute;left:10px;bottom:2px;font-size:16px;}
+}
+
+
+#chatlist{
+  position:absolute;
+  width:100%;
+  top:100px;
+  overflow:auto;
+  overflow-x:hidden;
+  .chat_wrap{
+    position:relative;
+    margin:0;
+    padding:0;
+    width:100%;
+    div.chat{
+      position:relative;
+      border-radius:5px;
+      margin:5px;
+      padding:5px;
+      box-shadow:0 0 8px rgba(0,0,0,0.2);
+      min-height:30px;
+      img{
+        position:absolute;
+        left:5px;
+        top:5px;
+        width:24px;
+        height:24px;
+        border-radius:4px;
+      }
+      .name{
+        margin-left:30px;
+        font-size:12px;
+        overflow:hidden;
+        line-height:1em;
+        color:#444;
+      }
+      .message{
+        margin-left:30px;
+        margin-top:2px;
+        font-size:16px;
+        overflow-x:hidden;
+        color:black;
+        word-break:break-all;
+      }
+      .time{
+        text-align:right;
+        font-size:10px;
+        color:silver;
+        overflow:hidden;
+        line-height:1em;
+      }
+    }
+  }
+}
+
+

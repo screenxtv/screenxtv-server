@@ -1,0 +1,6 @@
+@mixin gradient($start,$end){
+  background:($start+$end)/2;
+  background:-webkit-linear-gradient(top,$start,$end);
+  background:-moz-linear-gradient(top,$start,$end);
+  background:-o-linear-gradient(top,$start,$end);    
+}

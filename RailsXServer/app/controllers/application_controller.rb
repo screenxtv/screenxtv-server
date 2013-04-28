@@ -38,7 +38,14 @@ class ApplicationController < ActionController::Base
     session[:user_id]!=nil&&current_user!=nil
   end
   def social_info
-    session[:oauth][:info] if session[:oauth]
+    info={}
+    if session[:oauth]
+      session[:oauth].each do|social,data|
+        info[social]=data.slice(:name,:display_name,:icon)
+      end
+      info[:main]=session[:oauth][:main]
+    end
+    info
   end
   def twitter(token=nil)
     Twitter::Client.new token||session[:oauth_twitter][:token]

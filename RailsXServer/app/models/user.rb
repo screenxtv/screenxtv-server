@@ -16,10 +16,10 @@ class User < ActiveRecord::Base
   def self.digest(password)
     Digest::SHA2.hexdigest(password)
   end
-  def self.oauth_authenticate(oauth)
+  def self.find_by_oauth(oauth)
     Oauth.where(provider:oauth[:provider],uid:oauth[:uid]).first.try :user
   end
-  def self.authenticate(name_or_email,password)
+  def self.find_by_password(name_or_email,password)
     if name_or_email&&password
       pswd=digest(password)
       if name_or_email.include? '@'

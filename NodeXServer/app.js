@@ -1,11 +1,31 @@
 
-var express = require('express')
-	, http = require('http')
-	, net = require('net')
-	, crypto=require('crypto')
-	, VT100 = require('../vt100/vt100')
-	, request = require('request')
+var express = require('express');
+var http = require('http');
+var net = require('net');
+var crypto = require('crypto');
+var VT100 = require_nocache('../vt100/vt100');
+var request = require_nocache('request');
+
+function require_nocache(req){
+  var module_load=module.constructor.prototype.load;
+  var obj,err;
+  module.constructor.prototype.load=function(filename){
+    delete require.cache[filename];
+    return module_load.call(this, filename);
+  }
+  try{obj=require(req);}catch(e){err=e}
+  module.constructor.prototype.load=module_load;
+  if(err)throw err;
+  return obj;
+}
+
+
+
 var app = express();
+
+
+console.log(require.cache);
+process.exit();
 
 var PORT=8800
 var RAILS_PORT=8008;
@@ -42,6 +62,7 @@ app.configure('production', function(){
 });
 
 
+
 function filter(req){return req.connection.remoteAddress==RAILS_IP}
 function apigetinfo(channelID){
 	var channel=ChannelData.channelActiveMap['#'+channelID];
@@ -73,10 +94,12 @@ app.post('/:room/:id',function(req,res){
 });
 app.get('/admin/reload/:module/',function(req,res){
 	if(!filter(req)){res.end();return;}
-	switch(req.params.module){
-		case 'vt100':VT100=require('../vt100/vt100');break;
-		case 'request':request=require('request');break;
-	}
+	try{
+		switch(req.params.module){
+			case 'vt100':VT100=require_nocache('../vt100/vt100');break;
+			case 'request':request=require_nocache('request');break;
+		}
+	}catch(e){}
 	res.end();
 });
 

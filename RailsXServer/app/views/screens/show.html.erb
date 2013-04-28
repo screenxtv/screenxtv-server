@@ -1,4 +1,3 @@
-<%= csrf_meta_tags %>
 <%= javascript_include_tag "application" %>
 <%= stylesheet_link_tag    "application", :media => "all" %>
 <script>
@@ -7,11 +6,8 @@ var channelID="<%= @url %>";
 var host=location.hostname;
 var port=<%= node_port.to_i %>;
 var chats=<%= safe_json @chats %>;
-var social=<%= safe_json social_info %>;
+var social_info=<%= safe_json social_info %>;
 var terminalview;
-function onSocialConnect(s){
-	setSocial(s);
-}
 $(function(){
 	$("#terminaltitle").text(channelID);
 	if(!channelID)return;
@@ -30,7 +26,7 @@ $(function(){
 			$("#chatmain").css("display","none")
 		}else{
 			$("#chatmain").css({display:"block",height:h,width:cw})
-			$("#chatlist").css({height:h-$("#chatform").height()})
+			$("#chatlist").autofit();
 		}
 		$("#terminalmain").css({width:w,height:h,top:40});
 		terminalview.resize(w,h-40);
@@ -81,20 +77,9 @@ $(function(){
 	$("#message").focus(function(){$("#chatform form").css('box-shadow','0 0 8px blue')})
 	$("#message").blur(function(){$("#chatform form").css('box-shadow','none')})
 	window.onresize();
-	$("#social_anonymous").click(function(){
-		if(social)$.post('/oauth/disconnect',{authenticity_token:csrf_token,_method:'delete'},function(){setSocial(null)});
-	})
-	$("#social_twitter").click(function(){
-		if(!social)window.open('/oauth/connect','socialconnect','width=600,height=400,toolbar=no,menubar=no,status=no')
-	})
-	setSocial(social);
 })
 
-function postSubmitCheck(e){
-	if(e.keyCode!=13||e.metaKey||e.altKey||e.shiftKey||e.ctrlKey)return true;
-	post();
-	return false;
-}
+
 
 function post(){
 	var message=$("#message").val();
@@ -103,113 +88,9 @@ function post(){
 	var twit=$("#twitpost")[0];
 	terminalview.post(message,twit&&twit.checked);
 }
-function animate(f,time){
-	var starttime=new Date();
-	function func(){
-		var t=(new Date()-starttime)/time
-		if(t>=1)t=1;
-		try{f(t)}catch(e){console.log(e);}
-		if(t<1)setTimeout(func,10);
-	}
-	setTimeout(func,10);
-	try{f(0)}catch(e){console.log(e)}
-}
-function updateTime(){
-	for(var i=0;i<chatArray.length;i++)chatArray[i].update();
-}
-setInterval(updateTime,1000);
-var chatArray=[];
-function clearChat(){
-	chatArray=[];
-	$("#chatlist").text('');
-}
 
-function setSocial(s){
-	social=s;
-	var img=$("<img/>")
-	twitterConnceted=s?true:false;
-	if(s){
-		$("#social_anonymous").css({opacity:''});
-		$("#social_twitter").css({opacity:1});
-		$("#mysocial span").css({display:''})
-		$("#form_icon").text('').append($("<img/>").attr('src',s.icon));
-		$("#chatform form").css('padding-left',40);
-	}else{
-		$("#social_anonymous").css({opacity:1});
-		$("#social_twitter").css({opacity:''});
-		$("#mysocial span").css({display:'none'})
-		$("#form_icon").text('')
-		$("#chatform form").css('padding-left','');
-	}
-}
-var patterns=[
-    [/https?:\/\/[^ ]+/g,function(e,s){$("<a />").attr("href",s).attr("target","_blank").text(s).appendTo(e)}]
-]
-function chatMessageParse(element,text){
-  function parse(e,s,i){
-    var p=patterns[i];
-    if(!p){
-      $("<span />").text(s).appendTo(e);
-      return;
-    }
-    var list=s.split(p[0]);
-    var joinlist=s.match(p[0]);
-    for(var j=0;j<list.length;j++){
-      if(list[j])parse(e,list[j],i+1);
-      if(joinlist&&joinlist[j])p[1](e,joinlist[j]);
-    }
-  }
-  var lines=text.split("\n");	
-  for(var i=0,line;line=lines[i];i++){
-    var div=$("<div />");
-    parse(div,line,0);
-    element.append(div);
-  }
-}
 	
-function addChat(chat,addedFlag){
-	var div=$("<div class='chat'><img><div class='name'/><div class='message'/><div class='time'/></div>");
-	if(addedFlag)chat.time=new Date().getTime()/1000;
-	else chat.time=Math.min(new Date().getTime()/1000,chat.time);
-	var imgsrc=chat.icon;
-	if(!imgsrc)imgsrc="/assets/anonymous.png"
-	div.children().eq(0).attr("src",imgsrc);
-	if(chat.name)div.children().eq(1).text(chat.name);
-	chatMessageParse(div.children().eq(2),chat.message);
-	var time=div.children().eq(3);
-	var chatlist=$("#chatlist");
-	var wrap=$("<div class='chat_wrap'/>");
-	wrap.append(div)
-	var updateFunc=function(){
-		var sec=Math.round(new Date().getTime()/1000-chat.time);
-		var s10=Math.floor(sec/10)*10;
-		var min=Math.floor(sec/60);
-		var hour=Math.floor(min/60);
-		var day=Math.floor(hour/24);
-		if(day)day+=(day==1?'day':'days')+' ago';
-		if(hour)hour+=(hour==1?'hour':'hours')+' ago';
-		if(min)min+='min'+' ago';
-		if(s10)s10+='sec'+' ago';
-		time.text(day||hour||min||s10||'just now');
-	}
-	updateFunc();
-	chatlist.prepend(wrap);
-	if(addedFlag){
-		animate(
-			function(t){
-				var h=div.outerHeight();
-				if(t<1){
-					div.css({top:-h*(1-t)});
-					wrap.css({height:h*t});
-				}else{
-					div.css({top:''});
-					wrap.css({height:''});
-				}
-			},200);
-	}
-	chatArray.push({obj:wrap,update:updateFunc});
-	if(chatArray.length>256)chatArray.shift().obj.remove();
-}
+
 </script>
 <script>
 $(function(){
@@ -221,110 +102,6 @@ $(function(){
   })
 })
 </script>
-<style>
-div.chat_wrap{position:relative;margin:0;padding:0;width:100%;}
-div.chat{position:relative;border-radius:5px;margin:5px;padding:5px;box-shadow:0 0 8px rgba(0,0,0,0.2);min-height:30px;}
-div.chat img{position:absolute;width:24px;height:24px;left:5px;top:5px;border-radius:4px;}
-div.chat .name{margin-left:30px;font-size:12px;overflow:hidden;line-height:1em;color:#444;}
-div.chat .message{margin-left:30px;margin-top:2px;font-size:16px;overflow-x:hidden;color:black;word-break:break-all;}
-div.chat .time{text-align:right;font-size:10px;color:silver;overflow:hidden;line-height:1em;}
-#chatform form{
-	border-radius:8px;
-	border:1px solid silver;
-	padding:2px 4px;
-	margin:0px;
-	height:50px;
-	font-size:16px;
-	position:relative;
-}
-#chatform form img{
-	position:absolute;
-	left:6px;top:6px;
-	width:30px;height:30px;
-	border-radius:4px;
-}
-#message{
-	margin:0;padding:0;
-	outline:none;
-	border:none;
-	height:100%;
-	width:100%;
-	font-size:16px;
-	resize:none;
-}
-#message:-moz-placeholder,#message::-webkit-input-placeholder{
-	color: #F00;
-}
-#mysocial{
-	margin:0 10px;padding:0;
-	height:24px;line-height:24px;
-}
-#mysocial img{
-	background:#666;
-	background:-webkit-linear-gradient(top,#777,#555);
-	background:-moz-linear-gradient(top,#777,#555);
-	background:-o-linear-gradient(top,#777,#555);
-	opacity:0.5;
-	border-radius:4px;
-	width:24px;height:24px;
-	cursor:pointer;
-}
-
-#twitcheckbox{position:absolute;left:10px;bottom:2px;font-size:16px;}
-#terminal_nav{
-	position:fixed;
-	left:0;top:0px;
-	height:40px;
-	background:-webkit-linear-gradient(top,#ddd,#fff);
-	background:-moz-linear-gradient(top,#ddd,#fff);
-  background:-o-linear-gradient(top,#ddd,#fff);
-	box-shadow:0 5px 5px rgba(0,0,0,0.2);
-}
-#terminal_nav .popupbutton{
-	cursor:pointer;
-}
-#terminal_nav .popupbutton:hover{
-	background:#ccc;
-}
-#terminal_nav .popupbutton_active{
-	background:#bbb;
-}
-#terminal_nav .popupbutton_active:hover{
-	background:#aaa;
-}
-#terminaltitle{
-	position:absolute;font-size:24px;height:40px;line-height:40px;
-	left:160px;
-}
-#terminalstatus img{
-	position:absolute;left:0;top:0;
-}
-#terminalstatus{
-	position:relative;
-	display:inline-block;
-	position:absolute;
-	height:40px;
-	right:60px;
-
-}
-#terminalstatus #viewer{
-	font-size:20px;
-	line-height:40px;
-	padding:0 10px;
-	padding-left:40px;
-	color:#666;
-}
-#terminallike,#terminallock{
-	position:absolute;
-	right:0;
-	height:40px;
-	padding:0 10px;
-}
-#terminal-nav>div{
-	display:inline-block;
-
-}
-</style>
 <div id="terminalmain" style='position:fixed;left:0;top:50;'>
 	<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
 </div>
@@ -354,22 +131,7 @@ div.chat .time{text-align:right;font-size:10px;color:silver;overflow:hidden;line
 	<% end %>
 </div>
 <div id='chatmain' style='position:fixed;right:0;top:0;width:300px;box-shadow:0 0 16px black;overflow:hidden;background:white'>
-	<div id='chatform' style='box-shadow:0 0 5px rgba(0,0,0,0.2);position:absolute;left:0;top:0;width:100%;height:100px;'>
-		<form onsubmit="try{post()}catch(e){}return false" style="margin:10px;margin-bottom:4px;">
-			<div id='form_icon'></div>
-			<div style='position:relative;height:100%;'>
-				<textarea id='message' style='' maxlength=100 autocomplete='off' placeholder='social stream' onkeydown='return postSubmitCheck(event)'></textarea>
-			</div>
-		</form>
-		<div id='mysocial'>
-			<img src='/assets/screen/anonymous.png' id='social_anonymous' alt='anonymous' title='anonymous'>
-			<img src='/assets/screen/twitter.png' id='social_twitter' alt='twitter' title='twitter'>
-			<% unless @private %>
-				<span style='font-size:12px;'><nobr><input id='twitpost' type='checkbox'>post to twitter</nobr></span>
-			<% end %>
-		</div>
-	</div>
-	<div id='chatlist' style='position:absolute;width:100%;top:100px;overflow:auto'></div>
+<%= render partial:'chat' %>
 </div>
 
 

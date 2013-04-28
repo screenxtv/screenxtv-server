@@ -13,3 +13,12 @@
 //= require jquery
 //= require jquery_ujs
 //= require_tree .
+
+
+if(navigator.userAgent.toLowerCase().indexOf("msie")>=0){
+  onload=function(){
+    document.body.innerHTML=
+    "<h1>You need a \"Web Browser\" to view a web site.</h1>"+
+    "<a href='http://www.google.com/search?q=web%20browser%20install'>Search:web browser install</a>"
+  }
+}

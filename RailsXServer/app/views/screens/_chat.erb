@@ -1,0 +1,19 @@
+<div id='chatform'>
+	<form onsubmit="try{post()}catch(e){}return false" style="margin:10px;margin-bottom:4px;">
+		<div id='form_icon'></div>
+		<div style='position:relative;height:100%;'>
+			<textarea id='message' style='' maxlength=100 autocomplete='off' placeholder='social stream' onkeydown='return postSubmitCheck(event)'></textarea>
+		</div>
+	</form>
+	<div id='mysocial'>
+		<% ['anonymous','twitter','facebook'].each do |social| %>		
+			<%= image_tag "screen/#{social}.png",class:['social_connect',social],data:{social:social} %>
+		<% end %>
+		<% unless @private %>
+			<span style='font-size:12px;'><nobr><input id='twitpost' type='checkbox'>post to twitter</nobr></span>
+		<% end %>
+	</div>
+</div>
+<div id='chatlist' class='autofit' data-margin-top='100'>
+
+</div>

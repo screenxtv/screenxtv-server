@@ -4,13 +4,14 @@ class UserController < ApplicationController
   def already_signed_in
     redirect_to user_index_path if user_signed_in?
   end
+  
   def signin
-    user=User.authenticate params[:name_or_email],params[:password]
+    user=User.find_by_password params[:name_or_email],params[:password]
     if user
-      session[:user_id]=user.id if user
+      session[:user_id]=user.id
       redirect_to action:'index'
     else
-      @signin_error=true
+      @signin_error='wrong password'
       render 'signin'
     end
   end
