@@ -1,4 +1,8 @@
 <%= javascript_include_tag "top" %>
+<style>
+body{min-width: 1080px;}
+@media(max-width:480px){body{min-width:auto;}}
+</style>
 <script>
 terminalList=[<%= @screens.map(&:to_json).join(",").html_safe %>];
 
@@ -43,29 +47,29 @@ $(function(){
 });
 
 </script>
-<center>
-  <div class='contents'>
-    <div class='contents_top'>
-      <div class="top_info">
-        <center><img src='/assets/logo_large.png' width='256'></center>
-        <div class='description'>
-          The best way to broadcast your terminal to the world.<br>
-          Show your live coding for a presentation, hackathon, or pair code reading.<br>
-        </div>
-        <div class='howto'>
-          <div class='codefor'>Install</div>
-          <div class='codeto'>gem install screenxtv</div>
-          <div class='codefor'>Broadcast</div>
-          <div class='codeto'>screenxtv [--private]</div>
-          <div class='codefor'>For details</div>
-          <div class='more'>See <a href="/doc/howto">this document</a>.</div>
-        </div>
+
+<div class='contents'>
+  <div class='contents_top'>
+    <div class="top_info">
+      <center><img src='/assets/logo_large.png' width='256'></center>
+      <div class='description'>
+        The best way to broadcast your terminal to the world.<br>
+        Show your live coding for a presentation, hackathon, or pair code reading.<br>
       </div>
-      <div class='top_demo'>
-        <iframe id='demoframe'></iframe>
-        <a id='demohref'></a>
+      <div class='howto'>
+        <div class='codefor'>Install</div>
+        <div class='codeto'>gem install screenxtv</div>
+        <div class='codefor'>Broadcast</div>
+        <div class='codeto'>screenxtv [--private]</div>
+        <div class='codefor'>For details</div>
+        <div class='more'>See <a href="/doc/howto">this document</a>.</div>
       </div>
     </div>
-    <div id='terminal-list'></div>
+    <div class='top_demo'>
+      <iframe id='demoframe'></iframe>
+      <a id='demohref'></a>
+    </div>
   </div>
-</center>
+  <div id='terminal-list'></div>
+</div>
+

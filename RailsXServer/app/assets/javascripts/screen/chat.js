@@ -132,7 +132,6 @@ $(function(){
     );
     onSocialConnect(social_info)
   })
-  onSocialConnect(social_info);
 });
 
 $(function(){

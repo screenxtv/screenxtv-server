@@ -17,10 +17,10 @@ RailsXServer::Application.routes.draw do
   match 'screens/:url', to:'screens#show'
   match 'private/:url', to: 'screens#show_private'
 
-  match 'user/signin',to:'user#signin'
-  match 'user/signout',to:'user#signout',via:'delete'
-  match 'user/create',to:'user#create',via:'post'
-  match 'user/index',to:'user#index'
+  match 'users/sign_in',to:'users#sign_in'
+  match 'users/sign_out',to:'users#sign_out',via:'delete'
+  match 'users/sign_up',to:'users#sign_up',via:'post'
+  match 'users/index',to:'users#index'
 
   match 'auth/switch',to:'oauth#switch',via:'post'
   match 'auth/:provider/callback' => 'oauth#callback'

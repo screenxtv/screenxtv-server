@@ -1,6 +1,7 @@
 class AddDisplayNameToUser < ActiveRecord::Migration
   def up
     add_column :users, :display_name, :string
+    add_column :users, :icon, :string
     remove_index :users,name:'by_oauth'
     remove_column :users, :oauth_provider
     remove_column :users, :oauth_uid
@@ -9,6 +10,7 @@ class AddDisplayNameToUser < ActiveRecord::Migration
   end
   def down
     remove_column :users, :display_name
+    remove_column :users, :icon
     add_column :users, :oauth_provider, :string
     add_column :users, :oauth_uid, :integer, limit:8
     add_column :users, :oauth_token, :string

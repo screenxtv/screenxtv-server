@@ -70,6 +70,7 @@ ActiveRecord::Schema.define(:version => 20130422013027) do
     t.datetime "created_at",                         :null => false
     t.datetime "updated_at",                         :null => false
     t.string   "display_name"
+    t.string   "icon"
   end
 
   add_index "users", ["email"], :name => "by_email", :unique => true

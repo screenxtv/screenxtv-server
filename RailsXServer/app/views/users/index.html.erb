@@ -24,6 +24,27 @@ div.item div.url{font-size:24px;}
 		<div>user name: <%= current_user.name %></div>
 		<div>email: <%= current_user.email %></div>
 	</div>
+	<div class='socials'>
+		<%= oauths = current_user.oauths %>
+		<% ['twitter','facebook'].each do |provider| %>
+			<%= oauth = current_user.oauths.where(provider:provider).first %>
+			<%= social = social_info[provider] %>
+			<div>
+				<% if oauth||social %>
+					<% social ||= oauth.info %>
+					<%= image_tag social[:icon], width:48,height:48 %>
+					<%= provider %>
+					<%= social[:display_name] %>
+					<%= social[:name] %>
+				<% end %>
+				<% if oauth.nil? && social %>
+					<%= link_to 'connect','oauth_connect_path',method:'post' %>
+				<% elsif social.nil? %>
+					<%= link_to 'connect',"/auth/#{provider}" %>
+				<% end %>
+			</div>
+		<% end %>
+	</div>
 	<br>
 	<h1>Reserved URLs</h1>
 	<% current_user.screens.each do |screen| %>

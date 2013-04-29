@@ -1,6 +1,8 @@
 <script>
 try{
   window.opener.onSocialConnect(<%= safe_json social_info %>);
-}catch(e){}
-window.close();
+  window.close();
+}catch(e){
+  
+}
 </script>

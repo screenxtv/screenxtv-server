@@ -29,6 +29,7 @@ function TerminalChat(host,port,channelID){
 }
 
 $(function(){
+	onSocialConnect(social_info);
 	if(!channelID)return;
 	if(chats){
 		for(var i=0;i<chats.length;i++)addChat(chats[i])

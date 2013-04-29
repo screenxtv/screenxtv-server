@@ -1,0 +1,41 @@
+@import 'mixin';
+.cursor-dark{
+  &:hover{
+    cursor:pointer;
+    background:rgba(0,0,0,0.1);
+  }
+}
+
+
+
+
+.pulldown{
+  .pulldown-menu{
+    cursor:pointer;
+    height:40px;
+    line-height:40px;
+    &:hover{background:#ccc;}
+  }
+  .pulldown-target{
+    position:absolute;
+    background: white;
+    right: 5px;
+    top: 50px;
+    padding:5px 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px;
+    display:none;
+  }
+  &.active{
+    &:after{
+      content:'';
+      position:absolute;
+      left:0;top:40px;width:100%;height:10px;
+      background:image-url('css/up.png');
+      background-repeat:no-repeat;
+      background-position:50%;
+    }
+    .pulldown-menu{background:#bbb;}
+    .pulldown-target{display:block;}
+  }
+}

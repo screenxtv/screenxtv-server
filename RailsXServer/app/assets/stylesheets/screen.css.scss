@@ -1,3 +1,12 @@
+.screen-info{
+  .twitter, .facebook{
+    height:30px;
+  }
+
+  
+
+}
+
 
 #terminal_nav{
   position:fixed;
@@ -8,18 +17,7 @@
   background:-o-linear-gradient(top,#ddd,#fff);
   box-shadow:0 5px 5px rgba(0,0,0,0.2);
 }
-#terminal_nav .popupbutton{
-  cursor:pointer;
-}
-#terminal_nav .popupbutton:hover{
-  background:#ccc;
-}
-#terminal_nav .popupbutton_active{
-  background:#bbb;
-}
-#terminal_nav .popupbutton_active:hover{
-  background:#aaa;
-}
+
 #terminaltitle{
   position:absolute;font-size:24px;height:40px;line-height:40px;
   left:160px;

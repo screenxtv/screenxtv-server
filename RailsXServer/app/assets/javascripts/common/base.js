@@ -26,26 +26,23 @@ $(function(){
 })
 
 
-
 $(function(){
-  $(".popupbutton").live('click',function(){
-    var classactive='popupbutton_active';
-    var flag=$(this).hasClass(classactive);
-    $('.popupbutton').removeClass(classactive);
-    if(!flag)$(this).addClass(classactive);
-  })
-})
-$(function(){
-  function closeAll(){
-
-  }
-  $(document).on("click","pulldown",function(){
-    var target=$($(this).data('target'));
-    if(target.hasClass("")){
-
+  var pulldown=".pulldown";
+  var menu=".pulldown-menu";
+  var target=".pulldown-target"
+  $(document).on("click",menu,function(){
+    var $pulldown=$(this).parents(pulldown);
+    if($pulldown.hasClass("active")){
+      $pulldown.removeClass("active");
+    }else{
+      $pulldown.addClass("active");
+      function closeAll(e){
+        var element=$(e.target)
+        if(element.is(target)||element.parents(target).length)return;
+        $(pulldown).removeClass("active");
+        $(document).off("click",closeAll)
+      }
+      $(document).on("click",closeAll)
     }
-
-  })
-
-
-})
+  });
+});

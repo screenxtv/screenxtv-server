@@ -8,10 +8,7 @@ header{
   z-index:65536;
   line-height:40px;
 }
-div.social{
-  position:absolute;right:120px;top:2px;
-}
-div.twitterbutton{position:relative;top:3px;}
+
 .menu_button{position:absolute;right:0;top:0;height:40px;}
 #header_title{
   margin-left:160px;
@@ -21,18 +18,6 @@ div.twitterbutton{position:relative;top:3px;}
   line-height:40px;
   overflow:hidden;
 }
-.popupbutton{
-  position:relative;
-}
-.popup{
-  display:none;
-  position:absolute;
-  background:white;
-  right:5px;top:45px;
-  border-radius:5px;
-  box-shadow:0 0 5px silver;
-}
-.popupbutton_active .popup{display:block;}
 
 .menu_button a{color:black;text-decoration:none;}
 .menu_button .popupbutton,.header_sign_in{
@@ -68,19 +53,22 @@ div.twitterbutton{position:relative;top:3px;}
   background:-o-linear-gradient(top,#888,#aaa);
 }
 .header_sign_in{
-  font-size:20px;
+  font-size:16px;
   padding:0 4px;
   line-height:40px;
 }
 
 footer{
-  min-width: 1040px;
-  border-top: 1px solid #EEE;
-  text-align: right;
+  /*min-width: 1040px;*/
+  border-top: 1px solid #eee;
   margin-top: 20px;
   padding: 10px 20px;
+  line-height:20px;
+  height:20px;
   font-size: 14px;
   color: gray;
-  span{margin-right: 20px;}
+  div.left{float:left;}
+  div.right{float:right;}
+  div span{margin:0 5px;}
   a{color: #444;}
 }

@@ -49,12 +49,18 @@ class User < ActiveRecord::Base
     rescue
     end
   end
-  def connect_with oauth
-    oauths.where(provider:oauth[:provider]).create_or_update(oauth)
+  def connect_with oauth_info
+    oauth = current_user.oauths.where(provider:provider).first_or_initialize
+    oauth.update_attributes oauth_info
     self.display_name ||= oauth.display_name
     self.icon ||= oauth.icon
+    self.save
   end
   def oauth_disconnect provider
     oauths.where(provider:provider).destroy
+  end
+
+  def import_from
+
   end
 end
