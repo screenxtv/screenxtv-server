@@ -33,6 +33,10 @@ header{
   background:-moz-linear-gradient(top,#bbb,#ddd);
   background:-o-linear-gradient(top,#bbb,#ddd);
 }
+.header_sign_in a{
+  height:40px;line-height:40px;
+  display:block;
+}
 .menu_button .popup a{
   display:block;
   color:black;

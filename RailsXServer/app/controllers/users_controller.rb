@@ -1,29 +1,34 @@
-class UserController < ApplicationController
+class UsersController < ApplicationController
   before_filter :user_signed_in!, only: [:index, :update, :sign_out]
   before_filter :already_signed_in!, only: [:sign_in, :sign_up]
   def already_signed_in!
-    redirect_to user_index_path if user_signed_in?
+    redirect_to users_index_path if user_signed_in?
   end
 
   def sign_in
-    user = User.find_by_password params[:name_or_email], params[:password]
-    if user
-      connect_and_build_user_session user
-      redirect_to action:'index'
-    else
-      flash[:notice] = 'wrong username, email or password'
-      render 'sign_in'
+    if params[:sign_in]
+      user = User.find_by_password params[:sign_in][:name_or_email], params[:sign_in][:password]
+      if user
+        connect_and_build_user_session user
+        redirect_to action:'index'
+      else
+        @sign_in_error = 'wrong username, email or password'
+      end
     end
   end
 
   def sign_up
-    @params=params
-    user=User.create_account(params[:signup])
-    if user
+    user=User.new_account(params[:sign_up])
+    begin
+      save_status = user.save
+    rescue
+      @reserve_error = "Error: cannot reserve your url: #{user.name}" if Screen.where(url:user.name).exists?
+    end
+    if save_status
       connect_and_build_user_session user
       redirect_to action:'index'
     else
-      @create_error=true
+      @sign_up_errors = user.errors
       render 'sign_in'
     end
   end
@@ -37,14 +42,8 @@ class UserController < ApplicationController
     current_user.name = params[:name] if params[:name]
     current_user.display_name = params[:display_name] if params[:display_name]
     current_user.email = params[:email] if params[:email]
-    if params[:disconnect]
+    
     OAuthConsumers.keys.each do |provider|
-        when 'true'
-          oauth = session[:oauth][provider]
-          current_user.connect_with oauth
-        when 'false'
-          current_user.disconnect_with provider
-      end
     end
     provider = params[:provider]
     info = session["oauth_#{provider}"]
@@ -62,7 +61,8 @@ class UserController < ApplicationController
   end
 
   def show
-    @user = User.find(name:params[:name])
+    @user = User.where(name:params[:name]).first
+    render_404 unless @user
   end
 
   def connect_and_build_user_session user

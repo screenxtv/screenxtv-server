@@ -15,9 +15,10 @@ class OauthController < ApplicationController
     }
     user = User.find_by_oauth(oauth_info)
     if user
-      build_session_user_info user
+      build_user_session user
     elsif current_user
       current_user.connect_with oauth_info
+      build_user_session current_user
     else
       session[:oauth] ||= {}
       session[:oauth][provider] = oauth_info

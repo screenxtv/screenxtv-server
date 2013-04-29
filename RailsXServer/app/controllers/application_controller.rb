@@ -18,21 +18,17 @@ class ApplicationController < ActionController::Base
     session.delete :oauth
   end
 
-  def auth_info_hash_for obj
-    keys = [:provider,:uid,:name,:icon,:display_name,:token,:secret]
-    hash = {}
-      keys.each do |key|
-        hash[key] = obj[key]
-      end
-    hash
-  end
-
   def build_user_session user
     @current_user = user
     session[:user_id] = user.id
     session[:oauth] = {}
     user.oauths.each do |oauth|
-      session[:oauth][oauth.provider] = auth_info_hash_for oauth
+      keys = [:provider,:uid,:name,:icon,:display_name,:token,:secret]
+      hash = {}
+      keys.each do |key|
+        hash[key] = oauth[key]
+      end
+      session[:oauth][oauth.provider] = hash
     end
     session[:oauth][:main] = 'user'
   end
@@ -47,7 +43,7 @@ class ApplicationController < ActionController::Base
   end
 
   def user_signed_in!
-    redirect_to user_signin_path unless user_signed_in?
+    redirect_to users_sign_in_path unless user_signed_in?
   end
 
   def user_signed_in?
@@ -61,7 +57,7 @@ class ApplicationController < ActionController::Base
       @social_info[:user] = {
         name: current_user.name,
         display_name: current_user.display_name || current_user.name,
-        icon: current_user.icon || image_url("icon/#{current_user.id % 32}.png")
+        icon: current_user.icon || view_context.image_path("icon/#{current_user.id % 32}.png")
       }
       @social_info[:main] = :user
     else
@@ -74,7 +70,7 @@ class ApplicationController < ActionController::Base
         @social_info[:main]='anonymous'
       end
       @social_info['anonymous'] = {
-        icon: image_url"/assets/icon/#{request.session_options[:id][0,4].hex%32}.png"
+        icon: view_context.image_path("/assets/icon/#{request.session_options[:id][0,4].hex%32}.png")
       }
     end
     @social_info
@@ -88,4 +84,7 @@ class ApplicationController < ActionController::Base
     Twitter::Client.new TWITTER_NEWS
   end
 
+  def render_404
+    render file:"#{Rails.root}/public/404", layout:false, status:404
+  end
 end

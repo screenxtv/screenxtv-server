@@ -23,13 +23,13 @@
           <%= current_user.name %>
         </div>
         <div class='pulldown-target'>
-          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'My Page',user_index_path %></div>
-          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'Sign out',user_signout_path,method:'delete' %></div>
+          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'My Page',users_index_path %></div>
+          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'Sign out',users_sign_out_path,method:'delete' %></div>
         </div>
       </div>
     <% else %>
       <div class='header_sign_in'>
-        <%= link_to 'Create your account or Sign in',{controller:'user',action:'signin'} %>
+        <%= link_to 'Create your account or Sign in',users_sign_in_path %>
       </div>
     <% end %>
   </nobr>
