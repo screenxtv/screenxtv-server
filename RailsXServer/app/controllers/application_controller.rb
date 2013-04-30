@@ -34,11 +34,8 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    user_id= session[:user_id]
-    if @current_user.nil? && user_id
-      @current_user = User.where(id:user_id).first
-      session.delete :user_id if @current_user.nil?
-    end
+    @current_user ||= User.where(id:session[:user_id]).first if session[:user_id]
+    destroy_user_session unless @current_user
     @current_user
   end
 
@@ -51,8 +48,18 @@ class ApplicationController < ActionController::Base
   end
 
   def social_info
-    return @social_info if @social_info
     @social_info={}
+    if session[:oauth]
+      OAuthConsumers.keys.each do |provider|
+        @social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
+      end
+      @social_info[:main] = session[:oauth][:main]
+    else
+      @social_info[:main]='anonymous'
+    end
+    @social_info['anonymous'] = {
+      icon: view_context.image_path("/assets/icon/#{request.session_options[:id][0,4].hex%32}.png")
+    }
     if user_signed_in?
       @social_info[:user] = {
         name: current_user.name,
@@ -60,28 +67,20 @@ class ApplicationController < ActionController::Base
         icon: current_user.icon || view_context.image_path("icon/#{current_user.id % 32}.png")
       }
       @social_info[:main] = :user
-    else
-      if session[:oauth]
-        OAuthConsumers.keys.each do |provider|
-          @social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon
-        end
-        @social_info[:main] = session[:oauth][:main]
-      else
-        @social_info[:main]='anonymous'
-      end
-      @social_info['anonymous'] = {
-        icon: view_context.image_path("/assets/icon/#{request.session_options[:id][0,4].hex%32}.png")
-      }
     end
     @social_info
   end
 
   def twitter(token=nil)
-    Twitter::Client.new token||session[:oauth_twitter][:token]
+    if token.nil?
+      oauth = session[:oauth]['twitter']
+      token = {consumer_key:oauth[:token],consumer_secret:oauth[:secret]} if oauth
+    end
+    Twitter::Client.new token if token
   end
 
   def news_twitter
-    Twitter::Client.new TWITTER_NEWS
+    twitter TWITTER_NEWS
   end
 
   def render_404

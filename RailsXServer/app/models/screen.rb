@@ -3,7 +3,9 @@ class Screen < ActiveRecord::Base
     :current_time,:current_viewer,:current_max_viewer,:current_total_viewer,
     :pause_count,:title,:color,:vt100
   belongs_to :user
-  has_many :chats,dependent: :destroy
+  has_many :chats, dependent: :destroy
+  validates_uniqueness_of :url
+
   STATE_CASTING=2
   STATE_PAUSED=1
   STATE_NONE=0

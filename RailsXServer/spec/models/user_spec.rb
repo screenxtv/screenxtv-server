@@ -7,70 +7,69 @@ describe User do
       User.digest('b').should eq '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d'
     end
   end
-
   context 'when create' do
-    ng={name:['','hog','aaaa&',nil],
-        email:['','aaaa@','@bb',nil],
-        password:['','aaa',nil]}
-    ok={name:'aaaa',email:'aaa@aaa',password:'aaaa'}
-    user = nil
     before do
-      user = User.create_account(name:'hoge',email:'foo@bar',password:'piyo')
+      @user = User.new_account(name:'hoge',email:'foo@bar',password:'piyo')
+      @user2 = User.new_account(name:'HOGE',email:'FOO@BAR',password:'PIYO')
+      @user.save
+      @user2.save
     end
 
-    context 'when valid user params passed' do
-      it 'should create user' do
-        User.create_account(ok).should_not be_nil
-      end
-      it 'should create user' do
-        expect {
-          User.create_account(ok)
-        }.to change(User, :count).by(1)
-      end
+    it 'should create user' do
+      expect {User.new_account(name:'hoge2',email:'foo2@bar',password:'piyo').save}.to change(User, :count).by(1)
     end
 
-    context 'when invalid user params passed' do
-      it 'should not create user' do
-        expect {
-          keys=[:name,:email,:password]
-          keys.length.times.each do |i|
-            ngkey=keys[i]
-            ng[ngkey].each do |ngval|
-              data={}.tap{|h|keys.each{|k,v|h[k]=v}}
-              data[ngkey]=ngval
-              User.create_account(data).should be_nil
-            end
-          end
-        }.to_not change(User, :count)
-      end
+    it 'should validate presence of password' do
+      expect{User.new_account(name:'hoge2',email:'foo2@bar').save}.not_to change(User, :count)
     end
 
-    it 'should save valid data only once' do
-      User.create_account(name:'hoge',email:ok[:email],password:ok[:password]).should be_nil
-      User.create_account(name:ok[:name],email:'foo@bar',password:ok[:password]).should be_nil
+    it 'should validate uniqueness of name' do
+      expect{User.new_account(name:'hoge',email:'foo2@bar',password:'piyo').save}.not_to change(User, :count)
     end
+
+    it 'should validate uniqueness of email' do
+      expect{User.new_account(name:'hoge2',email:'foo@bar',password:'piyo').save}.not_to change(User, :count)
+    end
+
     it 'should be able to check password' do
-      user.check_password('PIYO').should be_false
-      user.check_password('piyo').should be_true
+      @user.check_password('PIYO').should be_false
+      @user.check_password('piyo').should be_true
     end
-    it 'should authenticate' do
-      User.authenticate('hoge','piyo').id.should eq user.id
-      User.authenticate('foo@bar','piyo').id.should eq user.id
-      User.authenticate('bar@foo','piyo').should be_nil
+
+    it 'should find_user' do
+      User.find_by_password('hoge','piyo').id.should eq @user.id
+      User.find_by_password('foo@bar','piyo').id.should eq @user.id
+      User.find_by_password('bar@foo','piyo').should be_nil
     end
+
     context 'user_screen' do
       it 'should be able to create one\'s screen' do
-        user.screens.create(url:'aaa').should_not be_nil
-        user.screens.create(url:'bbb').should_not be_nil
-        expect{user.screens.create(url:'aaa')}.to raise_error
-        expect{user.create(url:'ccc')}.to change(Screen,:count).by(1)
+        expect{@user.screens.create(url:'aaa')}.to change(Screen, :count).by(1)
+        expect{@user.screens.create(url:'aaa')}.not_to change(Screen, :count)
       end
       context 'when screen exists' do
         it 'should fail creating account' do
-          user.screens.create(url:'aaa').should be_true
-          User.create_account(name:'aaa',email:ok[:email],password:ok[:password]).should be_nil
+          @user.screens.create(url:'aaa').should be_true
+          expect{User.new_account(name:'aaa',email:'foo2@bar',password:ok[:password]).save}.to raise_error
           User.where(name:'aaa').should be_empty
         end
+      end
+    end
+
+    context 'oauth' do
+      before do
+        @user.oauth_connect provider:'hoge',uid:'1',name:'name'
+      end
+      it 'should connect to oauth' do
+        expect{@user2.oauth_connect provider:'hoge',uid:'1',name:'name'}.to raise_error
+        @user2.oauths.where(provider:'hoge').first.should be_nil
+        expect{@user2.oauth_connect provider:'hoge',uid:'2',name:'name'}.to change(Oauth, :count).by(1)
+        expect{@user.oauth_connect provider:'hoge',uid:'3',name:'new_name'}.not_to change(Oauth, :count)
+        @user.oauths.where(provider:'hoge').first.name.should eq 'new_name'
+      end
+      it 'should disconnect oauth' do
+        @user2.oauth_connect provider:'hoge',uid:'2',name:'name'
+        expect{@user.oauth_disconnect 'hoge'}.to change(Oauth, :count).by(-1)
       end
     end
   end

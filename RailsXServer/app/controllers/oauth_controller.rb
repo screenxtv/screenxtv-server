@@ -1,4 +1,4 @@
-class OauthController < ApplicationController
+class OAuthController < ApplicationController
 
   def callback
     auth = request.env["omniauth.auth"]
@@ -17,20 +17,33 @@ class OauthController < ApplicationController
     if user
       build_user_session user
     elsif current_user
-      current_user.connect_with oauth_info
+      current_user.oauth_connect oauth_info
       build_user_session current_user
     else
       session[:oauth] ||= {}
       session[:oauth][provider] = oauth_info
       session[:oauth][:main] = provider
     end
-    render layout:false
+    if params.has_key?(:popup)
+      render layout:false
+    else
+      redirect_to users_index_path 
+    end
   end
 
   def switch
     render nothing:true and return unless session[:oauth]
-    provider = params[:provider]
-    session[:oauth][:main] = provider if social_info.has_key? provider
+    unless current_user
+      provider = params[:provider]
+      session[:oauth][:main] = provider if social_info.has_key? provider
+    end
     render json:social_info
+  end
+
+  def disconnect
+    render nothing:true and return unless user_signed_in?
+    current_user.oauth_disconnect params[:provider]
+    build_user_session current_user
+    redirect_to users_index_path
   end
 end

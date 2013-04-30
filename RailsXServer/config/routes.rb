@@ -23,8 +23,10 @@ RailsXServer::Application.routes.draw do
   match 'users/index', to:'users#index'
   match 'users/show/:name', to:'users#show'
 
-  match 'auth/switch',to:'oauth#switch', via:'post'
+  match 'oauth/switch',to:'oauth#switch', via:'post'
+  match 'oauth/disconnect', to:'oauth#disconnect', via:'post'
   match 'auth/:provider/callback' => 'oauth#callback'
+
 
   match ':url', to:'screens#show'
 

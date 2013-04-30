@@ -6,11 +6,11 @@
 		</div>
 	</form>
 	<div id='mysocial'>
-		<% ['anonymous','twitter','facebook'].each do |provider| %>		
-			<%= image_tag "screen/#{provider}.png",class:['social_connect',provider],data:{provider:provider} %>
+		<% ['anonymous',*OAuthConsumers.keys].each do |provider| %>		
+			<%= image_tag "screen/#{provider}.png",class:['social_connect',provider],data:{provider:provider, path:oauth_popup_path(provider)} %>
 		<% end %>
 		<% unless @private %>
-			<span style='font-size:12px;'><nobr><input id='twitpost' type='checkbox'>post to twitter</nobr></span>
+			<span class='post_to_twitter'><nobr><input id='twitpost' type='checkbox'>post to twitter</nobr></span>
 		<% end %>
 	</div>
 </div>

@@ -10,7 +10,7 @@ class UsersController < ApplicationController
       user = User.find_by_password params[:sign_in][:name_or_email], params[:sign_in][:password]
       if user
         connect_and_build_user_session user
-        redirect_to action:'index'
+        redirect_to users_index_path
       else
         @sign_in_error = 'wrong username, email or password'
       end
@@ -53,11 +53,6 @@ class UsersController < ApplicationController
   end
 
   def index
-    if user_signed_in?
-      render 'index'
-    else
-      render 'sign_in'
-    end
   end
 
   def show
@@ -69,7 +64,7 @@ class UsersController < ApplicationController
     if session[:oauth]
       OAuthConsumers.keys.each do |provider|
         info = session[:oauth][provider]
-        user.connect_with if info
+        user.oauth_connect info if info
       end
     end
     build_user_session user

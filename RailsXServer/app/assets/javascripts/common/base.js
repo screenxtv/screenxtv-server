@@ -3,18 +3,18 @@ $(function(){
     $(this).each(function(){
       var obj=$(this);
       var parent=obj.parent();
-      var margin=(obj.data('margin')||"").split(" ");
+      var margin=(obj.attr('data-margin')||"").split(" ");
       for(var i=0;i<4;i++)margin[i]=parseInt(margin[i%margin.length])||0;
-      var top=obj.data('margin-top');
-      var bottom=obj.data('margin-bottom');
+      var top=obj.attr('data-margin-top');
+      var bottom=obj.attr('data-margin-bottom');
       if(top!=undefined||bottom!=undefined){
         obj.css({
           top:(top||0),
           height:(parent.height()-(top||0)-(bottom||0))
         });
       }
-      var left=obj.data('margin-left');
-      var right=obj.data('margin-right');
+      var left=obj.attr('data-margin-left');
+      var right=obj.attr('data-margin-right');
       if(left!=undefined||right!=undefined){
         obj.css({
           left:(left||0),

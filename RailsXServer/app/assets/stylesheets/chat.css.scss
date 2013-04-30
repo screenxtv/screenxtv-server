@@ -17,7 +17,8 @@
     position:relative;
     img{
       position:absolute;
-      left:6px;top:6px;
+      box-shadow:0 0 1px silver;
+      left:6px;top:12px;
       width:30px;height:30px;
       border-radius:4px;
     }
@@ -43,6 +44,22 @@
       &.active{
         @include gradient(#777,#555);
       }
+    }
+    .post_to_twitter{
+      font-size:12px;
+      display:none;
+    }
+  }
+  &.login{
+    height:80px;
+    #mysocial{display:none}
+  }
+  &.login.twitter_enabled{
+    height:92px;
+    #mysocial{
+      display:block;
+      img{display:none;}
+      .post_to_twitter{display:inline;}
     }
   }
   #twitcheckbox{position:absolute;left:10px;bottom:2px;font-size:16px;}
