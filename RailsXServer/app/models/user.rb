@@ -57,4 +57,7 @@ class User < ActiveRecord::Base
     oauths.where(provider:provider).destroy_all
   end
 
+  def user_icon
+    icon || "/assets/icon/#{id % 32}.png"
+  end
 end

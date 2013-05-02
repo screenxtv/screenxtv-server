@@ -1,4 +1,4 @@
-class OAuthController < ApplicationController
+class OauthController < ApplicationController
 
   def callback
     auth = request.env["omniauth.auth"]

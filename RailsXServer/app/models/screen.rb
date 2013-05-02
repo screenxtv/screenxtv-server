@@ -4,11 +4,13 @@ class Screen < ActiveRecord::Base
     :pause_count,:title,:color,:vt100
   belongs_to :user
   has_many :chats, dependent: :destroy
-  validates_uniqueness_of :url
+  validates :url, length:{minimum:4, maximum:16}, uniqueness:true, format:/^[_a-zA-Z0-9]*$/
 
-  STATE_CASTING=2
-  STATE_PAUSED=1
-  STATE_NONE=0
+  USER_MAX_SCREENS = 5
+  STATE_CASTING = 2
+  STATE_PAUSED = 1
+  STATE_NONE = 0
+
   def info
     {
       total_viewer:total_viewer,
@@ -46,7 +48,8 @@ class Screen < ActiveRecord::Base
   def terminate
     if user
       update_attributes(
-          state:STATE_NONE,title:nil,color:nil,vt100:nil,
+          state:STATE_NONE,
+          title:nil,color:nil,vt100:nil,
           current_viewer:0,current_max_viewer:0,current_total_viewer:0,
           current_time:0,pause_count:0
         )
@@ -56,12 +59,12 @@ class Screen < ActiveRecord::Base
   end
   def self.cleanup
     range=0x10000.days.ago..10.minutes.ago
-    Screen.where(state:[STATE_PAUSED,STATE_CASTING],updated_at:range).each(&:terminate)
+    Screen.where(state:[TATE_PAUSED,TATE_CASTING],updated_at:range).each(&:terminate)
   end
   def self.getSorted(limit)
     cleanup
     screens=Arel::Table.new :screens
-    arrcasting=Screen.where(state:STATE_CASTING).order(screens[:pause_count],screens[:current_viewer].desc).limit(limit);
+    arrcasting=Screen.where(state:TATE_CASTING).order(screens[:pause_count],screens[:current_viewer].desc).limit(limit);
     if arrcasting.count<limit
       arrcasted=Screen.where(state:STATE_PAUSED).limit(limit-arrcasting.count)
     else

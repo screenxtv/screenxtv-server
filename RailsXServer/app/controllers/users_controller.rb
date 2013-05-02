@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_filter :user_signed_in!, only: [:index, :update, :sign_out]
+  before_filter :user_signed_in!, except: [:sign_in, :sign_up, :show]
   before_filter :already_signed_in!, only: [:sign_in, :sign_up]
   def already_signed_in!
     redirect_to users_index_path if user_signed_in?
@@ -55,19 +55,34 @@ class UsersController < ApplicationController
   def index
   end
 
+  def edit
+  end
+
+  def create_screen
+    if current_user.screens.count < Screen::USER_MAX_SCREENS
+      current_user.screens << Screen.new(url:params[:url]);
+      current_user.save
+    end
+    redirect_to users_index_path
+  end
+
+  def change_screen
+    screen = current_user.screens.where(url:params[:url]).first
+    screen.update_attributes(url:params[:new_url]) if screen
+    redirect_to users_index_path
+  end
+
+  def destroy_screen
+    if params[:url_confirm]==params[:url]
+      screen = current_user.screens.where(url:params[:url]).first
+      screen.destroy if screen
+    end
+    redirect_to users_index_path
+  end
+
   def show
     @user = User.where(name:params[:name]).first
     render_404 unless @user
-  end
-
-  def connect_and_build_user_session user
-    if session[:oauth]
-      OAuthConsumers.keys.each do |provider|
-        info = session[:oauth][provider]
-        user.oauth_connect info if info
-      end
-    end
-    build_user_session user
   end
 
 end

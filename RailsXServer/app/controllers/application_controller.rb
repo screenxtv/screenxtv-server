@@ -33,6 +33,16 @@ class ApplicationController < ActionController::Base
     session[:oauth][:main] = 'user'
   end
 
+  def connect_and_build_user_session user
+    if session[:oauth]
+      OAuthConsumers.keys.each do |provider|
+        info = session[:oauth][provider]
+        user.oauth_connect info if info
+      end
+    end
+    build_user_session user
+  end
+
   def current_user
     @current_user ||= User.where(id:session[:user_id]).first if session[:user_id]
     destroy_user_session unless @current_user
@@ -64,7 +74,7 @@ class ApplicationController < ActionController::Base
       @social_info[:user] = {
         name: current_user.name,
         display_name: current_user.display_name || current_user.name,
-        icon: current_user.icon || view_context.image_path("icon/#{current_user.id % 32}.png")
+        icon: current_user.user_icon
       }
       @social_info[:main] = :user
     end

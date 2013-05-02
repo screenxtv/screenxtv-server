@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OAuthController do
+describe OauthController do
 
 
 end
