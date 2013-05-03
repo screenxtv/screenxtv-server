@@ -13,9 +13,34 @@
 </head>
 <body>
 <header>
-  <a href='/'><img src='/assets/logo.png' style='position:absolute;z-index:65536;height:40px;'></a>
-  <div id='header_title'></div>
-  <nobr class='menu_button'>
+  <nobr class='left'>
+    <a href='/' class='menu_item'>
+      <img src='/assets/logo.png' style='position:absolute;z-index:65536;height:40px;'>
+    </a>
+  </nobr>
+  <nobr class='right'>
+    <% if user_signed_in? %>
+      <div class='menu_item pulldown'>
+        <a class='pulldown-menu' style='padding:0 20px 0 40px;'>
+          <%= image_tag 'menu.png',width:40,height:40,style:'position:absolute;left:0;' %>
+          <%= current_user.name %>
+        </a>
+        <div class='pulldown-target'>
+          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'My Page',users_index_path %></div>
+          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'Sign out',users_sign_out_path,method:'delete' %></div>
+        </div>
+      </div>
+    <% else %>
+      <div class='menu_item button'>
+        <%= link_to users_sign_in_path do %>
+          Create your account or Sign in
+        <% end %>
+      </div>
+    <% end %>
+  </nobr>
+
+  <nobr class='menu_button' style='display:none;'>
+    <i class='icon-comment'></i>
     <%if user_signed_in? %>
       <div class='pulldown'>
         <div class='pulldown-menu' style='padding:0 20px 0 40px;'>
@@ -40,9 +65,10 @@
 <footer>
   <div class='left'>©2013 Tomoya Ishida and Yohei Yasukawa</div>
   <div class='right'>
+    <span><a href="https://github.com/screenxtv">GitHub</a></span>
     <span><a href='mailto:team@yasulab.jp'>Contact us</a></span>
     <span><a href='/doc/team'>Team</a></span>
     <span><a href='http://blog.screenx.tv'>Blog</a></span>
-    <span>News:<a href='http://twitter.com/screenxtv'>@screenxtv</a></span>
+    <span><a href='http://twitter.com/screenxtv'>Twitter</a></span>
   </div>
 </footer>

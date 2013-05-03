@@ -1,4 +1,7 @@
 @import 'mixin';
+
+body{margin:0;padding:0;padding-top:40px;overflow-x:hidden;}
+
 .cursor-dark{
   &:hover{
     cursor:pointer;
@@ -6,36 +9,92 @@
   }
 }
 
-
-
-
-.pulldown{
-  .pulldown-menu{
-    cursor:pointer;
+header{
+  position:fixed;
+  z-index:1;
+  left:0;top:0;width:100%;height:40px;
+  @include gradient(#ddd,#fff);
+  box-shadow:0 5px 5px rgba(0,0,0,0.2);
+  line-height:40px;
+  nobr.left, nobr.right{
     height:40px;
-    line-height:40px;
-    &:hover{background:#ccc;}
-  }
-  .pulldown-target{
+    display:block;
     position:absolute;
-    background: white;
-    right: 5px;
-    top: 50px;
-    padding:5px 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px;
-    display:none;
-  }
-  &.active{
-    &:after{
-      content:'';
-      position:absolute;
-      left:0;top:40px;width:100%;height:10px;
-      background:image-url('css/up.png');
-      background-repeat:no-repeat;
-      background-position:50%;
+    top:0;
+    &.right{
+      right:0;
+      .menu_item{
+        border-left:1px solid silver;
+      }
     }
-    .pulldown-menu{background:#bbb;}
-    .pulldown-target{display:block;}
+    &.left{left:0;}
+    .menu_item{
+      float:left;
+      text-decoration:none;
+      a{text-decoration:none;color:#222}
+      color:#222;
+      margin:0;
+      padding:0;
+      height:40px;
+      &>a,&>span{
+        display:block;
+        line-height:40px;
+        height:40px;
+        padding:0 20px;
+      }
+      &.button, &.pulldown{
+        cursor:pointer;
+        &:hover{@include gradient(#bbb,#eee);}
+        &.active{
+          @include gradient(#aaa,#ddd);
+          &:hover{@include gradient(#999,#ccc);}
+        }
+      }
+    }
+    .pulldown{
+      position:relative;
+      .pulldown-menu{
+        height:40px;
+        line-height:40px;
+      }
+      .pulldown-target{
+        position:absolute;
+        background: white;
+        right: 15px;
+        top: 50px;
+        padding:5px 10px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px black;
+        display:none;
+      }
+      &.active{
+        &:after{
+          content:'';
+          position:absolute;
+          left:0;top:40px;width:100%;height:10px;
+          background:image-url('css/up.png');
+          background-repeat:no-repeat;
+          background-position:50%;
+        }
+        .pulldown-target{display:block;}
+      }
+    }
   }
+}
+
+
+
+
+footer{
+  border-top: 1px solid #eee;
+  margin-top: 20px;
+  padding: 10px 20px;
+  line-height:20px;
+  height:20px;
+  font-size: 14px;
+  color: gray;
+  div.left{float:left;}
+  div.right{float:right;}
+  div span{margin:0 5px;}
+  a{color: #444;}
 }

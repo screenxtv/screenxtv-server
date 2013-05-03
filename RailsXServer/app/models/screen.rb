@@ -59,12 +59,12 @@ class Screen < ActiveRecord::Base
   end
   def self.cleanup
     range=0x10000.days.ago..10.minutes.ago
-    Screen.where(state:[TATE_PAUSED,TATE_CASTING],updated_at:range).each(&:terminate)
+    Screen.where(state:[STATE_PAUSED,STATE_CASTING],updated_at:range).each(&:terminate)
   end
   def self.getSorted(limit)
     cleanup
     screens=Arel::Table.new :screens
-    arrcasting=Screen.where(state:TATE_CASTING).order(screens[:pause_count],screens[:current_viewer].desc).limit(limit);
+    arrcasting=Screen.where(state:STATE_CASTING).order(screens[:pause_count],screens[:current_viewer].desc).limit(limit);
     if arrcasting.count<limit
       arrcasted=Screen.where(state:STATE_PAUSED).limit(limit-arrcasting.count)
     else

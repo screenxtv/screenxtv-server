@@ -104,35 +104,44 @@ $(function(){
 <div id="terminalmain" style='position:fixed;left:0;top:50;'>
 	<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>
 </div>
-<div id='terminal_nav'>
-	<a href='/'>
-		<img src='/assets/logo.png' style='position:absolute;z-index:65536;height:40px;'>
-	</a>
+<header id='terminal_nav'>
+  <nobr class='left'>
+    <a href='/' class='menu_item'>
+      <img src='/assets/logo.png' style='position:absolute;z-index:65536;height:40px;'>
+    </a>
+  </nobr>
 	<div id='terminaltitle'></div>
-	<div id='terminalstatus' style="">
-		<img src='/assets/screen/eye.png' width=40 height=40>
-		<span id='viewer'>0/0</span>
-	</div>
-	<% if @private %>
-		<div id='terminallock'>
-			<img src='/assets/screen/lock.png' width=40 height=40>
+	<nobr class='right'>
+		<div id='terminalstatu' class='menu_item' style="">
+			<span>
+
+				<i class='icon-eye-open' style=font-size:20px></i>　<span id='viewer'>0/0</span>
+			</span>
+			</span>
 		</div>
-	<% elsif @share || true %>
-		<div id='terminallike' class='pulldown'>
-			<%= image_tag 'screen/like.png',class:'pulldown-menu',width:40,height:40 %>
-			<div class='pulldown-target screen-info'>
-				ほげほげほげほげほえほげ
-				<div
-				<div class='twitter'>
-					<iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/<%= @url %>" style="width:100px; height:20px;"></iframe>
-				</div>
-				<script>(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="//connect.facebook.net/en_US/all.js#xfbml=1";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));</script>
-				<div class="fb-like facebook" data-href="http://screenx.tv/<%= @url %>" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
+		<% if @private %>
+			<div id='terminallock' class='menu_item'>
+				<img src='/assets/screen/lock.png' width=40 height=40>
 			</div>
-		</div>
-	<% end %>
-</div>
-<div id='chatmain' style='position:fixed;right:0;top:0;width:300px;box-shadow:0 0 16px black;overflow:hidden;background:white'>
+		<% elsif @share || true %>
+			<div id='terminallik' class='menu_item pulldown'>
+				<a class='pulldown-menu'>
+					<%= image_tag 'screen/like.png',width:40,height:40 %>
+				</a>
+				<div class='pulldown-target screen-info'>
+					ほげほげほげほげほえほげ
+					<div
+					<div class='twitter'>
+						<iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/<%= @url %>" style="width:100px; height:20px;"></iframe>
+					</div>
+					<script>(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="//connect.facebook.net/en_US/all.js#xfbml=1";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));</script>
+					<div class="fb-like facebook" data-href="http://screenx.tv/<%= @url %>" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
+				</div>
+			</div>
+		<% end %>
+	</nobr>
+</header>
+<div id='chatmain' style='position:fixed;z-index:2;right:0;top:0;width:300px;box-shadow:0 0 4px black;overflow:hidden;background:white'>
 	<%= render partial:'chat' %>
 </div>
 
