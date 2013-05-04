@@ -59,11 +59,11 @@ div.error{
 	<% end %>
 	<%= form_tag users_sign_up_path, id:'sign_up' do |f|%>
 		<div class='sign_head'>Create your account</div>
-		<%= text_field :sign_up, :name, placeholder:'username', autocomplete:'off', value:params[:sign_up].try(:[],:name) %>
+		<%= text_field :sign_up, :name, placeholder:'username', autocomplete:'off', value:@sign_up_user.try(:name) %>
 		<% @sign_up_errors.try(:[],:name).try(:each) do |error| %>
 			<div class='error'>username <%= error %></div>
 		<% end %>
-		<%= text_field :sign_up, :email, placeholder:'email', autocomplete:'off', value:params[:sign_up].try(:[],:email) %>
+		<%= text_field :sign_up, :email, placeholder:'email', autocomplete:'off', value:@sign_up_user.try(:email) %>
 		<% @sign_up_errors.try(:[],:email).try(:each) do |error| %>
 			<div class='error'>email <%= error %></div>
 		<% end %>
@@ -71,7 +71,9 @@ div.error{
 		<% if @sign_up_errors.try(:[],:password_digest).present? %>
 		<div class='error'>password invalid</div>
 		<% end %>
-		<div class='error'><%= @reserve_error %></div>
+		<% if @reserve_error %>
+			<div class='error'><%= "cannot reserve url: #{@sign_up_user.name}" %></div>
+		<% end %>
 		<%= submit_tag 'Create account',id:'sign_up_button' %>
 	<% end %>
 	<div style='clear:left;'></div>

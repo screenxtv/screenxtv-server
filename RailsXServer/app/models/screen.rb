@@ -1,10 +1,10 @@
 class Screen < ActiveRecord::Base
-  attr_accessible :url,:total_viewer,:max_viewer,:total_time,:last_cast,:state,
+  attr_accessible :url,:total_viewer,:max_viewer,:total_time,:cast_count,:last_cast,:state,
     :current_time,:current_viewer,:current_max_viewer,:current_total_viewer,
     :pause_count,:title,:color,:vt100
   belongs_to :user
   has_many :chats, dependent: :destroy
-  validates :url, length:{minimum:4, maximum:16}, uniqueness:true, format:/^[_a-zA-Z0-9]*$/
+  validates :url, length:{minimum:2, maximum:16}, uniqueness:true, format:/^[_a-zA-Z0-9]*$/
 
   USER_MAX_SCREENS = 5
   STATE_CASTING = 2
@@ -15,7 +15,8 @@ class Screen < ActiveRecord::Base
     {
       total_viewer:total_viewer,
       max_viewer:max_viewer,
-      total_time:total_time
+      total_time:total_time,
+      cast_count:cast_count
     }
   end
   def casting?
@@ -27,9 +28,9 @@ class Screen < ActiveRecord::Base
     when 'terminate'
       screen.terminate if screen
       return false
-    when 'update'
+    when 'start','update'
       params[:state]=STATE_CASTING
-    when 'castend'
+    when 'stop'
       params[:state]=STATE_PAUSED
     end
     params[:last_cast]=Time.now

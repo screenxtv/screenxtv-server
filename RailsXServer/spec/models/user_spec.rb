@@ -44,14 +44,13 @@ describe User do
 
     context 'user_screen' do
       it 'should be able to create one\'s screen' do
-        expect{@user.screens.create(url:'aaa')}.to change(Screen, :count).by(1)
-        expect{@user.screens.create(url:'aaa')}.not_to change(Screen, :count)
+        expect{@user.screens.create(url:'aaaa')}.to change(Screen, :count).by(1)
+        expect{@user.screens.create(url:'aaaa')}.not_to change(Screen, :count)
       end
       context 'when screen exists' do
         it 'should fail creating account' do
-          @user.screens.create(url:'aaa').should be_true
-          expect{User.new_account(name:'aaa',email:'foo2@bar',password:ok[:password]).save}.to raise_error
-          User.where(name:'aaa').should be_empty
+          @user.screens.create(url:'aaaa').should be_true
+          expect{User.new_account(name:'aaaa',email:'foo2@bar',password:'piyo').save}.not_to change{[User.count,Screen.count]}
         end
       end
     end
@@ -71,6 +70,15 @@ describe User do
         @user2.oauth_connect provider:'hoge',uid:'2',name:'name'
         expect{@user.oauth_disconnect 'hoge'}.to change(Oauth, :count).by(-1)
       end
+      it 'should use oauth icon and displayname onlyif nil' do
+        name=@user.name
+        @user.oauth_connect provider:'piyo',uid:'2',name:'name2',icon:'icon',display_name:'NAME'
+        @user.name.should eq name
+        @user.oauth_connect provider:'foo',uid:'2',name:'bar',icon:'icon2',display_name:'NAME2'
+        @user.display_name.should eq 'NAME'
+        @user.icon.should eq 'icon'
+      end
+
     end
   end
 end

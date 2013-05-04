@@ -19,16 +19,15 @@ class UsersController < ApplicationController
 
   def sign_up
     user=User.new_account(params[:sign_up])
-    begin
-      save_status = user.save
-    rescue
-      @reserve_error = "Error: cannot reserve your url: #{user.name}" if Screen.where(url:user.name).exists?
-    end
-    if save_status
+    if user.save
       connect_and_build_user_session user
       redirect_to action:'index'
     else
+      @sign_up_user = user
       @sign_up_errors = user.errors
+      if [:name,:email,:password].all?{|key|@sign_up_errors[key].empty?}
+        @reserve_error = true
+      end
       render 'sign_in'
     end
   end
