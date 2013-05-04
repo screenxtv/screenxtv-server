@@ -1,42 +1,14 @@
-
-var express = require('express');
-var http = require('http');
-var net = require('net');
-var crypto = require('crypto');
-var VT100 = require_nocache('../vt100/vt100');
-var request = require_nocache('request');
-
-function require_nocache(req){
-  var module_load=module.constructor.prototype.load;
-  var obj,err;
-  module.constructor.prototype.load=function(filename){
-    delete require.cache[filename];
-    return module_load.call(this, filename);
-  }
-  try{obj=require(req);}catch(e){err=e}
-  module.constructor.prototype.load=module_load;
-  if(err)throw err;
-  return obj;
-}
-
-
-
+var express=require('express');
+var http=require('http');
+var net=require('net');
+var request=require('request');
+var Channel=require('./channel');
 var app = express();
-
-
-console.log(require.cache);
-process.exit();
-
 var PORT=8800
 var RAILS_PORT=8008;
 var UNIX_PORT=8000;
 var RAILS_IP="127.0.0.1"
-function notify(id,data){
-	request.post({
-		uri:'http://localhost:'+RAILS_PORT+'/screens/notify/'+id,
-		json:data
-	});
-}
+
 function auth(id,data,cb){
 	request.post({
 		uri:'http://localhost:'+RAILS_PORT+'/screens/authenticate/'+id,
@@ -65,11 +37,11 @@ app.configure('production', function(){
 
 function filter(req){return req.connection.remoteAddress==RAILS_IP}
 function apigetinfo(channelID){
-	var channel=ChannelData.channelActiveMap['#'+channelID];
+	var channel=Channel.channelMap['#'+channelID];
 	return JSON.stringify(channel&&{info:channel.info,vt100:channel.vt100});
 }
 function apipost(channelID,reqbody){
-	var channel=ChannelData.channelMap['#'+channelID];
+	var channel=Channel.channelMap['#'+channelID];
 	if(!channel||reqbody.type!='chat')return;
 	channel.chat({name:reqbody.name,icon:reqbody.icon,message:reqbody.message});
 }
@@ -92,27 +64,15 @@ app.post('/:room/:id',function(req,res){
 	apipost(req.params.room+'/'+req.params.id,req.body);
 	res.end();
 });
-app.get('/admin/reload/:module/',function(req,res){
+app.get('/admin/reload/',function(req,res){
 	if(!filter(req)){res.end();return;}
-	try{
-		switch(req.params.module){
-			case 'vt100':VT100=require_nocache('../vt100/vt100');break;
-			case 'request':request=require_nocache('request');break;
-		}
-	}catch(e){}
+	Channel.reloadVT100();
 	res.end();
 });
-
 
 var server=http.createServer(app).listen(PORT,function(){
 	console.log("Express server listening on port " + PORT);
 });
-
-
-
-function md5(){return crypto.createHash('md5').update('a').digest()}
-function md5_hex(){return crypto.createHash('md5').update('a').digest('hex')}
-
 
 var socketio=require('socket.io');
 var io_option={'destroy buffer size':10E6};
@@ -122,183 +82,15 @@ io.set("log level",1);
 io.sockets.on('connection',function(socket){
 	console.log('connection!')
 	socket.on('init',function(data){
-		var channel=ChannelData.getChannelData(data.channel);
+		var channel=Channel.getChannel(data.channel);
 		console.log('joined',data.channel)
 		channel.join(socket);
 		socket.on('disconnect',function(){channel.leave(socket)});
 	});
 })
 
-function ChannelData(id){
-	this.channelID=id;
-	this.castInfo={viewer:0,total_viewer:0,max_viewer:0,total_time:0};
-	this.statistics=null;
-	this.castSocket=null;
-	this.castPassword=null;
-	this.endTimer=null;
-	this.vt100=null;
-	this.info=null;
-	this.notifyTimer=null;
-	this.pauseCount=0;
-	this.chatlist=null;
-}
-ChannelData.prototype.broadcast=function(type,data,except){
-	if(this.castSocket){
-		if(this.castSocket!=except)this.castSocket.emit(type,data);
-		else except=null;
-	}
-	if(except)except.broadcast.to(this.channelID).emit(type,data);
-	else io.sockets.in(this.channelID).emit(type,data);
-}
-ChannelData.prototype.getInitData=function(){
-	return {info:this.info,casting:this.castSocket?true:false,vt100:this.vt100,viewer:this.castInfo,chatlist:this.chatlist};
-}
-ChannelData.prototype.getSlugData=function(){return this.channelID.split('/').pop()+'#'+this.castPassword;}
-ChannelData.prototype.getAdminData=function(){
-	return {viewer:this.castInfo,chatlist:this.chatlist,slug:this.channelID+'#'+this.castPassword}
-}
-ChannelData.prototype.join=function(socket){
-	socket.join(this.channelID);
-	this.castInfo.viewer++;
-	this.castInfo.total_viewer++;
-	this.castInfo.max_viewer=Math.max(this.castInfo.max_viewer,this.castInfo.viewer);
-	if(this.statistics){
-		this.statistics.total_viewer++;
-		this.statistics.max_viewer=Math.max(this.statistics.max_viewer,this.castInfo.viewer);
-	}
-	socket.emit('init',this.getInitData());
-	this.broadcast('viewer',this.castInfo,socket)
-}
-ChannelData.prototype.leave=function(socket){
-	socket.leave(this.channelID);
-	this.castInfo.viewer--;
-	this.broadcast('viewer',this.castInfo,socket)
-	ChannelData.removeChannelData(this);
-};
-ChannelData.channelMap={};
-ChannelData.channelActiveMap={};
 
-function genRandomID(n){
-	var name="";
-	var chars="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	for(var i=0;i<n;i++)name+=chars.charAt(chars.length*Math.random());
-	return name;
-}
-ChannelData.genUniqID=function(n,prefix){
-	if(!prefix)prefix=''
-	for(var len=n||2;len<=16||len==n;len++){
-		var name=prefix+genRandomID(len);
-		if(!ChannelData.channelMap['#'+name])return name;
-	}
-	return null;
-}
-ChannelData.getChannelData=function(id){
-	var key='#'+id;
-	var channel=ChannelData.channelMap[key];
-	if(channel)return channel;
-	return ChannelData.channelMap[key]=new ChannelData(id);
-}
-ChannelData.removeChannelData=function(channel){
-	if(channel.chatlist==null&&channel.castInfo.viewer==0)
-		delete ChannelData.channelMap['#'+channel.channelID];
-}
-ChannelData.prototype.notify=function(data){if(!this.private)notify(this.channelID,data)}
-ChannelData.prototype.createNotifyData=function(status){
-	var time=Math.round((new Date()-this.startTime)/1000);
-	return {
-		status:status,
-		total_viewer:this.statistics?this.statistics.total_viewer:0,
-		max_viewer:this.statistics?this.statistics.max_viewer:0,
-		total_time:this.statistics?this.statistics.total_time+time:0,
 
-		vt100:JSON.stringify(this.vt100.getSubData(40,12)),
-		title:this.info.title,
-		color:this.info.color,
-		current_viewer:this.castInfo.viewer,
-		current_max_viewer:this.castInfo.max_viewer,
-		current_total_viewer:this.castInfo.total_viewer,
-		current_time:this.castInfo.total_time+time,
-		pause_count:this.pauseCount
-	};
-}
-ChannelData.prototype.notifyStatus=function(){
-	if(this.notifyTimer)clearTimeout(this.notifyTimer);
-	var info=this.info||{};
-	var data=this.createNotifyData();
-	data.vt100=JSON.stringify(this.vt100.getSubData(40,12));
-	this.notify(this.createNotifyData('update'))
-	this.pauseCount++;
-	var channel=this;
-	this.notifyTimer=setTimeout(function(){channel.notifyStatus()},10*1000);
-}
-ChannelData.prototype.chat=function(data){
-	data.time=Math.floor(new Date().getTime()/1000);
-	if(this.chatlist){
-		this.chatlist.push(data);
-		if(this.chatlist.length>256)this.chatlist.shift();
-	}
-	this.broadcast('chat',data);
-}
-ChannelData.prototype.castStart=function(socket,pswd,w,h,info,castInfo,chats){
-	if(this.castPassword){
-		if(this.castPassword!=pswd)throw 'url already in use';
-	}
-	if(this.castSocket)this.castSocket.disconnect();
-	if(this.chatlist==null)this.chatlist=chats||[];
-	this.private=info.private?true:false;
-	this.info=info;
-	if(!this.statistics)this.statistics=castInfo||{total_viewer:0,max_viewer:0,total_time:0};
-	if(!this.startTime)this.startTime=new Date();
-	this.castPassword=pswd;
-	this.castSocket=socket;
-	if(this.private)socket.emit('private_url',this.getSlugData());
-	else socket.emit('slug',this.getSlugData());
-	socket.emit('init',this.getAdminData());
-	this.vt100=new VT100(w,h);
-	if(!this.private)this.notifyStatus();
-	this.broadcast('castStart',{info:this.info,vt100:this.vt100},socket);
-	ChannelData.channelActiveMap['#'+this.channelID]=this;
-	if(this.endTimer){clearTimeout(this.endTimer);this.endTimer=null;}
-}
-ChannelData.prototype.castWINCH=function(socket,w,h){
-	if(this.castSocket!=socket)return;
-	this.vt100.resize(w,h);
-	this.broadcast('castWINCH',{width:w,height:h},socket);
-	this.pauseCount=0;
-}
-ChannelData.prototype.castData=function(socket,data){
-	if(this.castSocket!=socket)return;
-	for(var i=0;i<data.length;i++)this.vt100.write(data[i]);
-	this.broadcast('castData',data,socket);
-	this.pauseCount=0;
-}
-ChannelData.prototype.castEnd=function(socket){
-	if(this.castSocket!=socket)return;
-	if(this.notifyTimer){
-		clearTimeout(this.notifyTimer);
-		this.notifyTimer=null;
-	}
-	if(!this.private)this.notify(this.createNotifyData('castend'))
-	this.broadcast('castEnd','castend',socket);
-	var time=Math.round((new Date()-this.startTime)/1000);
-	this.castSocket=null;
-	this.startTime=null;
-	this.castInfo.total_time+=time;
-	if(this.statistics)this.statistics.total_time+=time;
-	var channel=this;
-	this.endTimer=setTimeout(function(){channel.ended()},10*60*1000);
-}
-ChannelData.prototype.ended=function(){
-	this.castPassword=null;
-	this.endTimer=null;
-	this.vt100=null;
-	this.info=null;
-	this.chatlist=null;
-	if(!this.private)this.notify({status:'terminate'})
-	this.broadcast('terminate','terminate');
-	delete ChannelData.channelActiveMap['#'+this.channelID];
-	ChannelData.removeChannelData(this);
-}
 
 
 net.createServer(function(usocket){
@@ -391,18 +183,18 @@ net.createServer(function(usocket){
 				var kv=data.private_url.split('#');
 				var url='private/'+kv[0];
 				console.log(url)
-				var key=kv[1]||genRandomID(16);
+				var key=kv[1]||Channel.genRandomID(16);
 				console.log()
 				try{
-					channel=ChannelData.getChannelData(url);
+					channel=Channel.getChannel(url);
 					channel.castStart(iosocket,key,width,height,info);
 					return;
 				}catch(e){}
 			}
 			try{
-				var url=ChannelData.genUniqID(16,'private/');
-				channel=ChannelData.getChannelData(url);
-				channel.castStart(iosocket,genRandomID(16),width,height,info);
+				var url=Channel.genUniqID(16,'private/');
+				channel=Channel.getChannel(url);
+				channel.castStart(iosocket,Channel.genRandomID(16),width,height,info);
 			}catch(e){
 				console.log('private',e);
 				iosocket.emit('error',e);
@@ -413,7 +205,7 @@ net.createServer(function(usocket){
 
 		var kv=(data.slug||"").split('#');
 		var width=data.width,height=data.height;
-		var url=kv[0],castkey=data.auth_key||kv[1]||genRandomID(16);
+		var url=kv[0],castkey=data.auth_key||kv[1]||Channel.genRandomID(16);
 		if(!url.match("^[a-zA-Z0-9_]*$")){
 			iosocket.emit('errtype','url');
 			iosocket.emit('error','invalid url');
@@ -423,21 +215,21 @@ net.createServer(function(usocket){
 		var randsize=4,anonymousflag=false;
 		if(!url){
 			anonymousflag=true;
-			url=ChannelData.genUniqID(randsize++);
+			url=Channel.genUniqID(randsize++);
 		}
 
 		function cb(err,result,data){
 			console.log(data)
 			if(!data||!data.cast){
 				if(anonymousflag){
-					auth(ChannelData.genUniqID(randsize<8?randsize++:8),{},cb);
+					auth(Channel.genUniqID(randsize<8?randsize++:8),{},cb);
 				}else{
 					iosocket.emit('error',data&&data.error?data.error:'unknown')
 					iosocket.disconnect();
 				}
 			}else{
 				try{
-					channel=ChannelData.getChannelData(url);
+					channel=Channel.getChannel(url);
 					if(data.info){
 						channel.castStart(iosocket,url+"/"+castkey,width,height,info,data.info,data.chats);
 					}else{
@@ -452,8 +244,9 @@ net.createServer(function(usocket){
 		}
 		auth(url,{user:data.user,auth_key:data.auth_key},cb);
 	}
-	usocket.on('error',function(){if(channel)channel.castEnd(iosocket);channel=null;});
-	usocket.on('close',function(){if(channel)channel.castEnd(iosocket);channel=null;});
+	function onclose(){if(channel)channel.castStop(iosocket);channel=null;}
+	usocket.on('error',onclose);
+	usocket.on('close',onclose);
 }).listen(UNIX_PORT,null,null,function(err){
 	console.log("NodeX listening on port "+UNIX_PORT)
 });
