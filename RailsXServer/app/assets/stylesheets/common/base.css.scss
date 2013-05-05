@@ -17,7 +17,7 @@ a{
 .right{float:right;}
 .clearfix:after{content:'';display:block;clear:both;}
 
-input[type=submit], input[type=button], button, .button{
+input[type=submit], input[type=button], button, .button, .sign_in_button, .sign_up_button{
   border-radius:4px;
   font-size:16px;
   border:1px solid gray;
@@ -28,11 +28,22 @@ input[type=submit], input[type=button], button, .button{
   text-decoration:none;
   @include gradient(#fff,#ddd);
   &:hover{
-    @include gradient(#eee,#ccc);
     color:black;
+    @include gradient(#eee,#ccc);
   }
   &:active{
+    color:black;
     @include gradient(#ddd,#bbb);
+  }
+  &.sign_in_button{
+    @include gradient(#ccf,#aad);
+    &:hover{@include gradient(#bbe,#99c);}
+    &:active{@include gradient(#aad,#88b);}
+  }
+  &.sign_up_button{
+    @include gradient(#fca,#da8);
+    &:hover{@include gradient(#eb9,#c97);}
+    &:active{@include gradient(#da8,#a86);}
   }
 }
 
