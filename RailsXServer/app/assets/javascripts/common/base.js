@@ -30,6 +30,7 @@ $(function(){
   var pulldown=".pulldown";
   var menu=".pulldown-menu";
   var target=".pulldown-target"
+  $(document).on("mousedown",menu,function(){return false;})
   $(document).on("click",menu,function(){
     var $pulldown=$(this).parents(pulldown);
     if($pulldown.hasClass("active")){
@@ -44,5 +45,6 @@ $(function(){
       }
       $(document).on("click",closeAll)
     }
+    return false;
   });
 });

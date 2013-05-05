@@ -33,6 +33,22 @@ class ApplicationController < ActionController::Base
     session[:oauth][:main] = 'user'
   end
 
+  def build_oauth_session oauth_info
+    provider = oauth_info[:provider]
+    session[:oauth] ||= {}
+    session[:oauth][provider] = oauth_info
+    session[:oauth][:main] = provider
+  end
+
+  def switch_oauth_session
+    if user_signed_in?
+      session[:oauth][:main] = :user
+    elsif session[:oauth]
+      provider = params[:provider]
+      session[:oauth][:main] = provider if social_info.has_key? provider
+    end
+  end
+
   def connect_and_build_user_session user
     if session[:oauth]
       OAuthConsumers.keys.each do |provider|
@@ -58,27 +74,27 @@ class ApplicationController < ActionController::Base
   end
 
   def social_info
-    @social_info={}
+    social_info={}
     if session[:oauth]
       OAuthConsumers.keys.each do |provider|
-        @social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
+        social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
       end
-      @social_info[:main] = session[:oauth][:main]
+      social_info[:main] = session[:oauth][:main]
     else
-      @social_info[:main]='anonymous'
+      social_info[:main] = 'anonymous'
     end
-    @social_info['anonymous'] = {
+    social_info['anonymous'] = {
       icon: view_context.image_path("/assets/icon/#{request.session_options[:id][0,4].hex%32}.png")
     }
     if user_signed_in?
-      @social_info[:user] = {
+      social_info[:user] = {
         name: current_user.name,
         display_name: current_user.display_name || current_user.name,
         icon: current_user.user_icon
       }
-      @social_info[:main] = :user
+      social_info[:main] = :user
     end
-    @social_info
+    social_info
   end
 
   def twitter(token=nil)

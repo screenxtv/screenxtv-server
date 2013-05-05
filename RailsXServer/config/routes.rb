@@ -18,8 +18,8 @@ RailsXServer::Application.routes.draw do
   match 'private/:url', to: 'screens#show_private'
 
   match 'users/sign_in', to:'users#sign_in'
+  match 'users/sign_up', to:'users#sign_up'
   match 'users/sign_out', to:'users#sign_out', via:'delete'
-  match 'users/sign_up', to:'users#sign_up', via:'post'
   match 'users/index', to:'users#index'
   match 'users/edit', to:'users#edit'
   match 'users/update', to:'users#update', via:'post'

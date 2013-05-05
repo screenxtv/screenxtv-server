@@ -6,6 +6,15 @@ describe UsersController do
     User.new_account(name:name,email:email,password:password).save
   end
   context 'sign_up' do
+    it 'should success' do
+      get :sign_up
+      response.should be_success
+    end
+    it 'should not create if get' do
+      get :sign_up,sign_up:{name:'hogee',email:'aaa@bbb',password:'piyo'}
+      response.should be_success
+      User.where(name:'hogee').first.should be_nil
+    end
     it 'should success if valid' do
       post :sign_up,sign_up:{name:'hogee',email:'aaa@bbb',password:'piyo'}
       response.should redirect_to users_index_path
@@ -19,6 +28,10 @@ describe UsersController do
   context 'sign_in' do
     it 'should success' do
       get :sign_in
+      response.should be_success
+    end
+    it 'should not login if get' do
+      get :sign_in, sign_in:{name_or_email:name, password:password}
       response.should be_success
     end
     it 'can login with name' do
@@ -58,13 +71,11 @@ describe UsersController do
     before do
       post :sign_in, sign_in:{name_or_email:name, password:password}
     end
-
     it 'can sign out' do
       post :sign_out
       get :index
       response.should be_redirect
     end
-
     context 'index' do
       it 'should success' do
         get :index

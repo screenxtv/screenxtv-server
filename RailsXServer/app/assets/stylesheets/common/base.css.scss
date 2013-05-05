@@ -7,6 +7,51 @@ body{
   font-family:Sans-Serif;
 }
 
+a{
+  color:#22a;
+  text-decoration:underline;
+  &:hover{color:#a62;}
+}
+
+.left{float:left;}
+.right{float:right;}
+.clearfix:after{content:'';display:block;clear:both;}
+
+input[type=submit], input[type=button], button, .button{
+  border-radius:4px;
+  font-size:16px;
+  border:1px solid gray;
+  margin:5px 0;
+  cursor:pointer;
+  padding:4px 20px;
+  color:black;
+  text-decoration:none;
+  @include gradient(#fff,#ddd);
+  &:hover{
+    @include gradient(#eee,#ccc);
+    color:black;
+  }
+  &:active{
+    @include gradient(#ddd,#bbb);
+  }
+}
+
+
+input[type=text], input[type=password]{
+  border-radius:4px;
+  font-size:16px;
+  height:24px;
+  border:1px solid gray;
+  margin:5px 0;
+  padding:2px 5px;
+  outline:none;
+  width:240px;
+  &:focus{
+    box-shadow:0 0 8px blue;
+  }
+}
+
+
 .cursor-dark{
   &:hover{
     cursor:pointer;
@@ -36,23 +81,23 @@ header{
     .menu_item{
       float:left;
       text-decoration:none;
-      a{text-decoration:none;color:#222}
       color:#222;
       margin:0;
       padding:0;
       height:40px;
-      &>a,&>span{
+      &>a,&>span,{
+        text-decoration:none;color:#222;
         display:block;
         line-height:40px;
         height:40px;
         padding:0 20px;
+        text-decoration:none;color:#222
       }
-      &.button, &.pulldown{
+      &.link, &.pulldown{
         cursor:pointer;
         &:hover{@include gradient(#bbb,#eee);}
         &.active{
           @include gradient(#aaa,#ddd);
-          &:hover{@include gradient(#999,#ccc);}
         }
       }
     }
@@ -63,6 +108,8 @@ header{
         line-height:40px;
       }
       .pulldown-target{
+        line-height:1.4em;
+        cursor:auto;
         position:absolute;
         background: white;
         right: 15px;
@@ -102,4 +149,5 @@ footer{
   div.right{float:right;}
   div span{margin:0 5px;}
   a{color: #444;}
+  a:hover{color: black;}
 }

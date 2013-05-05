@@ -59,6 +59,10 @@ describe User do
       before do
         @user.oauth_connect provider:'hoge',uid:'1',name:'name'
       end
+      it 'should find user by oauth' do
+        User.find_by_oauth(provider:'hoge',uid:1).id.should eq @user.id
+        User.find_by_oauth(provider:'hoge',uid:10).should be_nil
+      end
       it 'should connect to oauth' do
         expect{@user2.oauth_connect provider:'hoge',uid:'1',name:'name'}.to raise_error
         @user2.oauths.where(provider:'hoge').first.should be_nil

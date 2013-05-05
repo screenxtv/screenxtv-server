@@ -6,18 +6,20 @@ class UsersController < ApplicationController
   end
 
   def sign_in
+    render and return unless request.post?
     if params[:sign_in]
       user = User.find_by_password params[:sign_in][:name_or_email], params[:sign_in][:password]
-      if user
-        connect_and_build_user_session user
-        redirect_to users_index_path
-      else
-        @sign_in_error = 'wrong username, email or password'
-      end
+    end
+    if user
+      connect_and_build_user_session user
+      redirect_to users_index_path
+    else
+      @sign_in_error = 'wrong username, email or password'
     end
   end
 
   def sign_up
+    render 'sign_in' and return unless request.post?
     user=User.new_account(params[:sign_up])
     if user.save
       connect_and_build_user_session user
