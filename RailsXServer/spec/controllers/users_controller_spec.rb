@@ -83,6 +83,9 @@ describe UsersController do
       end
     end
 
+    context 'edit' do
+      pending
+    end
   end
 end
 

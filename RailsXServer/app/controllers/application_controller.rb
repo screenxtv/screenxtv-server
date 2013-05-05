@@ -26,7 +26,7 @@ class ApplicationController < ActionController::Base
       end
       session[:oauth][oauth.provider] = hash
     end
-    session[:oauth][:main] = 'user'
+    session[:oauth][:main] = :user
   end
 
   def build_oauth_session oauth_info
@@ -37,13 +37,13 @@ class ApplicationController < ActionController::Base
   end
 
   def switch_oauth_session provider
+    session[:oauth] ||= {}
     if user_signed_in?
       session[:oauth][:main] = :user
+    elsif social_info.has_key? provider
+      session[:oauth][:main] = provider
     else
-      session[:oauth] ||= {}
-      if social_info.has_key? provider
-        session[:oauth][:main] = provider
-      end
+      session[:oauth][:main] = 'anonymous'
     end
   end
 
@@ -58,8 +58,10 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    @current_user ||= User.where(id:session[:user_id]).first if session[:user_id]
-    destroy_user_session unless @current_user
+    if @current_user.nil? && session[:user_id]
+      @current_user = User.where(id:session[:user_id]).first if session[:user_id]
+      destroy_user_session unless @current_user
+    end
     @current_user
   end
 
