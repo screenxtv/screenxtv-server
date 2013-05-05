@@ -4,9 +4,8 @@ class IndexController < ApplicationController
   end
 
   def howto
-    @title='Install'
   end
+
   def team
-    @title='Team'
   end
 end

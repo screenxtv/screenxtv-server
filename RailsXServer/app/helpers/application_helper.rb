@@ -3,12 +3,13 @@ module ApplicationHelper
     obj.to_json.gsub("<","\\u003c").gsub(">","\\u003e").html_safe
   end
   def node_port
-    ENV['NODE_PORT'].to_i||0
+    ENV['NODE_PORT'].to_i
   end
   def title
     title="ScreenX TV"
-    if @title
-      "#{@title} - #{title}"
+    subtitle = @title || content_for(:title)
+    if subtitle.present?
+      "#{subtitle} - #{title}"
     else
       title
     end
