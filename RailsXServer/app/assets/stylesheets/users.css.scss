@@ -1,0 +1,18 @@
+@import 'mixin';
+form#sign_in, form#sign_up{
+  .sign_head{
+    font-size:20px;
+  }
+  div.error{
+    font-size:12px;
+    color:red;
+  }
+  border-radius:8px;
+  width:270px;
+  float:left;
+  margin:20px;
+  padding:10px;
+  box-shadow:0 0 8px silver;
+  &#sign_in{background:#eef;}
+  &#sign_up{background:#fed;}
+}

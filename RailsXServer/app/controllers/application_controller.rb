@@ -7,10 +7,6 @@ class ApplicationController < ActionController::Base
     config.consumer_key=info[:consumer_key]
     config.consumer_secret=info[:consumer_secret]
   end
-
-  def current_social_user
-    social_info[social_info[:main]]
-  end
   
   def destroy_user_session
     @current_user = nil
@@ -40,12 +36,14 @@ class ApplicationController < ActionController::Base
     session[:oauth][:main] = provider
   end
 
-  def switch_oauth_session
+  def switch_oauth_session provider
     if user_signed_in?
       session[:oauth][:main] = :user
-    elsif session[:oauth]
-      provider = params[:provider]
-      session[:oauth][:main] = provider if social_info.has_key? provider
+    else
+      session[:oauth] ||= {}
+      if social_info.has_key? provider
+        session[:oauth][:main] = provider
+      end
     end
   end
 
