@@ -6,7 +6,7 @@ class Screen < ActiveRecord::Base
   has_many :chats, dependent: :destroy
   validates :url, length:{minimum:2, maximum:16}, uniqueness:true, format:/^[_a-zA-Z0-9]*$/
 
-  USER_MAX_SCREENS = 5
+  USER_MAX_SCREENS = 3
   STATE_CASTING = 2
   STATE_PAUSED = 1
   STATE_NONE = 0
@@ -19,35 +19,25 @@ class Screen < ActiveRecord::Base
       cast_count:cast_count
     }
   end
+
   def casting?
     state==STATE_CASTING
   end
+
   def self.notify(params)
     screen=Screen.where(url:params[:url]).first;
-    case params[:status]
-    when 'terminate'
-      screen.terminate if screen
-      return false
-    when 'start','update'
-      params[:state]=STATE_CASTING
-    when 'stop'
-      params[:state]=STATE_PAUSED
-    end
-    params[:last_cast]=Time.now
-    if !screen
-      screen=Screen.create(params)
-      true
+    if params[:state]==STATE_NONE
+      Screen.where(url:params[:url]).first.try(:terminate)
     else
-      state=screen.state
-      screen.update_attributes params.slice *screen.attribute_names.map(&:to_sym)
-      state==STATE_NONE
+      screen = Screen.where(url:params[:url]).first_or_initialize
+      screen.update_attributes(params)
     end
   end
   def chats_for_js
     chats.map{|c|{name:c.name,icon:c.icon,message:c.message,time:c.created_at.to_i}}
   end
   def terminate
-    if user
+    if user_id
       update_attributes(
           state:STATE_NONE,
           title:nil,color:nil,vt100:nil,
