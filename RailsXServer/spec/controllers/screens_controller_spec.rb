@@ -6,6 +6,7 @@ describe ScreensController do
     @user.save
   end
   context 'views' do
+    render_views
     it 'should respond to embed' do
       get :show_embed,url:'foo'
       assigns[:title].should eq 'foo'
@@ -14,13 +15,20 @@ describe ScreensController do
       response.should render_template 'embed'
     end
     context 'public' do
-
+      before{get :show,url:'foo'}
+      it 'assings' do
+        assigns.should include(title:'foo',url:'foo',chats:[])
+      end
+      context 'response' do
+        subject{response}
+        it{should be_success}
+        it{should render_template 'show'}
+      end
+      it 'hoge'
     end
     context 'private' do
       context 'get' do
-        before do
-          get :show_private,url:'foo'
-        end
+        before{get :show_private,url:'foo'}
         it 'assings' do
           assigns.should include(title:'foo',url:'private/foo',private:true,chats:[])
         end

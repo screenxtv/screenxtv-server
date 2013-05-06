@@ -6,9 +6,12 @@ describe UsersController do
     User.new_account(name:name,email:email,password:password).save
   end
   context 'sign_up' do
-    it 'should success' do
-      get :sign_up
-      response.should be_success
+    context 'get' do
+      render_views
+      it 'should success' do
+        get :sign_up
+        response.should be_success
+      end
     end
     it 'should not create if get' do
       get :sign_up,sign_up:{name:'hogee',email:'aaa@bbb',password:'piyo'}
@@ -26,9 +29,12 @@ describe UsersController do
     end
   end
   context 'sign_in' do
-    it 'should success' do
-      get :sign_in
-      response.should be_success
+    context 'get' do
+      render_views
+      it 'should success' do
+        get :sign_in
+        response.should be_success
+      end
     end
     it 'should not login if get' do
       get :sign_in, sign_in:{name_or_email:name, password:password}
@@ -53,17 +59,19 @@ describe UsersController do
     end
   end
   context 'show user' do
-     it 'should 404 when not foun' do
-       get :show,name:'noname'
-       response.status.should eq 404
-     end
-    it 'should success' do
-      get :show,name:name
-      response.should be_success
+    it 'should 404 when not foun' do
+     get :show,name:'noname'
+     response.status.should eq 404
     end
-    it 'should set correct @user' do
-      get :show,name:name
-      assigns[:user].id.should eq User.where(name:name).first.id
+    context 'get' do
+      render_views
+      before{get :show,name:name}
+      it 'should success' do
+        response.should be_success
+      end
+      it 'should set correct @user' do
+        assigns[:user].id.should eq User.where(name:name).first.id
+      end
     end
   end
 
@@ -77,7 +85,8 @@ describe UsersController do
       response.should be_redirect
     end
     context 'index' do
-      it 'should success' do
+      render_views
+      it 'get should success' do
         get :index
         response.should be_success
       end

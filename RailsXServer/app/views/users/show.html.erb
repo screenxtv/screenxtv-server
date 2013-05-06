@@ -21,7 +21,7 @@ div.item div.url{font-size:24px;}
 <div class='main'>
 	<h1>User Profile</h1>
 	<div class='item'>
-		<%= image_tag current_user.user_icon %>
+		<%= image_tag @user_icon %>
 		<div>user name: <%= @user.name %></div>
 		<div>display name: <%= @user.display_name %></div>
 	</div>

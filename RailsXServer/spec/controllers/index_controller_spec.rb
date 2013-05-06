@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe IndexController do
   context 'index' do
+    render_views
     before{get :index}
     it 'responds success' do
       response.should be_success
@@ -11,6 +12,7 @@ describe IndexController do
     end
   end
   context 'static page' do
+    render_views
     pages=[:team,:howto]
     pages.each do |page|
       it "get #{page}" do
