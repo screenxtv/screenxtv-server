@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe ApplicationController do
+
   before do
     @user_with_twitter = User.new_account(name:'tompng2',email:'tompng2@tompng2',password:'tompng')
     @user_with_twitter.save

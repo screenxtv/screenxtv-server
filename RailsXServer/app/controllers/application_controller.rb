@@ -15,18 +15,12 @@ class ApplicationController < ActionController::Base
   end
 
   def build_user_session user
-    @current_user = user
+    @current_user     = user
     session[:user_id] = user.id
-    session[:oauth] = {}
+    session[:oauth]   = {main: :user}
     user.oauths.each do |oauth|
-      keys = [:provider,:uid,:name,:icon,:display_name,:token,:secret]
-      hash = {}
-      keys.each do |key|
-        hash[key] = oauth[key]
-      end
-      session[:oauth][oauth.provider] = hash
+     session[:oauth][oauth.provider] = oauth.session_hash
     end
-    session[:oauth][:main] = :user
   end
 
   def build_oauth_session oauth_info
@@ -74,7 +68,7 @@ class ApplicationController < ActionController::Base
   end
 
   def social_info
-    social_info={}
+    social_info = {}
     if session[:oauth]
       OAuthConsumers.keys.each do |provider|
         social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
@@ -84,7 +78,7 @@ class ApplicationController < ActionController::Base
       social_info[:main] = 'anonymous'
     end
     social_info['anonymous'] = {
-      icon: view_context.image_path("/assets/icon/#{request.session_options[:id][0,4].hex%32}.png")
+      icon: view_context.image_path("/icon/#{request.session_options[:id][0, 4].hex % 32}.png")
     }
     if user_signed_in?
       social_info[:user] = {
@@ -100,7 +94,7 @@ class ApplicationController < ActionController::Base
   def twitter(token=nil)
     if token.nil?
       oauth = session[:oauth]['twitter']
-      token = {consumer_key:oauth[:token],consumer_secret:oauth[:secret]} if oauth
+      token = { consumer_key: oauth[:token], consumer_secret: oauth[:secret] } if oauth
     end
     Twitter::Client.new token if token
   end
@@ -110,6 +104,6 @@ class ApplicationController < ActionController::Base
   end
 
   def render_404
-    render file:"#{Rails.root}/public/404", layout:false, status:404
+    render file: "#{Rails.root}/public/404", layout: false, status: 404
   end
 end

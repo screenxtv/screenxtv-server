@@ -61,3 +61,4 @@ class User < ActiveRecord::Base
     icon || "/assets/icon/#{id % 32}.png"
   end
 end
+

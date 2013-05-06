@@ -43,7 +43,7 @@ describe User do
     end
 
     context 'user_screen' do
-      it 'should be able to create one\'s screen' do
+      it 'should be able to create the screen' do
         expect{@user.screens.create(url:'aaaa')}.to change(Screen, :count).by(1)
         expect{@user.screens.create(url:'aaaa')}.not_to change(Screen, :count)
       end

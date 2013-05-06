@@ -3,6 +3,8 @@ class ScreensController < ApplicationController
   protect_from_forgery :except=>[:notify,:authenticate]
   NODE_IP="127.0.0.1"
   NODE_PORT=ENV['NODE_PORT']
+  layout false
+
   def localfilter
     render nothing:true if request.remote_ip!=NODE_IP
   end
@@ -23,7 +25,7 @@ class ScreensController < ApplicationController
     @title=params[:url]
     @url=params[:url]
     @link=params[:link]
-    render layout:false
+    render 'embed'
   end
 
   def show
@@ -33,9 +35,7 @@ class ScreensController < ApplicationController
     @share=screen && screen.user ? true : false;
     @chats=screen ? screen.chats_for_js : []
     if params.include? :chat
-      render 'chat',layout:false
-    else
-      render layout:false
+      render 'chat'
     end
   end
 
@@ -46,9 +46,9 @@ class ScreensController < ApplicationController
     @chats=[]
     @private=true
     if params.include? :chat
-      render action:'chat',layout:false
+      render action:'chat'
     else
-      render action:'screen',layout:false
+      render 'show'
     end
   end
 
@@ -127,19 +127,15 @@ class ScreensController < ApplicationController
   end
 
   def status
-    info=Screen.where(url:params[:url]).first
-    out=nil
-    case params[:key]
-      when 'title'
-      out=info ? info.title : nil
-      when 'color'
-      out=info ? info.color : nil
-      when 'viewer'
-      out=info ? info.current_viewer : 0
-      when 'casting'
-      out=info ? info.casting? : false
-      when nil
-      out={title:info.title,color:info.color,viewer:info.current_viewer,casting:info.casting?} if info
+    info = Screen.where(url:params[:url]).first
+    if info
+      out = {
+        'title'=>info.title,
+        'color'=>info.color,
+        'viewer'=>info.current_viewer,
+        'casting'=>info.casting?
+      }
+      out = out[params[:key]] if params[:key]
     end
     render json:out
   end

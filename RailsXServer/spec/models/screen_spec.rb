@@ -26,27 +26,36 @@ describe Screen do
         Screen.new(state:Screen::STATE_CASTING).casting?.should be_true
         Screen.new(state:Screen::STATE_PAUSED).casting?.should be_false
       end
+      it 'to_json fields' do
+        data = JSON.parse @screen.to_json
+        %w(url title color viewer casting vt100).each do |key|
+          data.has_key?(key).should be_true
+        end
+      end
     end
     context 'notify' do
       def param state,screen=nil
         {url:(screen ? screen.url : 'hoge'),total_viewer:1,state:state}
       end
-      def screen
-        Screen.where(url:'hoge').first
-      end
       [['casting',Screen::STATE_CASTING],['paused',Screen::STATE_PAUSED]].each do |key, value|
         context key do
-          it 'should create' do
-            Screen.notify param(value)
-            screen.should_not be_nil
-            screen.total_viewer.should eq 1
-            screen.state.should eq value
+          context 'should create' do
+            before{
+              Screen.notify param(value)
+            }
+            subject{Screen.where(url:'hoge').first}
+            it{should_not be_nil}
+            its(:total_viewer){should eq 1}
+            its(:state){should eq value}
           end
-          it 'should update' do
-            Screen.notify param(value,@screen)
-            @screen.reload
-            @screen.total_viewer.should eq 1
-            @screen.state.should eq value
+          context 'should update' do
+            before{
+              Screen.notify param(value,@screen)
+              @screen.reload
+            }
+            subject{@screen}
+            its(:total_viewer){should eq 1}
+            its(:state){should eq value}
           end
         end
       end
@@ -58,6 +67,9 @@ describe Screen do
           expect{Screen.notify param(Screen::STATE_NONE,@screen)}.to change(Screen,:count).by -1
         end
       end
+    end
+    context 'authenticate' do
+      it 'auth from nodejs'
     end
     it 'no error on call getSorted' do
       Screen.getSorted(100).should_not be_nil

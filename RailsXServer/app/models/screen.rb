@@ -33,9 +33,11 @@ class Screen < ActiveRecord::Base
       screen.update_attributes(params)
     end
   end
+
   def chats_for_js
     chats.map{|c|{name:c.name,icon:c.icon,message:c.message,time:c.created_at.to_i}}
   end
+
   def terminate
     if user_id
       update_attributes(
@@ -48,10 +50,12 @@ class Screen < ActiveRecord::Base
       destroy
     end
   end
+
   def self.cleanup
     range=0x10000.days.ago..10.minutes.ago
     Screen.where(state:[STATE_PAUSED,STATE_CASTING],updated_at:range).each(&:terminate)
   end
+
   def self.getSorted(limit)
     cleanup
     screens=Arel::Table.new :screens
@@ -63,12 +67,8 @@ class Screen < ActiveRecord::Base
     end
     arrcasting+arrcasted
   end
-  def to_json
-    ("{"+"\"url\":"+url.to_json+","+
-    "\"title\":"+title.to_json+","+
-    "\"color\":"+color.to_json+","+
-    "\"viewer\":"+current_viewer.to_s+","+
-    "\"casting\":"+(state==STATE_CASTING).to_s+","+
-    "\"vt100\":"+vt100+"}").gsub("<","\\u003c").gsub(">","\\u003e");
+
+  def to_json options={}
+    {url:url,title:title,color:color,viewer:current_viewer,casting:casting?,vt100:vt100}.to_json
   end
 end
