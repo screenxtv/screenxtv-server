@@ -15,9 +15,9 @@ describe ScreensController do
       response.should render_template 'embed'
     end
     context 'public' do
-      before{get :show,url:'foo'}
+      before{get :show,url:'tompng'}
       it 'assings' do
-        assigns.should include(title:'foo',url:'foo',chats:[])
+        assigns.should include(title:'tompng',url:'tompng',chats:[])
       end
       context 'response' do
         subject{response}

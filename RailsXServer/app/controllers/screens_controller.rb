@@ -33,7 +33,7 @@ class ScreensController < ApplicationController
     @url=params[:url]
     screen=Screen.where(url:@url).first
     @share=screen && screen.user ? true : false;
-    @chats=screen ? screen.chats_for_js : []
+    @chats=screen ? screen.chats : []
     if params.include? :chat
       render 'chat'
     end

@@ -43,7 +43,7 @@ class UsersController < ApplicationController
     current_user.name = params[:name] if params[:name]
     current_user.display_name = params[:display_name] if params[:display_name]
     current_user.email = params[:email] if params[:email]
-    
+
     OAuthConsumers.keys.each do |provider|
     end
     provider = params[:provider]

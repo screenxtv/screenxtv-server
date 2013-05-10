@@ -7,7 +7,7 @@ class ApplicationController < ActionController::Base
     config.consumer_key=info[:consumer_key]
     config.consumer_secret=info[:consumer_secret]
   end
-  
+
   def destroy_user_session
     @current_user = nil
     session.delete :user_id

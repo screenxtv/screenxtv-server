@@ -34,10 +34,6 @@ class Screen < ActiveRecord::Base
     end
   end
 
-  def chats_for_js
-    chats.map{|c|{name:c.name,icon:c.icon,message:c.message,time:c.created_at.to_i}}
-  end
-
   def terminate
     if user_id
       update_attributes(
@@ -68,7 +64,11 @@ class Screen < ActiveRecord::Base
     arrcasting+arrcasted
   end
 
+  def as_json options={}
+    {url:url,title:title,color:color,viewer:current_viewer,casting:casting?,vt100:vt100}
+  end
+
   def to_json options={}
-    {url:url,title:title,color:color,viewer:current_viewer,casting:casting?,vt100:vt100}.to_json
+    as_json.to_json
   end
 end
