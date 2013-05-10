@@ -1,13 +1,9 @@
 class ScreensController < ApplicationController
-  before_filter :localfilter, only:[:notify,:authenticate]
+  before_filter :nodejs_filter, only:[:notify,:authenticate]
   protect_from_forgery :except=>[:notify,:authenticate]
-  NODE_IP="127.0.0.1"
-  NODE_PORT=ENV['NODE_PORT']
   layout false
 
-  def localfilter
-    render nothing:true if request.remote_ip!=NODE_IP
-  end
+  NODE_PORT=ENV['NODE_PORT']
 
   def HTTPPost(host,port,path,hash)
     Net::HTTP.new(host,port).post(path,URI.encode_www_form(hash))
@@ -86,7 +82,6 @@ class ScreensController < ApplicationController
   def authenticate
     if params[:password]
       user=User.where(name:params[:user]).first
-      p user
       if user && user.check_password(params[:password])
         render json:{auth_key:user.auth_key}
       else

@@ -27,6 +27,7 @@ input[type=submit], input[type=button], button, .button, .sign_in_button, .sign_
   color:black;
   text-decoration:none;
   @include gradient(#fff,#ddd);
+  outline:none;
   &:hover{
     color:black;
     @include gradient(#eee,#ccc);
@@ -34,6 +35,10 @@ input[type=submit], input[type=button], button, .button, .sign_in_button, .sign_
   &:active{
     color:black;
     @include gradient(#ddd,#bbb);
+  }
+  &:focus{
+    border-color:#88f;
+    box-shadow:0 0 8px blue;
   }
   &.sign_in_button{
     @include gradient(#ccf,#aad);
@@ -58,6 +63,7 @@ input[type=text], input[type=password]{
   outline:none;
   width:240px;
   &:focus{
+    border-color:#88f;
     box-shadow:0 0 8px blue;
   }
 }
@@ -117,6 +123,15 @@ header{
       .pulldown-menu{
         height:40px;
         line-height:40px;
+        padding-right:30px;
+        &:after{
+          content:'▼';
+          font-size:0.2em;
+          position:absolute;
+          right:10px;top:0;height:40px;
+          color:gray;
+          margin-left:5px;
+        }
       }
       .pulldown-target{
         line-height:1.4em;
@@ -131,6 +146,9 @@ header{
         display:none;
       }
       &.active{
+        .pulldown-menu:after{
+          color:-webkit-linear-gradient(top,#00a,#f00);
+        }
         &:after{
           content:'';
           position:absolute;
@@ -144,8 +162,6 @@ header{
     }
   }
 }
-
-
 
 
 footer{

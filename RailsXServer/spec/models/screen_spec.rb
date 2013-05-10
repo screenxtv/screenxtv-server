@@ -68,9 +68,6 @@ describe Screen do
         end
       end
     end
-    context 'authenticate' do
-      it 'auth from nodejs'
-    end
     it 'no error on call getSorted' do
       Screen.getSorted(100).should_not be_nil
     end

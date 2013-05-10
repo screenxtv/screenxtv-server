@@ -3,7 +3,8 @@ require 'spec_helper'
 describe UsersController do
   name, email, password = 'hoge', 'aa@bb', 'piyo'
   before do
-    User.new_account(name:name,email:email,password:password).save
+    @user = User.new_account(name:name,email:email,password:password)
+    @user.save
   end
   context 'sign_up' do
     context 'get' do
@@ -71,6 +72,32 @@ describe UsersController do
       end
       it 'should set correct @user' do
         assigns[:user].id.should eq User.where(name:name).first.id
+      end
+    end
+  end
+
+
+  context 'node action' do
+    context 'authenticate' do
+      context 'password' do
+        context 'wrong user' do
+          before{post :authenticate, user:'hogee',password:'hoge'}
+          subject{response}
+          it{should be_success}
+          its(:body){should include 'error'}
+        end
+        context 'wrong pswd' do
+          before{post :authenticate, user:'hoge',password:'fuga'}
+          subject{response}
+          it{should be_success}
+          its(:body){should include 'error'}
+        end
+        context 'correct' do
+          before{post :authenticate, user:'hoge',password:'piyo'}
+          subject{response}
+          it{should be_success}
+          its(:body){should eq({auth_key:@user.auth_key}.to_json)}
+        end
       end
     end
   end

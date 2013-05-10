@@ -17,6 +17,8 @@ RailsXServer::Application.routes.draw do
   match 'screens/:url', to:'screens#show'
   match 'private/:url', to: 'screens#show_private'
 
+  match 'users/authenticate', to:'users#authenticate'
+  match 'screens/authenticate', to:'users#authenticate'
   match 'users/sign_in', to:'users#sign_in'
   match 'users/sign_up', to:'users#sign_up'
   match 'users/sign_out', to:'users#sign_out', via:'delete'

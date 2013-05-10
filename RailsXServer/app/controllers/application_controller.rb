@@ -4,8 +4,10 @@ class ApplicationController < ActionController::Base
 
   Twitter.configure do |config|
     info=OAuthConsumers['twitter']
-    config.consumer_key=info[:consumer_key]
-    config.consumer_secret=info[:consumer_secret]
+    unless Rails.env.test?
+      config.consumer_key=info[:consumer_key]
+      config.consumer_secret=info[:consumer_secret]
+    end
   end
 
   def destroy_user_session
@@ -57,6 +59,14 @@ class ApplicationController < ActionController::Base
       destroy_user_session unless @current_user
     end
     @current_user
+  end
+
+  def already_signed_in!
+    redirect_to users_index_path if user_signed_in?
+  end
+
+  def nodejs_filter
+    render nothing:true unless ["127.0.0.1", "0.0.0.0"].include? request.remote_ip
   end
 
   def user_signed_in!

@@ -6,13 +6,15 @@ if Rails.env.production?
     oauth_token:"1003487647-27gvEUidncxAJJ506TOu5CbpmtCwPziqtbf17B3",
     oauth_token_secret:"lZvuckd6MRTcNvySGZmCHZjkhkIhdMDJIbtB7js4aak"
   }
-else
+elsif Rails.env.development?
   TWITTER_NEWS={
     consumer_key:"2GCasYV20FLrBhaMgogHw",
     consumer_secret:"U1InFQ4UuqGMCPS177YFSJ6HtZuE8SSSfT49VcOPQc",
     oauth_token:"1003487647-27gvEUidncxAJJ506TOu5CbpmtCwPziqtbf17B3",
     oauth_token_secret:"NSfjqvlrma604ZYaWDzqOkKOiLU48690vfISaTP0fHY"
   }
+else
+  TWITTER_NEWS={}
 end
 
 OAuthConsumers = {

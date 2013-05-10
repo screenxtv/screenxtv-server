@@ -1,8 +1,16 @@
 class UsersController < ApplicationController
-  before_filter :user_signed_in!, except: [:sign_in, :sign_up, :show]
+  protect_from_forgery :except=>[:authenticate]
+  before_filter :nodejs_filter, only:[:authenticate]
+  before_filter :user_signed_in!, except: [:authenticate, :sign_in, :sign_up, :show]
   before_filter :already_signed_in!, only: [:sign_in, :sign_up]
-  def already_signed_in!
-    redirect_to users_index_path if user_signed_in?
+
+  def authenticate
+    user=User.where(name:params[:user]).first
+    if user && user.check_password(params[:password])
+      render json:{auth_key:user.auth_key}
+    else
+      render json:{error:'wrong user or password'}
+    end
   end
 
   def sign_in
@@ -19,6 +27,7 @@ class UsersController < ApplicationController
   end
 
   def sign_up
+    render nothing:true unless Rails.env.test?
     render 'sign_in' and return unless request.post?
     user=User.new_account(params[:sign_up])
     if user.save
