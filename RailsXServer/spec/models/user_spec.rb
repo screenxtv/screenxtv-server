@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe User do
+  pending 'use factorygirl and check'
   context 'digest methods' do
     it 'should be sha2' do
       User.digest('a').should eq 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb'

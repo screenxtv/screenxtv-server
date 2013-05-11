@@ -18,8 +18,10 @@ class OauthController < ApplicationController
 
     if params.has_key?(:popup)
       render layout:false
-    else
+    elsif user
       redirect_to users_index_path 
+    else
+      redirect_to users_sign_in_path
     end
   end
 

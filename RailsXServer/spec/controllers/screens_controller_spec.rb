@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe ScreensController do
+  pending 'routing'
   before do
     @user=User.new_account name:'tompng',email:'e@mail',password:'pswd'
     @user.save
@@ -76,19 +77,34 @@ describe ScreensController do
     end
   end
   context 'post' do
-    it 'socialstream post'
-    before do
-      @user.oauth_connect provider:'twitter',uid:'1',name:'name',display_name:'hoge'
+    context 'user' do
+      before do
+        @user.oauth_connect provider:'twitter',uid:'1',name:'name',display_name:'hoge'
+        do_login @user
+      end
+      it 'twitter' do
+        ApplicationController.any_instance.should_receive(:twitter_post_to_user) do |text|
+          text.should include 'msg'
+        end
+        post :post, url:'tompng',provider:'anonymous', message:'msg', post_to_twitter:true
+      end
+      it 'notwitter' do
+        ApplicationController.any_instance.should_not_receive :twitter_post_to_user
+        post :post, url:'tompng',provider:'anonymous', message:'msg', post_to_twitter:'false'
+      end
     end
     it 'post anonymous' do
+      ApplicationController.any_instance.should_not_receive :twitter_post_to_user
       expect{
         post :post, url:'tompng',provider:'anonymous', message:'msg'
         response.should be_success
       }.to change(Chat,:count).by 1
     end
     it 'post private' do
+      ApplicationController.any_instance.should_not_receive :twitter_post_to_user
+      do_login @user
       expect{
-        post :post, room:'private',id:'abc',provider:'anonymous', message:'msg'
+        post :post, room:'private',id:'abc',provider:'anonymous', message:'msg', post_to_twitter:true
         response.should be_success
       }.not_to change(Chat,:count)
     end
@@ -119,15 +135,17 @@ describe ScreensController do
     context 'notify' do
       [['start',Screen::STATE_CASTING],['update',Screen::STATE_CASTING],['stop',Screen::STATE_PAUSED]].each do |status,state|
         context status do
-          before{post :notify, url:'aaa', status:status, current_viewer:1}
-          it('response'){response.should be_success}
-          it 'tweet' do
+          before{
             if status == 'start'
-              assigns[:twitter_post_message].should include 'aaa'
+              ApplicationController.any_instance.should_receive :twitter_post_to_news do |text|
+                text.should include 'aaa'
+              end
             else
-              assigns[:twitter_post_message].should be_nil
+              ApplicationController.any_instance.should_not_receive :twitter_post_to_news
             end
-          end
+            post :notify, url:'aaa', status:status, current_viewer:1
+          }
+          it('response'){response.should be_success}
           subject{Screen.where(url:'aaa').first}
           its(:state){should eq state}
           its(:current_viewer){should eq 1}
@@ -136,6 +154,7 @@ describe ScreensController do
       context 'destroy' do
         context 'nonuser' do
           before{
+            ApplicationController.any_instance.should_receive(:twitter_post_to_news).once
             post :notify, url:'aaa', status:'start', current_viewer:1
             post :notify, url:'aaa', status:'destroy', current_viewer:1
           }
@@ -144,6 +163,7 @@ describe ScreensController do
         end
         context 'user' do
           before{
+            ApplicationController.any_instance.should_receive(:twitter_post_to_news).once
             post :notify, url:'tompng', status:'start', current_viewer:1
             post :notify, url:'tompng', status:'destroy', current_viewer:1
           }

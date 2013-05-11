@@ -23,10 +23,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def build_oauth_session oauth_info
-    provider = oauth_info[:provider]
+  def build_oauth_session oauth
+    provider = oauth[:provider]
     session[:oauth] ||= {}
-    session[:oauth][provider] = oauth_info
+    session[:oauth][provider] = oauth
     session[:oauth][:main] = provider
   end
 
@@ -118,11 +118,7 @@ class ApplicationController < ActionController::Base
 
   private
   def twitter_post_token_text token, text
-    if Rails.env.test?
-      @twitter_post_message = text
-    else
-      Twitter::Client.new(token).update text
-    end
+    Twitter::Client.new(token).update text
   end
 
 end

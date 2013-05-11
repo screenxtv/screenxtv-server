@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe IndexController do
+  pending 'routing'
   context 'index' do
     render_views
     before{get :index}
