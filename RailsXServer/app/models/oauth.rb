@@ -3,22 +3,18 @@ class Oauth < ActiveRecord::Base
   attr_accessible *ACCESSIBLE_ATTRIBUTES
   belongs_to :user
 
-  def url
-    Oauth.url_for provider, name
-  end
-
   def session_hash
-    hash = {}
-    ACCESSIBLE_ATTRIBUTES.each{|key|hash[key]=self[key]}
-    hash
+    {}.tap do
+      |hash| ACCESSIBLE_ATTRIBUTES.each{|key|hash[key]=self[key]}
+    end
   end
 
-  def self.url_for provider, name
-    case provider
+  def self.url_for oauth
+    case oauth[:provider]
     when 'twitter'
-      "http://twitter.com/#{name}"
+      "http://twitter.com/#{oauth[:name]}"
     when 'facebook'
-      "http://www.facebook.com/#{name}"
+      "http://www.facebook.com/#{oauth[:name]}"
     end
   end
 end

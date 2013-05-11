@@ -25,7 +25,6 @@ class Screen < ActiveRecord::Base
   end
 
   def self.notify(params)
-    screen=Screen.where(url:params[:url]).first;
     if params[:state]==STATE_NONE
       Screen.where(url:params[:url]).first.try(:terminate)
     else
@@ -37,11 +36,11 @@ class Screen < ActiveRecord::Base
   def terminate
     if user_id
       update_attributes(
-          state:STATE_NONE,
-          title:nil,color:nil,vt100:nil,
-          current_viewer:0,current_max_viewer:0,current_total_viewer:0,
-          current_time:0,pause_count:0
-        )
+        state:STATE_NONE,
+        title:nil,color:nil,vt100:nil,
+        current_viewer:0,current_max_viewer:0,current_total_viewer:0,
+        current_time:0,pause_count:0
+      )
     else
       destroy
     end

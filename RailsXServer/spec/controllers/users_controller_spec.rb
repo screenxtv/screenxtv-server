@@ -104,6 +104,8 @@ describe UsersController do
 
   context 'after_sign_in' do
     before do
+      @user.oauth_connect provider:'facebook',uid:'u',name:'n',display_name:'d',icon:'i'
+      @user.oauth_connect provider:'twitter',uid:'U',name:'N',display_name:'D',icon:'I'
       post :sign_in, sign_in:{name_or_email:name, password:password}
     end
     it 'can sign out' do
@@ -118,9 +120,49 @@ describe UsersController do
         response.should be_success
       end
     end
+    context 'update' do
+      def user
+        User.find(@user.id)
+      end
+      context 'email and display name' do
+        before{
+          post :update, email:'aaa@bbb',name:'bbb'
+          post :update, display_name:'HOGE'
+        }
+        it('response'){response.should redirect_to users_index_path}
+        context 'check attributes' do
+          subject{User.find(@user.id)}
+          its(:name){should eq 'hoge'}
+          its(:display_name){should eq 'HOGE'}
+          its(:email){should eq 'aaa@bbb'}
+        end
+      end
+      context 'social_icon' do
+        context 'switch to facebook' do
+          before{post :update, social_icon:'facebook'}
+          it('response'){response.should redirect_to users_index_path}
+          it('icon'){user.icon.should eq 'i'}
+        end
+        context 'switch to twitter' do
+          before{post :update, social_icon:'twitter'}
+          it('response'){response.should redirect_to users_index_path}
+          it('icon'){user.icon.should eq 'I'}
+        end
+        context 'switch to anonymous' do
+          before{post :update, social_icon:'anonymous'}
+          it('response'){response.should redirect_to users_index_path}
+          it('icon'){user.icon.should include 'png'}
+        end
+        context 'switch to wrongdata' do
+          before{post :update, social_icon:'hoge'}
+          it('response'){response.should redirect_to users_index_path}
+          it('icon'){user.icon.should eq 'i'}
+        end
+      end
+    end
+
 
     context 'edit' do
-      pending
     end
   end
 end

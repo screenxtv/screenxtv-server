@@ -4,10 +4,8 @@ class ApplicationController < ActionController::Base
 
   Twitter.configure do |config|
     info=OAuthConsumers['twitter']
-    unless Rails.env.test?
-      config.consumer_key=info[:consumer_key]
-      config.consumer_secret=info[:consumer_secret]
-    end
+    config.consumer_key=info[:consumer_key]
+    config.consumer_secret=info[:consumer_secret]
   end
 
   def destroy_user_session
@@ -101,19 +99,30 @@ class ApplicationController < ActionController::Base
     social_info
   end
 
-  def twitter(token=nil)
-    if token.nil?
-      oauth = session[:oauth]['twitter']
-      token = { consumer_key: oauth[:token], consumer_secret: oauth[:secret] } if oauth
-    end
-    Twitter::Client.new token if token
-  end
 
-  def news_twitter
-    twitter TWITTER_NEWS
+
+  def twitter_post_to_user text
+    oauth = session[:oauth]['twitter']
+    if oauth
+      token = { consumer_key: oauth[:token], consumer_secret: oauth[:secret] }
+      twitter_post_token_text token, text
+    end
+  end
+  def twitter_post_to_news text
+    twitter_post_token_text TWITTER_NEWS, text
   end
 
   def render_404
     render file: "#{Rails.root}/public/404", layout: false, status: 404
   end
+
+  private
+  def twitter_post_token_text token, text
+    if Rails.env.test?
+      @twitter_post_message = text
+    else
+      Twitter::Client.new(token).update text
+    end
+  end
+
 end

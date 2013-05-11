@@ -10,7 +10,7 @@ class OauthController < ApplicationController
       icon: auth[:info][:image],
       display_name: auth[:info][:name],
       token: auth[:credentials][:token],
-      secret: auth[:credentials][:secret],
+      secret: auth[:credentials][:secret]
     }
     build_oauth_session oauth_info
     user = User.find_by_oauth(oauth_info) || current_user

@@ -77,6 +77,21 @@ describe ScreensController do
   end
   context 'post' do
     it 'socialstream post'
+    before do
+      @user.oauth_connect provider:'twitter',uid:'1',name:'name',display_name:'hoge'
+    end
+    it 'post anonymous' do
+      expect{
+        post :post, url:'tompng',provider:'anonymous', message:'msg'
+        response.should be_success
+      }.to change(Chat,:count).by 1
+    end
+    it 'post private' do
+      expect{
+        post :post, room:'private',id:'abc',provider:'anonymous', message:'msg'
+        response.should be_success
+      }.not_to change(Chat,:count)
+    end
   end
   context 'node action' do
     context 'authenticate' do
@@ -100,10 +115,43 @@ describe ScreensController do
           its(:body){should eq({auth_key:@user.auth_key}.to_json)}
         end
       end
-      it 'auth from nodejs'
     end
     context 'notify' do
-      it 'notify from rails'
+      [['start',Screen::STATE_CASTING],['update',Screen::STATE_CASTING],['stop',Screen::STATE_PAUSED]].each do |status,state|
+        context status do
+          before{post :notify, url:'aaa', status:status, current_viewer:1}
+          it('response'){response.should be_success}
+          it 'tweet' do
+            if status == 'start'
+              assigns[:twitter_post_message].should include 'aaa'
+            else
+              assigns[:twitter_post_message].should be_nil
+            end
+          end
+          subject{Screen.where(url:'aaa').first}
+          its(:state){should eq state}
+          its(:current_viewer){should eq 1}
+        end
+      end
+      context 'destroy' do
+        context 'nonuser' do
+          before{
+            post :notify, url:'aaa', status:'start', current_viewer:1
+            post :notify, url:'aaa', status:'destroy', current_viewer:1
+          }
+          it('response'){response.should be_success}
+          it('should delete'){Screen.where(url:'aaa').count.should be_zero}
+        end
+        context 'user' do
+          before{
+            post :notify, url:'tompng', status:'start', current_viewer:1
+            post :notify, url:'tompng', status:'destroy', current_viewer:1
+          }
+          it('response'){response.should be_success}
+          subject{Screen.where(url:'tompng').first}
+          its(:state){should eq Screen::STATE_NONE}
+        end
+      end
     end
   end
 end

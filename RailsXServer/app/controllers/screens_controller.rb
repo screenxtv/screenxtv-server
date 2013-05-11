@@ -2,11 +2,11 @@ class ScreensController < ApplicationController
   before_filter :nodejs_filter, only:[:notify,:authenticate]
   protect_from_forgery :except=>[:notify,:authenticate]
   layout false
+  NODE_HOST = 'localhost'
+  NODE_PORT = ENV['NODE_PORT']
 
-  NODE_PORT=ENV['NODE_PORT']
-
-  def HTTPPost(host,port,path,hash)
-    Net::HTTP.new(host,port).post(path,URI.encode_www_form(hash))
+  def post_to_node(path,hash)
+    Net::HTTP.new(NODE_HOST, NODE_PORT).post(path,URI.encode_www_form(hash))
   end
 
   def index
@@ -50,31 +50,33 @@ class ScreensController < ApplicationController
 
 
   def post
-    name=current_user_name
-    icon=current_user_icon
-    max_length=100
-    max_chats=256
-    message=params[:message].strip[0,max_length]
-    twitterclient=twitter if social_info && params[:twitter]
+    info = social_info
+    user = info[info[:main]]
+    max_length = 100
+    max_chats = 256
+    message = params[:message].strip[0,max_length]
+    render nothing:true and return if message.empty?
+    if user_signed_in?
+      user_url = url_for(controller: :users, action: :show, name: current_user.name)
+    else
+      user_url = Oauth.url_for user
+    end
+    data = {name:user[:display_name],icon:user[:icon],url:user_url,message:message}
+    nodedata = data.merge type:'chat',rand:params[:rand]
+
     if params[:url]
       url=params[:url]
-      private_flag=false
-    else
-      url=params[:room]+'/'+params[:id]
-      private_flag=true
-    end
-    Thread.new{
-      return if message.size==0
-      data={type:'chat',name:name,icon:icon,message:message}
-      HTTPPost(NODE_IP,NODE_PORT,"/"+url,data)
-      twitterclient.update message+" http://screenx.tv/"+url if twitterclient
-    }
-    if !private_flag
+      post_to_node "/#{params[:url]}", nodedata
+      if info['twitter'] && params[:post_to_twitter]  
+        twitter_post_to_user "#{message} http://screenx.tv/#{url}"
+      end
       screen=Screen.where(url:url).first
-      if screen&&screen.user
-        screen.chats.create(name:name,icon:icon,message:message)
+      if screen && screen.user_id
+        screen.chats.create(data)
         screen.chats.order('created_at DESC').offset(max_chats).destroy_all
       end
+    elsif params[:room] && params[:id]
+      post_to_node "/#{params[:room]}/#{params[:id]}", nodedata
     end
     render nothing:true
   end
@@ -109,16 +111,25 @@ class ScreensController < ApplicationController
   end
 
   def notify
-    created=Screen.notify params
-    if created && params[:title]!="Anonymous Sandbox"
-      title=params[:title]
-      title_max=40
-      title=title[0,title_max-3]+"..." if title.length>title_max
-      url="http://screenx.tv/#{params[:url]}"
-      tweet="'#{title}' started broadcasting! Check this out #{url}"
-      news_twitter.update tweet
-    end
+    status = params.delete :status
+    params[:state] = {
+      'start'=>Screen::STATE_CASTING,
+      'update'=>Screen::STATE_CASTING,
+      'stop'=>Screen::STATE_PAUSED,
+      'destroy'=>Screen::STATE_NONE,
+    }[status]
+    Screen.notify params.slice *Screen.accessible_attributes
+    post_twitter_news params if status == 'start' && params[:title] != "Anonymous Sandbox"
     render nothing:true
+  end
+
+  def post_twitter_news params
+    title=params[:title] || ''
+    title_max=40
+    title=title[0,title_max-3]+"..." if title.length>title_max
+    url="http://screenx.tv/#{params[:url]}"
+    tweet="'#{title}' started broadcasting! Check this out #{url}"
+    twitter_post_to_news tweet
   end
 
   def status
