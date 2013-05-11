@@ -66,8 +66,4 @@ class Screen < ActiveRecord::Base
   def as_json options={}
     {url:url,title:title,color:color,viewer:current_viewer,casting:casting?,vt100:vt100}
   end
-
-  def to_json options={}
-    as_json.to_json
-  end
 end

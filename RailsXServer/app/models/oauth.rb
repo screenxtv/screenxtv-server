@@ -3,6 +3,10 @@ class Oauth < ActiveRecord::Base
   attr_accessible *ACCESSIBLE_ATTRIBUTES
   belongs_to :user
 
+  def url
+    Oauth.url_for self
+  end
+
   def session_hash
     {}.tap do
       |hash| ACCESSIBLE_ATTRIBUTES.each{|key|hash[key]=self[key]}
