@@ -27,7 +27,6 @@ class UsersController < ApplicationController
   end
 
   def sign_up
-    render nothing:true unless Rails.env.test?
     render 'sign_in' and return unless request.post?
     user=User.new_account(params[:sign_up])
     if user.save

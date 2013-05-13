@@ -14,10 +14,10 @@ RailsXServer::Application.routes.draw do
 
   match 'embed/:url', to:'screens#show_embed'
   match 'screens/post/:room/:id', to:'screens#post', via:'post'
-  match 'screens/:url', to:'screens#show'
+  match 'screens/show/:url', to:'screens#show'
   match 'private/:url', to: 'screens#show_private'
 
-  match 'users/authenticate', to:'users#authenticate'
+  match 'users/authenticate/:url', to:'users#authenticate'
   match 'screens/authenticate', to:'users#authenticate'
   match 'users/sign_in', to:'users#sign_in'
   match 'users/sign_up', to:'users#sign_up'
@@ -32,6 +32,7 @@ RailsXServer::Application.routes.draw do
 
   match 'oauth/switch',to:'oauth#switch', via:'post'
   match 'oauth/disconnect', to:'oauth#disconnect', via:'post'
+  match 'oauth/:provider/callback' => 'oauth#callback'
   match 'auth/:provider/callback' => 'oauth#callback'
 
 

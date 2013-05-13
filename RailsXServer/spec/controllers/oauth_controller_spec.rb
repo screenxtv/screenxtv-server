@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe OauthController do
-  pending 'routing'
   context 'callback' do
     before do
       @user = User.new_account name:'tompng',email:'aa@bb',password:'pswd'

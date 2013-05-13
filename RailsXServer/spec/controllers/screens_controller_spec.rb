@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe ScreensController do
-  pending 'routing'
   before do
     @user=User.new_account name:'tompng',email:'e@mail',password:'pswd'
     @user.save
@@ -86,15 +85,18 @@ describe ScreensController do
         ApplicationController.any_instance.should_receive(:twitter_post_to_user) do |text|
           text.should include 'msg'
         end
+        ScreensController.any_instance.should_receive(:post_to_node)
         post :post, url:'tompng',provider:'anonymous', message:'msg', post_to_twitter:true
       end
       it 'notwitter' do
+        ScreensController.any_instance.should_receive(:post_to_node)
         ApplicationController.any_instance.should_not_receive :twitter_post_to_user
         post :post, url:'tompng',provider:'anonymous', message:'msg', post_to_twitter:'false'
       end
     end
     it 'post anonymous' do
       ApplicationController.any_instance.should_not_receive :twitter_post_to_user
+      ScreensController.any_instance.should_receive(:post_to_node)
       expect{
         post :post, url:'tompng',provider:'anonymous', message:'msg'
         response.should be_success
@@ -102,6 +104,7 @@ describe ScreensController do
     end
     it 'post private' do
       ApplicationController.any_instance.should_not_receive :twitter_post_to_user
+      ScreensController.any_instance.should_receive(:post_to_node)
       do_login @user
       expect{
         post :post, room:'private',id:'abc',provider:'anonymous', message:'msg', post_to_twitter:true
