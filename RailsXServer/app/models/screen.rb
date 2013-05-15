@@ -64,6 +64,18 @@ class Screen < ActiveRecord::Base
   end
 
   def as_json options={}
-    {url:url,title:title,color:color,viewer:current_viewer,casting:casting?,vt100:vt100}
+    {url:url,title:title,color:color,viewer:current_viewer,casting:casting?,vt100:RawJSON.new(vt100)}
+  end
+end
+
+class RawJSON
+  def initialize json
+    @json = json
+  end
+  def encode_json option={}
+    @json
+  end
+  def as_json option={}
+    self
   end
 end

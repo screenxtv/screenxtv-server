@@ -3,8 +3,7 @@ require 'spec_helper'
 describe Screen do
   pending 'use factorygirl and check when chats exists, etc'
   before do
-    @user = User.new_account(name:'name',email:'e@main',password:'pswd')
-    @user.save
+    @user = User.create(name:'name',email:'e@main',password:'pswd')
     @userscreen = @user.screens.first
     @screen = Screen.create(url:'fooo')
   end

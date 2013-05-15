@@ -17,7 +17,7 @@ function require_nocache(req){
 
 function notify(id,data){
   request.post({
-    uri:'http://localhost:'+RAILS_PORT+'/screens/notify/'+id,
+    uri:'http://localhost:'+Channel.RAILS_PORT+'/screens/notify/'+id,
     json:data
   });
 }
@@ -38,6 +38,8 @@ Channel.OFFAIR='OFFAIR';
 Channel.PAUSED='PAUSED';
 Channel.ONAIR='ONAIR';
 Channel.channelMap={};
+Channel.NOTIFY_INTERVAL = 10*1000;
+Channel.DESTROY_TIMEOUT = 60*1000;//5*60*1000
 
 Channel.prototype={
   broadcast:function(type,data,except){
@@ -46,7 +48,7 @@ Channel.prototype={
       else except=null;
     }
     if(except)except.broadcast.to(this.channelID).emit(type,data);
-    else io.sockets.in(this.channelID).emit(type,data);
+    else Channel.io.sockets.in(this.channelID).emit(type,data);
   },
   getInitData:function(){
     return {info:this.info,casting:this.castSocket?true:false,vt100:this.vt100,viewer:this.current,chatlist:this.chatlist};
@@ -126,8 +128,9 @@ Channel.prototype={
     if(this.castPassword&&this.castPassword!=pswd)throw 'url already in use';
     if(this.castSocket)this.castSocket.disconnect();
     this.castPassword=pswd;
-    this.castSocket=castSocket;
-
+    this.castSocket=socket;
+    this.vt100=new VT100(w,h);
+    this.info=info;
     if(this.state==Channel.OFFAIR){
       this.chatlist=chats||[];
       this.private=info.private?true:false;
@@ -139,16 +142,15 @@ Channel.prototype={
       if(!this.private)this.notify(this.createNotifyData('update'));
     }
     this.state=Channel.ONAIR;
-    this.info=info;
     if(!this.startTime)this.startTime=new Date();
     if(this.private)socket.emit('private_url',this.getSlugData());
     else socket.emit('slug',this.getSlugData());
     socket.emit('init',this.getAdminData());
-    this.vt100=new VT100(w,h);
     if(!this.private)this.startNotify();
     this.broadcast('castStart',{info:this.info,vt100:this.vt100},socket);
   },
   castStop:function(socket){
+    console.log('stop',this.castSocket==socket)
     if(this.castSocket!=socket)return;
     if(!this.private)this.notify(this.createNotifyData('stop'))
     this.broadcast('castEnd','castend',socket);
@@ -196,7 +198,7 @@ Channel.genRandomID=function(n){
 
 Channel.genUniqID=function(n){
   for(var len=n||4;len<=16||len==n;len++){
-    var name=genRandomID(len);
+    var name=Channel.genRandomID(len);
     if(!Channel.channelMap['#'+name])return name;
   }
   return null;

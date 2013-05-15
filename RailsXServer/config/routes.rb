@@ -35,7 +35,6 @@ RailsXServer::Application.routes.draw do
   match 'oauth/:provider/callback' => 'oauth#callback'
   match 'auth/:provider/callback' => 'oauth#callback'
 
-
   match ':url', to:'screens#show'
 
 end

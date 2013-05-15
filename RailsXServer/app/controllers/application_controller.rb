@@ -39,6 +39,7 @@ class ApplicationController < ActionController::Base
     else
       session[:oauth][:main] = 'anonymous'
     end
+    @social_info = nil
   end
 
   def connect_and_build_user_session user
@@ -76,27 +77,28 @@ class ApplicationController < ActionController::Base
   end
 
   def social_info
-    social_info = {}
+    return @social_info if @social_info
+    @social_info = {}
     if session[:oauth]
       OAuthConsumers.keys.each do |provider|
-        social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
+        @social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
       end
-      social_info[:main] = session[:oauth][:main]
+      @social_info[:main] = session[:oauth][:main]
     else
-      social_info[:main] = 'anonymous'
+      @social_info[:main] = 'anonymous'
     end
-    social_info['anonymous'] = {
-      icon: view_context.image_path("/icon/#{request.session_options[:id][0, 4].hex % 32}.png")
+    @social_info['anonymous'] = {
+      icon: "/assets/icon/#{request.session_options[:id][0, 4].hex % 32}.png"
     }
     if user_signed_in?
-      social_info[:user] = {
+      @social_info[:user] = {
         name: current_user.name,
         display_name: current_user.display_name || current_user.name,
         icon: current_user.user_icon
       }
-      social_info[:main] = :user
+      @social_info[:main] = :user
     end
-    social_info
+    @social_info
   end
 
 

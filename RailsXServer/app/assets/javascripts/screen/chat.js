@@ -143,10 +143,3 @@ $(function(){
   })
 });
 
-$(function(){
-  addChat({name:'aaa',message:'gbbbb'})
-  addChat({name:'aaa',message:'gbbbb'})
-  addChat({name:'aaa',message:'gbbbb'})
-  addChat({name:'aaa',message:'gbbbb'})
-  addChat({name:'aaa',message:'gbbbb'})
-});

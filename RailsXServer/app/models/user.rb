@@ -7,6 +7,10 @@ class User < ActiveRecord::Base
   validates :email, uniqueness:true, format:/^[a-zA-Z0-9_-][a-zA-Z0-9\._-]*@[a-zA-Z0-9_-][a-zA-Z0-9\._-]*$/
   validates_presence_of :password_digest
 
+  before_validation do
+    self.screens.new url:self.name if id.nil?
+  end
+
   def self.digest(password)
     Digest::SHA2.hexdigest(password)
   end
@@ -34,15 +38,9 @@ class User < ActiveRecord::Base
     if password.try(:match,/^[\x21-\x7e]{4,16}$/)
       self.password_digest = User.digest password
     else
-      self.password_digest = ''
+      self.password_digest = nil
     end
     self.auth_key = User.digest "#{self.name}#{self.password}#{rand}"
-  end
-
-  def self.new_account(params)
-    user=User.new(params)
-    user.screens.new(url:user.name)
-    user
   end
 
   def oauth_connect oauth_info
@@ -50,7 +48,7 @@ class User < ActiveRecord::Base
     oauth.update_attributes oauth_info
     self.display_name ||= oauth.display_name
     self.icon ||= oauth.icon
-    self.save
+    save
   end
 
   def oauth_disconnect provider
@@ -60,5 +58,6 @@ class User < ActiveRecord::Base
   def user_icon
     icon || "/assets/icon/#{id % 32}.png"
   end
+
 end
 

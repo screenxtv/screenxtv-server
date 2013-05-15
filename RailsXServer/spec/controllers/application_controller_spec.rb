@@ -3,11 +3,9 @@ require 'spec_helper'
 describe ApplicationController do
 
   before do
-    @user_with_twitter = User.new_account(name:'tompng2',email:'tompng2@tompng2',password:'tompng')
-    @user_with_twitter.save
+    @user_with_twitter = User.create(name:'tompng2',email:'tompng2@tompng2',password:'tompng')
     @user_with_twitter.oauth_connect provider:'twitter',uid:'hoge',name:'pen'
-    @user_with_facebook = User.new_account(name:'tompng3',email:'tompng3@tompng2',password:'tompng')
-    @user_with_facebook.save
+    @user_with_facebook = User.create(name:'tompng3',email:'tompng3@tompng2',password:'tompng')
     @user_with_facebook.oauth_connect provider:'facebook',uid:'hoge',name:'pen'
   end
   controller do

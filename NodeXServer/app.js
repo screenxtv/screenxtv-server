@@ -9,6 +9,7 @@ var RAILS_PORT=8008;
 var UNIX_PORT=8000;
 var RAILS_IP="127.0.0.1"
 
+Channel.RAILS_PORT=RAILS_PORT
 function auth(id,data,cb){
 	request.post({
 		uri:'http://localhost:'+RAILS_PORT+'/screens/authenticate/'+id,
@@ -77,6 +78,7 @@ var server=http.createServer(app).listen(PORT,function(){
 var socketio=require('socket.io');
 var io_option={'destroy buffer size':10E6};
 var io=socketio.listen(server,io_option);
+Channel.io = io;
 io.set("log level",1);
 
 io.sockets.on('connection',function(socket){
@@ -126,7 +128,7 @@ net.createServer(function(usocket){
 			if(current.position==current.length){
 				if(current==key)current=val;
 				else{
-				    try{ondata(key.data.toString(),val.data.toString());}catch(e){console.log(e)}
+				    try{ondata(key.data.toString(),val.data.toString());}catch(e){console.log('callondata',e)}
 					current=key;
 				}
 				current.length=current.lengthRead=0;
@@ -148,21 +150,21 @@ net.createServer(function(usocket){
 		}
 	})
 	function ondata(key,value){
-	    try{
-		switch(key){
-			case 'init':oninit(JSON.parse(value));break;
-			case 'chat':if(channel)channel.chat({name:'admin',message:value});break;
-			case 'data':if(channel)channel.castData(iosocket,value);break;
-			case 'winch':if(channel)onwinch(JSON.parse(value));break;
-			default:return;
-		}
-	    }catch(e){console.log(e);}
+    try{
+			switch(key){
+				case 'init':oninit(JSON.parse(value));break;
+				case 'chat':if(channel)channel.chat({name:'admin',message:value});break;
+				case 'data':if(channel)channel.castData(iosocket,value);break;
+				case 'winch':if(channel)onwinch(JSON.parse(value));break;
+				default:return;
+			}
+    }catch(e){console.log('ondata',e,key,value);}
 	}
 	function onwinch(size){
 		try{
 			var w=parseInt(size.width),h=parseInt(size.height);
 			channel.castWINCH(iosocket,w,h);
-		}catch(e){console.log(e);}
+		}catch(e){console.log('onwinch',e);}
 	}
 	function oninit(data){
 		if(data.user&&data.password){
@@ -184,7 +186,6 @@ net.createServer(function(usocket){
 				var url='private/'+kv[0];
 				console.log(url)
 				var key=kv[1]||Channel.genRandomID(16);
-				console.log()
 				try{
 					channel=Channel.getChannel(url);
 					channel.castStart(iosocket,key,width,height,info);
@@ -219,12 +220,16 @@ net.createServer(function(usocket){
 		}
 
 		function cb(err,result,data){
-			console.log(data)
-			if(!data||!data.cast){
+			console.log('cb',data)
+			if(!data){
+				iosocket.emit('error','unknown')
+				iosocket.disconnect();
+			}
+			if(!data.cast){
 				if(anonymousflag){
 					auth(Channel.genUniqID(randsize<8?randsize++:8),{},cb);
 				}else{
-					iosocket.emit('error',data&&data.error?data.error:'unknown')
+					iosocket.emit('error',data.error)
 					iosocket.disconnect();
 				}
 			}else{
@@ -252,6 +257,6 @@ net.createServer(function(usocket){
 });
 
 process.on('uncaughtException',function(err){
-	console.log('Caught exception:',err);
+ 	console.log('Caught exception:',err);
 });
 

@@ -28,7 +28,7 @@ class UsersController < ApplicationController
 
   def sign_up
     render 'sign_in' and return unless request.post?
-    user=User.new_account(params[:sign_up])
+    user=User.new(params[:sign_up])
     if user.save
       connect_and_build_user_session user
       redirect_to action: :index
@@ -55,9 +55,10 @@ class UsersController < ApplicationController
     current_user.email = params[:email] if params[:email]
     social = social_info[params[:social_icon]]
     current_user.icon = social[:icon] if social
-    current_user.save
+    flash[:notice] = current_user.errors.full_messages.join "<br>" unless current_user.save
     redirect_to action: :index
   end
+
   #   OAuthConsumers.keys.each do |provider|
   #   end
   #   provider = params[:provider]

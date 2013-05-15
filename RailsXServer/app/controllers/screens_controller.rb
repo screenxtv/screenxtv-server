@@ -2,8 +2,6 @@ class ScreensController < ApplicationController
   before_filter :nodejs_filter, only:[:notify,:authenticate]
   protect_from_forgery :except=>[:notify,:authenticate]
   layout false
-  NODE_HOST = 'localhost'
-  NODE_PORT = ENV['NODE_PORT']
 
   def post_to_node(path,hash)
     Net::HTTP.new(NODE_HOST, NODE_PORT).post(path,URI.encode_www_form(hash))
@@ -30,9 +28,23 @@ class ScreensController < ApplicationController
     screen=Screen.where(url:@url).first
     @share=screen && screen.user ? true : false;
     @chats=screen ? screen.chats : []
-    if params.include? :chat
-      render 'chat'
-    end
+    render 'chat' if params.include? :chat
+  end
+
+  def chat
+    @title=params[:url]
+    @url=params[:url]
+    screen=Screen.where(url:@url).first
+    @chats=screen ? screen.chats : []
+    render 'chat'
+  end
+
+  def chat_private
+    @title=params[:url]
+    @url="private/#{params[:url]}"
+    @chats=[]
+    @private=true
+    render 'chat'
   end
 
   def show_private
@@ -41,11 +53,7 @@ class ScreensController < ApplicationController
     @share=false
     @chats=[]
     @private=true
-    if params.include? :chat
-      render action:'chat'
-    else
-      render 'show'
-    end
+    render params.include?(:chat) ? 'chat' : 'show'
   end
 
 
@@ -92,21 +100,16 @@ class ScreensController < ApplicationController
       return
     end
     screen=Screen.where(url:params[:url]).first
-    if screen
-      chats=screen.chats_for_js
-    end
     if screen.nil? || screen.user.nil?
       render json:{cast:true}
-    elsif params[:auth_key]&&params[:user]
+    else
       if screen.user.name!=params[:user]
-        render json:{cast:false,error:"wrong user"}
+        render json:{cast:false,error:"reserved:#{screen.user.name}",user:screen.user.name}
       elsif screen.user.auth_key!=params[:auth_key]
         render json:{cast:false,error:"wrong auth_key"}
       else
-        render json:{cast:true,info:screen.info,chats:chats}
+        render json:{cast:true,info:screen.info,chats:screen.chats}
       end
-    else
-      render json:{cast:false,error:"url reserved"}
     end
   end
 

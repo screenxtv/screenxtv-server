@@ -3,8 +3,7 @@ require 'spec_helper'
 describe UsersController do
   name, email, password = 'hoge', 'aa@bb', 'piyo'
   before do
-    @user = User.new_account(name:name,email:email,password:password)
-    @user.save
+    @user = User.create(name:name,email:email,password:password)
   end
   context 'sign_up' do
     context 'get' do
@@ -20,9 +19,10 @@ describe UsersController do
       User.where(name:'hogee').first.should be_nil
     end
     it 'should success if valid' do
+      ucount, scount = User.count, Screen.count
       post :sign_up,sign_up:{name:'hogee',email:'aaa@bbb',password:'piyo'}
       response.should redirect_to users_index_path
-      User.where(name:'hogee').first.should_not be_nil
+      [User.count, Screen.count].should eq [ucount+1, scount+1]
     end
     it 'should render sign_in if invalid' do
       post :sign_up,sign_up:{name:name,email:email,password:password}

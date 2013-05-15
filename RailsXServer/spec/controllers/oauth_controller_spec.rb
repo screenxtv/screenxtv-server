@@ -3,8 +3,7 @@ require 'spec_helper'
 describe OauthController do
   context 'callback' do
     before do
-      @user = User.new_account name:'tompng',email:'aa@bb',password:'pswd'
-      @user.save
+      @user = User.create name:'tompng',email:'aa@bb',password:'pswd'
       @user.oauth_connect provider:'twitter',uid:'1',name:'name'
     end
     context 'nonuser' do
@@ -54,8 +53,7 @@ describe OauthController do
     response.body.should be_blank
   end
   it 'disconnect success' do
-    user = User.new_account name:'tompng',email:'aa@bb',password:'pswd'
-    user.save
+    user = User.create name:'tompng',email:'aa@bb',password:'pswd'
     user.oauth_connect provider:'twitter',uid:'1',name:'name'
     do_login user
     session[:oauth]['twitter'].should_not be_nil

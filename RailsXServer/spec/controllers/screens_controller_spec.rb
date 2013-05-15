@@ -2,8 +2,7 @@ require 'spec_helper'
 
 describe ScreensController do
   before do
-    @user=User.new_account name:'tompng',email:'e@mail',password:'pswd'
-    @user.save
+    @user=User.create name:'tompng',email:'e@mail',password:'pswd'
   end
   context 'views' do
     render_views

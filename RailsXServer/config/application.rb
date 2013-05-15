@@ -1,6 +1,6 @@
 require File.expand_path('../boot', __FILE__)
-
-#hoge
+NODE_HOST = 'localhost'
+NODE_PORT = 8800
 
 require 'rails/all'
 

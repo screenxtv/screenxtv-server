@@ -4,8 +4,7 @@ body{min-width: 1080px;}
 @media(max-width:480px){body{min-width:auto;}}
 </style>
 <script>
-terminalList=[<%= @screens.map(&:to_json).join(",").html_safe %>];
-
+terminalList=<%= safe_json @screens %>;
 
 $(function(){
 	var first=terminalList[0];
@@ -24,6 +23,9 @@ $(function(){
 		console.log(vt100)
 		var terminal=new Terminal(div,vt100.W,vt100.H,Terminal.defaultColorMap[data.color]);
 		terminal.vt100=new VT100(vt100);
+
+    console.log(window.t=terminal)
+
 		terminal.updateView();
 		div.removeChild(div.firstChild);
 		var title=document.createElement('a');

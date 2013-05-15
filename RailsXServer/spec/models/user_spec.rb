@@ -4,32 +4,39 @@ describe User do
   pending 'use factorygirl and check'
   context 'digest methods' do
     it 'should be sha2' do
-      User.digest('a').should eq 'ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb'
-      User.digest('b').should eq '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d'
+      password = rand.to_s
+      #DO NOT CHANGE TO OTHER DIGEST METHOD
+      User.digest(password).should eq Digest::SHA2.hexdigest(password)
     end
   end
   context 'when create' do
     before do
-      @user = User.new_account(name:'hoge',email:'foo@bar',password:'piyo')
-      @user2 = User.new_account(name:'HOGE',email:'FOO@BAR',password:'PIYO')
-      @user.save
-      @user2.save
+      @user = User.create(name:'hoge',email:'foo@bar',password:'piyo')
+      @user2 = User.create(name:'HOGE',email:'FOO@BAR',password:'PIYO')
+    end
+    it 'has auth_key' do
+      
+      @user.auth_key.match /[a-zA-Z0-9]{8,}/
     end
 
     it 'should create user' do
-      expect {User.new_account(name:'hoge2',email:'foo2@bar',password:'piyo').save}.to change(User, :count).by(1)
+      expect{User.create(name:'hoge2',email:'foo2@bar',password:'piyo')}.to change(Screen, :count).by(1)
+    end
+    it 'should create screen' do
+      expect{User.create(name:'hoge2',email:'foo2@bar',password:'piyo')}.to change(User, :count).by(1)
     end
 
+
     it 'should validate presence of password' do
-      expect{User.new_account(name:'hoge2',email:'foo2@bar').save}.not_to change(User, :count)
+      expect{User.create(name:'hoge2',email:'foo2@bar')}.not_to change(User, :count)
     end
 
     it 'should validate uniqueness of name' do
-      expect{User.new_account(name:'hoge',email:'foo2@bar',password:'piyo').save}.not_to change(User, :count)
+      expect{User.create(name:'hoge',email:'foo2@bar',password:'piyo')}.not_to change(User, :count)
     end
 
     it 'should validate uniqueness of email' do
-      expect{User.new_account(name:'hoge2',email:'foo@bar',password:'piyo').save}.not_to change(User, :count)
+      expect{User.create(name:'hoge2',email:'foo@bar',password:'piyo')}.not_to change(User, :count)
     end
 
     it 'should be able to check password' do
@@ -51,11 +58,14 @@ describe User do
       context 'when screen exists' do
         it 'should fail creating account' do
           @user.screens.create(url:'aaaa').should be_true
-          expect{User.new_account(name:'aaaa',email:'foo2@bar',password:'piyo').save}.not_to change{[User.count,Screen.count]}
+          expect{User.create(name:'aaaa',email:'foo2@bar',password:'piyo')}.not_to change{[User.count,Screen.count]}
         end
       end
     end
+  subject { lambda { Foo.bar } }
 
+  it { should change { Counter.count }.by 1 }
+  it { should change { AnotherCounter.count }.by 1 }
     context 'oauth' do
       before do
         @user.oauth_connect provider:'hoge',uid:'1',name:'name'

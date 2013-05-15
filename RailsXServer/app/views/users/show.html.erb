@@ -18,34 +18,36 @@ div.item{
 div.item div{font-size:18px;}
 div.item div.url{font-size:24px;}
 </style>
-<div class='main'>
+<div class='main' style='margin-left:auto;margin-right:auto;width:900px;'>
 	<h1>User Profile</h1>
-	<div class='item'>
-		<%= image_tag @user.user_icon %>
-		<div>user name: <%= @user.name %></div>
-		<div>display name: <%= @user.display_name %></div>
-	</div>
+		<h1>
+		<%= image_tag @user.user_icon, width:48, height:48 %>
+		<%= @user.name %></h1>
+		<div>
+			<b>display name: </b><%= @user.display_name %>
+		</div>
 	<div class='socials'>
 		<% @user.oauths.each do |oauth| %>
 			<div>
-				<h2><%= oauth.provider %></h2>
+				<b><%= oauth.provider %></b>
 				<%= link_to oauth.url do %>
-					<%= image_tag oauth.icon, width:48,height:48 %>
+					<%= image_tag oauth.icon, width:24,height:24 %>
 					<%= oauth.display_name %>
-					<%= oauth.name %>
 				<% end %>
 			</div>
 		<% end %>
 	</div>
 	<br>
 	<h1>Reserved URLs</h1>
-	<% @user.screens.each do |screen| %>
-		<div class='item'>
-			<div class='url'><a href="/<%= screen.url %>"><%= screen.url %></a>
-			<div>Total Viewer: <%= screen.total_viewer %></div>
-			<div>Max Viewer: <%= screen.max_viewer %></div>
-			<% time=screen.total_time %>
-			<div>Total Time: <%= time/60/60/24 %>days <%= h=time/60/60%24;"#{h/10}#{h%10}"%>:<%= m=time/60%60;"#{m/10}#{m%10}" %></div>
-		</div>
-	<% end %>
+	<div class='clearfix'>
+		<% @user.screens.each do |screen| %>
+			<div class='item' style='float:left;width:400px;'>
+				<div class='url'><a href="/<%= screen.url %>"><%= screen.url %></a></div>
+				<div>Total Viewer: <%= screen.total_viewer %></div>
+				<div>Max Viewer: <%= screen.max_viewer %></div>
+				<% time=screen.total_time %>
+				<div>Total Time: <%= time/60/60/24 %>days <%= h=time/60/60%24;"#{h/10}#{h%10}"%>:<%= m=time/60%60;"#{m/10}#{m%10}" %></div>
+			</div>
+		<% end %>
+	</div>
 </div>

@@ -9,4 +9,5 @@ module RoutingSpecHelper
     }
     routes
   end
+
 end
