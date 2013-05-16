@@ -1,5 +1,5 @@
 var VT100=require_nocache('../vt100/vt100');
-var logger=require('./logger').create("./cast_log.txt");
+var print_log=require('./logger').create("./cast.log");
 var request=require('request');
 
 function require_nocache(req){
@@ -147,6 +147,7 @@ Channel.prototype={
     else socket.emit('slug',this.getSlugData());
     socket.emit('init',this.getAdminData());
     if(!this.private)this.startNotify();
+    print_log(JSON.stringify({time:new Date().getTime(),url:this.channelID,info:info}))
     this.broadcast('castStart',{info:this.info,vt100:this.vt100},socket);
   },
   castStop:function(socket){

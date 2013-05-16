@@ -87,8 +87,9 @@ class ApplicationController < ActionController::Base
     else
       @social_info[:main] = 'anonymous'
     end
+    icon_id = current_user.try(:id) || request.session_options[:id][0, 4].hex
     @social_info['anonymous'] = {
-      icon: "/assets/icon/#{request.session_options[:id][0, 4].hex % 32}.png"
+      icon: "/assets/icon/#{icon_id % 32}.png"
     }
     if user_signed_in?
       @social_info[:user] = {
