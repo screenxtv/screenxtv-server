@@ -73,7 +73,7 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 	this.post=function(message,twitter){
 		if(!socket)return;
 		data={authenticity_token:csrf_token,message:message};
-		if(twitter)data.twitter=true;
+		if(twitter)data.post_to_twitter=true;
 		$.post('/screens/post/'+channelID,data);
 	}
 }

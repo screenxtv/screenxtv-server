@@ -107,7 +107,7 @@ class ApplicationController < ActionController::Base
   def twitter_post_to_user text
     oauth = session[:oauth]['twitter']
     if oauth
-      token = { consumer_key: oauth[:token], consumer_secret: oauth[:secret] }
+      token = {oauth_token: oauth[:token], oauth_token_secret: oauth[:secret]}
       twitter_post_token_text token, text
     end
   end
