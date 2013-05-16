@@ -93,7 +93,7 @@ class ApplicationController < ActionController::Base
     if user_signed_in?
       @social_info[:user] = {
         name: current_user.name,
-        display_name: current_user.display_name || current_user.name,
+        display_name: current_user.nickname,
         icon: current_user.user_icon
       }
       @social_info[:main] = :user

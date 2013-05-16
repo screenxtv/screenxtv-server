@@ -18,23 +18,26 @@ class ScreensController < ApplicationController
   def show_embed
     @title=params[:url]
     @url=params[:url]
-    @link=params[:link]
     render 'embed'
   end
 
   def show
-    @title=params[:url]
     @url=params[:url]
-    screen=Screen.where(url:@url).first
-    @share=screen && screen.user ? true : false;
-    @chats=screen ? screen.chats : []
+    @screen=Screen.where(url:@url).first
+    if @screen && @screen.user
+      @share = true
+      @owner = @screen.user
+    end
+    @title=@screen ? @screen.title : params[:url]
+    @chats=@screen ? @screen.chats : []
     render 'chat' if params.include? :chat
   end
 
   def chat
-    @title=params[:url]
     @url=params[:url]
-    screen=Screen.where(url:@url).first
+    @screen=Screen.where(url:@url).first
+    @title=@screen ? @screen.title : params[:url]
+    @share = true if @screen && @screen.user
     @chats=screen ? screen.chats : []
     render 'chat'
   end
@@ -99,6 +102,7 @@ class ScreensController < ApplicationController
       end
       return
     end
+    Screen.cleanup
     screen=Screen.where(url:params[:url]).first
     if screen.nil? || screen.user.nil?
       render json:{cast:true}

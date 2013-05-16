@@ -62,10 +62,10 @@ describe User do
         end
       end
     end
-  subject { lambda { Foo.bar } }
+  # subject { lambda { Foo.bar } }
 
-  it { should change { Counter.count }.by 1 }
-  it { should change { AnotherCounter.count }.by 1 }
+  # it { should change { Counter.count }.by 1 }
+  # it { should change { AnotherCounter.count }.by 1 }
     context 'oauth' do
       before do
         @user.oauth_connect provider:'hoge',uid:'1',name:'name'

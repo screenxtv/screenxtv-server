@@ -76,6 +76,6 @@ class RawJSON
     @json
   end
   def as_json option={}
-    self
+    self if @json
   end
 end

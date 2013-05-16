@@ -105,28 +105,40 @@ function post(){
 	<nobr class='right'>
 		<div id='terminalstatu' class='menu_item' style="">
 			<span>
-
 				<i class='icon-eye-open' style=font-size:20px></i>　<span id='viewer'>0/0</span>
 			</span>
 			</span>
 		</div>
 		<% if @private %>
 			<div id='terminallock' class='menu_item'>
-				<img src='/assets/screen/lock.png' width=40 height=40>
+				<span><img src='/assets/screen/lock.png' width=40 height=40></span>
 			</div>
-		<% elsif @share || true %>
-			<div id='terminallik' class='menu_item pulldown'>
+		<% elsif @share %>
+			<div id='terminallike' class='menu_item pulldown'>
 				<a class='pulldown-menu'>
 					<%= image_tag 'screen/like.png',width:40,height:40 %>
 				</a>
 				<div class='pulldown-target screen-info'>
-					ほげほげほげほげほえほげ
-					<div
-					<div class='twitter'>
-						<iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/<%= @url %>" style="width:100px; height:20px;"></iframe>
+					
+					
+					<div>
+						<b>owner:</b>
+						<%= link_to url_for(controller: :users, action: :show, name: @screen.user.name) do %>
+							<%= image_tag @owner.icon, width: 16, height: 16 %>
+							<%= @owner.display_name %>
+						<% end %>
 					</div>
-					<script>(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="//connect.facebook.net/en_US/all.js#xfbml=1";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));</script>
-					<div class="fb-like facebook" data-href="http://screenx.tv/<%= @url %>" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
+					<div class='clearfix' style='margin-top:8px;'>
+						<div class='twitter' style='float:left'>
+							<iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=http://screenx.tv/<%= @url %>" style="width:100px; height:20px;"></iframe>
+						</div>
+						<script>(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="//connect.facebook.net/en_US/all.js#xfbml=1";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));</script>
+						<div class="fb-like facebook" data-href="http://screenx.tv/<%= @url %>" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false" style='float:left'></div>
+					</div>
+					<b>embed code</b>
+					<div>
+						<input type=text value="<iframe src='<%= url_for controller: :screens, action: :show_embed, url: @url, only_path: false %>'></iframe>" style='width:180px'>
+					</div>
 				</div>
 			</div>
 		<% end %>
