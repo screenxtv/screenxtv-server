@@ -46,7 +46,7 @@ class User < ActiveRecord::Base
   def oauth_connect oauth_info
     oauth = oauths.where(provider:oauth_info[:provider]).first_or_initialize
     oauth.update_attributes oauth_info
-    self.display_name ||= oauth.display_name
+    self.display_name = oauth.display_name if self.display_name.blank?
     self.icon ||= oauth.icon
     save
   end
@@ -56,7 +56,7 @@ class User < ActiveRecord::Base
   end
 
   def nickname
-    display_name || name
+    display_name.presence || name
   end
 
   def user_icon

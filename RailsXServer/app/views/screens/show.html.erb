@@ -106,7 +106,7 @@ function post(){
 	<nobr class='right'>
 		<div id='terminalstatu' class='menu_item' style="">
 			<span style='position:relative;margin-left:15px;'>
-				<img src='/assets/screen/eye.png' width=40 height=40 style='position:absolute;left:0;'>
+				<img src='/assets/screen/eye.png' width=30 height=30 style='position:absolute;left:0;top:5px;'>
 				<span id='viewer' style='margin-left:20px;'>0/0</span>
 			</span>
 			</span>
@@ -118,11 +118,9 @@ function post(){
 		<% elsif @share %>
 			<div id='terminallike' class='menu_item pulldown'>
 				<a class='pulldown-menu'>
-					<%= image_tag 'screen/like.png',width:40,height:40 %>
+					<%= image_tag 'screen/like.png',width:30,height:30, style:'margin-top:5px;' %>
 				</a>
 				<div class='pulldown-target screen-info'>
-					
-					
 					<div>
 						<b>owner:</b>
 						<%= link_to url_for(controller: :users, action: :show, name: @screen.user.name) do %>
