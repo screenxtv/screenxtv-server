@@ -1,5 +1,10 @@
 class OauthController < ApplicationController
 
+  def auth_popup
+    session[:popup] = true
+    redirect_to "/auth/#{params[:provider]}"
+  end
+
   def callback
     auth = request.env["omniauth.auth"]
     render nothing:true and return unless auth
@@ -16,7 +21,8 @@ class OauthController < ApplicationController
     user = User.find_by_oauth(oauth_info) || current_user
     connect_and_build_user_session user if user
 
-    if params.has_key?(:popup)
+    if session[:popup]
+      session.delete :popup
       render layout:false
     elsif user
       redirect_to users_index_path 

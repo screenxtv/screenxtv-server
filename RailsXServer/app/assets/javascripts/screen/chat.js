@@ -123,15 +123,15 @@ function onSocialConnect(social){
 }
 
 $(function(){
-  $("#chatform form").mousedown(function(){$("#message").focus();return false;})
-  $("#message").focus(function(){$("#chatform form").css('box-shadow','0 0 8px blue')})
-  $("#message").blur(function(){$("#chatform form").css('box-shadow','none')})
+  $("#chatform form").mousedown(function(){$("#message").focus();})
+  $("#message").focus(function(){$("#chatform form").css({'box-shadow':'0 0 8px blue','border-color':'#aaf'})})
+  $("#message").blur(function(){$("#chatform form").css({'box-shadow':'none','border-color':''})})
   $(".social_connect").click(function(){
     var provider=$(this).data('provider');
     if(provider=='anonymous')social_info.main=null;
     else if(social_info[provider]){social_info.main=provider;}
     else{
-      window.open('/auth/'+provider+'?popup','socialconnect','width=600,height=400,toolbar=no,menubar=no,status=no');
+      window.open('/auth/'+provider+'/popup','socialconnect','width=600,height=400,toolbar=no,menubar=no,status=no');
       return;
     }
     $.post(

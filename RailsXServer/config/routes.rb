@@ -32,6 +32,7 @@ RailsXServer::Application.routes.draw do
 
   match 'oauth/switch',to:'oauth#switch', via:'post'
   match 'oauth/disconnect', to:'oauth#disconnect', via:'post'
+  match 'auth/:provider/popup' => 'oauth#auth_popup'
   match 'oauth/:provider/callback' => 'oauth#callback'
   match 'auth/:provider/callback' => 'oauth#callback'
 

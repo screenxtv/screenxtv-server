@@ -27,7 +27,7 @@ div.main{
 		<% end %>
 		<%= text_field :sign_up, :password, type:'password', placeholder:'password' %>
 		<% if @sign_up_errors.try(:[],:password_digest).present? %>
-		<div class='error'>password invalid</div>
+			<div class='error'>password invalid</div>
 		<% end %>
 		<% if @reserve_error %>
 			<div class='error'><%= "cannot reserve url: #{@sign_up_user.name}" %></div>

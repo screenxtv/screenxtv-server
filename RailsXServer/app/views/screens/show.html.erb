@@ -75,9 +75,6 @@ $(function(){
 			terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true)
 		},10*1000);
 	}
-	$("#chatform form").mousedown(function(){$("#message").focus();return false;})
-	$("#message").focus(function(){$("#chatform form").css('box-shadow','0 0 8px blue')})
-	$("#message").blur(function(){$("#chatform form").css('box-shadow','none')})
 	window.onresize();
 })
 
@@ -124,7 +121,7 @@ function post(){
 					<div>
 						<b>owner:</b>
 						<%= link_to url_for(controller: :users, action: :show, name: @screen.user.name) do %>
-							<%= image_tag @owner.icon, width: 16, height: 16 %>
+							<%= image_tag @owner.user_icon, width: 16, height: 16 %>
 							<%= @owner.display_name %>
 						<% end %>
 					</div>

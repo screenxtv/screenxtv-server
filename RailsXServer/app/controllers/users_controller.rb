@@ -35,7 +35,7 @@ class UsersController < ApplicationController
     else
       @sign_up_user = user
       @sign_up_errors = user.errors
-      if [:name,:email,:password].all?{|key|@sign_up_errors[key].empty?}
+      if [:name,:email,:password_digest].all?{|key|@sign_up_errors[key].empty?}
         @reserve_error = true
       end
       render 'sign_in'
