@@ -16,8 +16,7 @@ class ScreensController < ApplicationController
   end
 
   def show_embed
-    @title=params[:url]
-    @url=params[:url]
+    @url = params[:url]
     render 'embed'
   end
 
@@ -28,7 +27,7 @@ class ScreensController < ApplicationController
       @share = true
       @owner = @screen.user
     end
-    @title=@screen ? @screen.title : params[:url]
+    @title=@screen ? @screen.title || @url : @url
     @chats=@screen ? @screen.chats : []
     render 'chat' if params.include? :chat
   end

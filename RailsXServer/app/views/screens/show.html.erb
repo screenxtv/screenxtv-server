@@ -2,7 +2,8 @@
 <%= stylesheet_link_tag    "application", :media => "all" %>
 <%= csrf_meta_tags %>
 <script>
-var channelID="<%= @url %>";
+var channelID=<%=safe_json @url %>;
+var title=<%=safe_json @title %>;
 var host=location.hostname;
 var port=<%= NODE_PORT %>;
 var chats=<%= safe_json @chats %>;
@@ -10,7 +11,7 @@ var social_info=<%= safe_json social_info %>;
 var terminalview;
 $(function(){
 	onSocialConnect(social_info);
-	$("#terminaltitle").text(channelID);
+	$("#terminaltitle").text(title);
 	if(!channelID)return;
 	if(chats){
 		for(var i=0;i<chats.length;i++)addChat(chats[i])

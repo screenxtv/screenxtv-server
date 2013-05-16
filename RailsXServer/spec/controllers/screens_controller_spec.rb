@@ -8,7 +8,7 @@ describe ScreensController do
     render_views
     it 'should respond to embed' do
       get :show_embed,url:'foo'
-      assigns.should include(title:'foo',url:'foo')
+      assigns.should include(url:'foo')
       response.should be_success
       response.should render_template 'embed'
     end

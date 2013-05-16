@@ -26,8 +26,10 @@
           <%= current_user.name %>
         </a>
         <div class='pulldown-target'>
-          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'My Page',users_index_path %></div>
-          <div class='cursor-dark' style='padding:0 20px'><%= link_to 'Sign out',users_sign_out_path,method:'delete' %></div>
+          <div class='cursor-dark' style='padding:5px 20px'>
+            <%= link_to 'Account', users_index_path %>
+          </div>
+          <div class='cursor-dark' style='padding:5px 20px'><%= link_to 'Sign out',users_sign_out_path,method:'delete' %></div>
         </div>
       </div>
     <% else %>
