@@ -10,6 +10,7 @@ function logger(file){
         try{
           fs.write(fd,queue.join("\n")+"\n");
         }catch(e){}
+        queue=null;
         try{fs.close(fd);}catch(e){}
       })
     }catch(e){queue=null;}

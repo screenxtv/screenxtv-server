@@ -39,7 +39,7 @@ Channel.PAUSED='PAUSED';
 Channel.ONAIR='ONAIR';
 Channel.channelMap={};
 Channel.NOTIFY_INTERVAL = 10*1000;
-Channel.DESTROY_TIMEOUT = 60*1000;//5*60*1000
+Channel.DESTROY_TIMEOUT = 5*60*1000;
 
 Channel.prototype={
   broadcast:function(type,data,except){
