@@ -3,29 +3,29 @@ class User < ActiveRecord::Base
   attr_accessor :password
   has_many :screens, dependent: :destroy
   has_many :oauths, dependent: :destroy
-  validates :name, length:{minimum:4, maximum:16}, uniqueness:true, format:/^[_a-zA-Z0-9]*$/
-  validates :email, uniqueness:true, format:/^[a-zA-Z0-9_-][a-zA-Z0-9\._-]*@[a-zA-Z0-9_-][a-zA-Z0-9\._-]*$/
+  validates :name, length: {minimum: 4, maximum: 16}, uniqueness: true, format: /^[_a-zA-Z0-9]*$/
+  validates :email, uniqueness: true, format: /^[a-zA-Z0-9_-][a-zA-Z0-9\._-]*@[a-zA-Z0-9_-][a-zA-Z0-9\._-]*$/
   validates_presence_of :password_digest
 
   before_validation do
-    self.screens.new url:self.name if id.nil?
+    self.screens.new url: self.name if id.nil?
   end
 
-  def self.digest(password)
-    Digest::SHA2.hexdigest(password)
+  def self.digest password
+    Digest::SHA2.hexdigest password
   end
 
-  def self.find_by_oauth(oauth)
-    Oauth.where(provider:oauth[:provider],uid:oauth[:uid]).first.try :user
+  def self.find_by_oauth oauth
+    Oauth.where(provider: oauth[:provider], uid: oauth[:uid]).first.try :user
   end
 
-  def self.find_by_password(name_or_email,password)
+  def self.find_by_password name_or_email, password
     if name_or_email&&password
       pswd=digest(password)
       if name_or_email.include? '@'
-        User.where(email:name_or_email,password_digest:pswd).first
+        User.where(email: name_or_email, password_digest: pswd).first
       else
-        User.where(name:name_or_email,password_digest:pswd).first
+        User.where(name: name_or_email, password_digest: pswd).first
       end
     end
   end
@@ -35,7 +35,7 @@ class User < ActiveRecord::Base
   end
 
   def password= password
-    if password.try(:match,/^[\x21-\x7e]{4,16}$/)
+    if password.try :match, /^[\x21-\x7e]{4,16}$/
       self.password_digest = User.digest password
     else
       self.password_digest = nil
@@ -44,7 +44,7 @@ class User < ActiveRecord::Base
   end
 
   def oauth_connect oauth_info
-    oauth = oauths.where(provider:oauth_info[:provider]).first_or_initialize
+    oauth = oauths.where(provider: oauth_info[:provider]).first_or_initialize
     oauth.update_attributes oauth_info
     self.display_name = oauth.display_name if self.display_name.blank?
     self.icon ||= oauth.icon
@@ -52,7 +52,7 @@ class User < ActiveRecord::Base
   end
 
   def oauth_disconnect provider
-    oauths.where(provider:provider).destroy_all
+    oauths.where(provider: provider).destroy_all
   end
 
   def nickname

@@ -8,31 +8,31 @@ div.main{
 </style>
 <center>
 <div class='main'>
-	<%= form_tag users_sign_in_path, id:'sign_in' do |f|%>
+	<%= form_tag users_sign_in_path, id: 'sign_in' do |f| %>
 		<div class='sign_head'>Sign in</div>
-		<%= text_field :sign_in, :name_or_email, placeholder:'username or email', value:params[:sign_in].try(:[],:name_or_email) %>
-		<%= text_field :sign_in, :password, placeholder:'password', type:'password' %>
+		<%= text_field :sign_in, :name_or_email, placeholder: 'username or email', value: params[:sign_in].try(:[], :name_or_email) %>
+		<%= text_field :sign_in, :password, placeholder: 'password', type: 'password' %>
 		<div class='error'><%= @sign_in_error %></div>
-		<%= submit_tag 'Sign in',class:'sign_in_button' %>
+		<%= submit_tag 'Sign in',class: 'sign_in_button' %>
 	<% end %>
-	<%= form_tag users_sign_up_path, id:'sign_up' do |f|%>
+	<%= form_tag users_sign_up_path, id: 'sign_up' do |f|%>
 		<div class='sign_head'>Create your account</div>
-		<%= text_field :sign_up, :name, placeholder:'username', autocomplete:'off', value:@sign_up_user.try(:name) %>
-		<% @sign_up_errors.try(:[],:name).try(:each) do |error| %>
+		<%= text_field :sign_up, :name, placeholder: 'username', autocomplete: 'off', value:@sign_up_user.try(:name) %>
+		<% @sign_up_errors.try(:[], :name).try(:each) do |error| %>
 			<div class='error'>username <%= error %></div>
 		<% end %>
-		<%= text_field :sign_up, :email, placeholder:'email', autocomplete:'off', value:@sign_up_user.try(:email) %>
-		<% @sign_up_errors.try(:[],:email).try(:each) do |error| %>
+		<%= text_field :sign_up, :email, placeholder: 'email', autocomplete: 'off', value:@sign_up_user.try(:email) %>
+		<% @sign_up_errors.try(:[], :email).try(:each) do |error| %>
 			<div class='error'>email <%= error %></div>
 		<% end %>
-		<%= text_field :sign_up, :password, type:'password', placeholder:'password' %>
-		<% if @sign_up_errors.try(:[],:password_digest).present? %>
+		<%= text_field :sign_up, :password, type: 'password', placeholder: 'password', autocomplete: 'off', value: '' %>
+		<% if @sign_up_errors.try(:[], :password_digest).present? %>
 			<div class='error'>password invalid</div>
 		<% end %>
 		<% if @reserve_error %>
 			<div class='error'><%= "cannot reserve url: #{@sign_up_user.name}" %></div>
 		<% end %>
-		<%= submit_tag 'Create account',class:'sign_up_button' %>
+		<%= submit_tag 'Create account',class: 'sign_up_button' %>
 	<% end %>
 	<div style='clear:left;'></div>
 	<div style='font-size:18px;'>

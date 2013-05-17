@@ -22,14 +22,14 @@
     <% if user_signed_in? %>
       <div class='menu_item pulldown'>
         <a class='pulldown-menu' style='padding-left:30px;'>
-          <%= image_tag 'menu.png',width:30,height:30,style:'position:absolute;left:0;top:5px' %>
+          <%= image_tag 'menu.png', width: 30, height: 30, style: 'position:absolute;left:0;top:5px' %>
           <%= current_user.nickname %>
         </a>
         <div class='pulldown-target'>
           <div style='padding:5px 20px'>
             <%= link_to 'Account', users_index_path %>
           </div>
-          <div style='padding:5px 20px'><%= link_to 'Sign out',users_sign_out_path,method:'delete' %></div>
+          <div style='padding:5px 20px'><%= link_to 'Sign out', users_sign_out_path, method: 'delete' %></div>
         </div>
       </div>
     <% else %>
@@ -37,19 +37,19 @@
         <%= link_to 'Sign up', users_sign_up_path %>
       </div>
       <div class='menu_item pulldown'>
-        <%= link_to 'Sign in', users_sign_in_path, class:'pulldown-menu' %>
+        <%= link_to 'Sign in', users_sign_in_path, class: 'pulldown-menu' %>
         <div class='pulldown-target'>
-          <%= form_tag users_sign_in_path, class:'clearfix' do |f|%>
-            <div><%= text_field :sign_in, :name_or_email, placeholder:'username or email', value:params[:sign_in].try(:[],:name_or_email) %></div>
+          <%= form_tag users_sign_in_path, class: 'clearfix' do |f|%>
+            <div><%= text_field :sign_in, :name_or_email, placeholder: 'username or email', value: params[:sign_in].try(:[], :name_or_email) %></div>
             <div><%= text_field :sign_in, :password, placeholder:'password', type:'password' %></div>
-            <%= submit_tag 'Sign in', class:['right','sign_in_button'] %>
+            <%= submit_tag 'Sign in', class: ['right', 'sign_in_button'] %>
           <% end %>
           <div>
             <div>Sign in with</div>
-            <%= link_to oauth_login_path(:twitter), style:'margin:0 5px' do %>
+            <%= link_to oauth_login_path(:twitter), style: 'margin:0 5px' do %>
               <i class='icon-twitter-sign'></i>twitter
             <% end %>
-            <%= link_to oauth_login_path(:facebook), style:'margin:0 5px' do %>
+            <%= link_to oauth_login_path(:facebook), style: 'margin:0 5px' do %>
               <i class='icon-facebook-sign'></i>facebook
             <% end %>
           </div>

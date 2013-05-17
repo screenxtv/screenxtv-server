@@ -22,12 +22,12 @@ div.item div.url{font-size:24px;}
 		<div>email: <input type=text  name='email' value="<%= current_user.email %>"></div>
 		<div>
 			<input type=radio name='social_icon' value='anonymous'>
-			<%= image_tag social_info['anonymous'][:icon], width:24, height:24 %>use default icon
+			<%= image_tag social_info['anonymous'][:icon], width: 24, height: 24 %>use default icon
 		</div>
 		<% current_user.oauths.each do |oauth| %>
 			<div>
 				<input type=radio name='social_icon' value=<%= oauth.provider %>>
-				<%= image_tag oauth.icon, width:24, height:24 %>use <%= oauth.provider %> icon
+				<%= image_tag oauth.icon, width: 24, height: 24 %>use <%= oauth.provider %> icon
 			</div>
 		<% end %>
 		<div style='color:red'><%= flash[:notice] %></div>
@@ -40,9 +40,9 @@ div.item div.url{font-size:24px;}
 				<div>
 					<% if social %>
 						<b><%= provider %></b>
-						<%= image_tag social[:icon], width:24,height:24 %>
+						<%= image_tag social[:icon], width: 24, height: 24 %>
 						<%= social[:display_name] %>
-						<%= link_to 'disconnect', oauth_disconnect_path(provider:provider), method: :post %>
+						<%= link_to 'disconnect', oauth_disconnect_path(provider: provider), method: :post %>
 					<% else %>
 						<b><%= provider %></b><%= link_to 'connect',oauth_login_path(provider) %>
 					<% end %>

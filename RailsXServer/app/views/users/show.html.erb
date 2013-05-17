@@ -21,7 +21,7 @@ div.item div.url{font-size:24px;}
 <div class='main' style='margin-left:auto;margin-right:auto;width:900px;'>
 	<h1>User Profile</h1>
 		<h1>
-		<%= image_tag @user.user_icon, width:48, height:48 %>
+		<%= image_tag @user.user_icon, width: 48, height: 48 %>
 		<%= @user.name %></h1>
 		<div>
 			<b>display name: </b><%= @user.display_name %>
@@ -31,7 +31,7 @@ div.item div.url{font-size:24px;}
 			<div>
 				<b><%= oauth.provider %></b>
 				<%= link_to oauth.url do %>
-					<%= image_tag oauth.icon, width:24,height:24 %>
+					<%= image_tag oauth.icon, width:24, height:24 %>
 					<%= oauth.display_name %>
 				<% end %>
 			</div>

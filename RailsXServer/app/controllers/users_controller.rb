@@ -1,15 +1,15 @@
 class UsersController < ApplicationController
-  protect_from_forgery :except=>[:authenticate]
-  before_filter :nodejs_filter, only:[:authenticate]
+  protect_from_forgery except: [:authenticate]
+  before_filter :nodejs_filter, only: [:authenticate]
   before_filter :user_signed_in!, except: [:authenticate, :sign_in, :sign_up, :show]
   before_filter :already_signed_in!, only: [:sign_in, :sign_up]
 
   def authenticate
-    user=User.where(name:params[:user]).first
+    user=User.where(name: params[:user]).first
     if user && user.check_password(params[:password])
-      render json:{auth_key:user.auth_key}
+      render json: {auth_key: user.auth_key}
     else
-      render json:{error:'wrong user or password'}
+      render json: {error: 'wrong user or password'}
     end
   end
 
@@ -28,14 +28,14 @@ class UsersController < ApplicationController
 
   def sign_up
     render 'sign_in' and return unless request.post?
-    user=User.new(params[:sign_up])
+    user=User.new params[:sign_up]
     if user.save
       connect_and_build_user_session user
       redirect_to action: :index
     else
       @sign_up_user = user
       @sign_up_errors = user.errors
-      if [:name,:email,:password_digest].all?{|key|@sign_up_errors[key].empty?}
+      if [:name, :email, :password_digest].all?{|key|@sign_up_errors[key].empty?}
         @reserve_error = true
       end
       render 'sign_in'
@@ -91,7 +91,7 @@ class UsersController < ApplicationController
   # end
 
   def show
-    @user = User.where(name:params[:name]).first
+    @user = User.where(name: params[:name]).first
     render_404 unless @user
   end
 

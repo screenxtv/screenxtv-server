@@ -4,7 +4,7 @@ class Screen < ActiveRecord::Base
     :pause_count,:title,:color,:vt100
   belongs_to :user
   has_many :chats, dependent: :destroy
-  validates :url, length:{minimum:2, maximum:16}, uniqueness:true, format:/^[_a-zA-Z0-9]*$/
+  validates :url, length: {minimum:2, maximum:16}, uniqueness: true, format: /^[_a-zA-Z0-9]*$/
 
   USER_MAX_SCREENS = 3
   STATE_CASTING = 2
@@ -21,14 +21,14 @@ class Screen < ActiveRecord::Base
   end
 
   def casting?
-    state==STATE_CASTING
+    state == STATE_CASTING
   end
 
   def self.notify(params)
     if params[:state]==STATE_NONE
-      Screen.where(url:params[:url]).first.try(:terminate)
+      Screen.where(url: params[:url]).first.try(:terminate)
     else
-      screen = Screen.where(url:params[:url]).first_or_initialize
+      screen = Screen.where(url: params[:url]).first_or_initialize
       screen.update_attributes(params)
     end
   end
@@ -48,23 +48,30 @@ class Screen < ActiveRecord::Base
 
   def self.cleanup
     range=0x10000.days.ago..10.minutes.ago
-    Screen.where(state:[STATE_PAUSED,STATE_CASTING],updated_at:range).each(&:terminate)
+    Screen.where(state: [STATE_PAUSED, STATE_CASTING], updated_at: range).each(&:terminate)
   end
 
   def self.getSorted(limit)
     cleanup
-    screens=Arel::Table.new :screens
-    arrcasting=Screen.where(state:STATE_CASTING).order(screens[:pause_count],screens[:current_viewer].desc).limit(limit);
+    screens = Arel::Table.new :screens
+    arrcasting = Screen.where(state: STATE_CASTING).order(screens[:pause_count], screens[:current_viewer].desc).limit(limit);
     if arrcasting.count<limit
-      arrcasted=Screen.where(state:STATE_PAUSED).limit(limit-arrcasting.count)
+      arrcasted = Screen.where(state: STATE_PAUSED).limit(limit-arrcasting.count)
     else
-      arrcasted=[]
+      arrcasted = []
     end
     arrcasting+arrcasted
   end
 
   def as_json options={}
-    {url:url,title:title,color:color,viewer:current_viewer,casting:casting?,vt100:RawJSON.new(vt100)}
+    {
+      url: url,
+      title: title,
+      color: color,
+      viewer: current_viewer,
+      casting: casting?,
+      vt100: RawJSON.new(vt100)
+    }
   end
 end
 
@@ -79,3 +86,4 @@ class RawJSON
     self if @json
   end
 end
+

@@ -7,7 +7,7 @@ class OauthController < ApplicationController
 
   def callback
     auth = request.env["omniauth.auth"]
-    render nothing:true and return unless auth
+    render nothing: true and return unless auth
     oauth_info = {
       provider: auth[:provider],
       uid: auth[:uid],
@@ -23,7 +23,7 @@ class OauthController < ApplicationController
 
     if session[:popup]
       session.delete :popup
-      render layout:false
+      render layout: false
     elsif user
       redirect_to users_index_path 
     else
@@ -33,11 +33,11 @@ class OauthController < ApplicationController
 
   def switch
     switch_oauth_session params[:provider]
-    render json:social_info
+    render json: social_info
   end
 
   def disconnect
-    render nothing:true and return unless user_signed_in?
+    render nothing: true and return unless user_signed_in?
     current_user.oauth_disconnect params[:provider]
     build_user_session current_user
     redirect_to users_index_path

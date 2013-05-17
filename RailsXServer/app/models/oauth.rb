@@ -9,7 +9,7 @@ class Oauth < ActiveRecord::Base
 
   def session_hash
     {}.tap do
-      |hash| ACCESSIBLE_ATTRIBUTES.each{|key|hash[key]=self[key]}
+      |hash| ACCESSIBLE_ATTRIBUTES.each{|key|hash[key] = self[key]}
     end
   end
 

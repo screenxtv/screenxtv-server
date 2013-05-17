@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery
-  helper_method :user_signed_in?,:current_user,:social_info
+  helper_method :user_signed_in?, :current_user, :social_info
 
   Twitter.configure do |config|
     info=OAuthConsumers['twitter']
@@ -54,7 +54,7 @@ class ApplicationController < ActionController::Base
 
   def current_user
     if @current_user.nil? && session[:user_id]
-      @current_user = User.where(id:session[:user_id]).first if session[:user_id]
+      @current_user = User.where(id: session[:user_id]).first if session[:user_id]
       destroy_user_session unless @current_user
     end
     @current_user
@@ -65,7 +65,7 @@ class ApplicationController < ActionController::Base
   end
 
   def nodejs_filter
-    render nothing:true unless ["127.0.0.1", "0.0.0.0"].include? request.remote_ip
+    render nothing: true unless ["127.0.0.1", "0.0.0.0"].include? request.remote_ip
   end
 
   def user_signed_in!
