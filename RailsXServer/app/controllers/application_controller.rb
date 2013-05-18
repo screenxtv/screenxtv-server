@@ -85,8 +85,7 @@ class ApplicationController < ActionController::Base
       end
       @social_info[:main] = session[:oauth][:main]
     else
-      @social_info[:main] = 'anonymous'
-    end
+    @social_info[:main] ||= 'anonymous'
     icon_id = current_user.try(:id) || request.session_options[:id][0, 4].hex
     @social_info['anonymous'] = {
       icon: "/assets/icon/#{icon_id % 32}.png"

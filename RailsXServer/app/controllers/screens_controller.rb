@@ -60,8 +60,7 @@ class ScreensController < ApplicationController
 
 
   def post
-    info = social_info
-    user = info[info[:main]]
+    user = social_info[social_info[:main]]
     max_length = 100
     max_chats = 256
     message = params[:message].strip[0, max_length]
