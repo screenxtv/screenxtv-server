@@ -14,6 +14,7 @@ class Oauth < ActiveRecord::Base
   end
 
   def self.url_for oauth
+    return unless oauth
     case oauth[:provider]
     when 'twitter'
       "http://twitter.com/#{oauth[:name]}"
