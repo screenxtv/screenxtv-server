@@ -8,6 +8,20 @@ div.main{
 </style>
 <center>
 <div class='main'>
+	<% OAuthConsumers.keys.each do |provider| %>
+		<% info = social_info[provider] %>
+		<% if info %>
+			<% @show_message = true %>
+			<div>
+				<b><%= provider %></b>
+				<%= image_tag info[:icon], width: 24, height: 24 %>
+				<%= info[:display_name] %>
+			</div>
+		<% end %>
+	<% end %>
+	<% if @show_message %>
+		<div>please fill in the information below.</div>
+	<% end %>
 	<%= form_tag users_sign_in_path, id: 'sign_in' do |f| %>
 		<div class='sign_head'>Sign in</div>
 		<%= text_field :sign_in, :name_or_email, placeholder: 'username or email', value: params[:sign_in].try(:[], :name_or_email) %>

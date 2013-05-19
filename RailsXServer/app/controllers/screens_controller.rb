@@ -76,7 +76,7 @@ class ScreensController < ApplicationController
     if params[:url]
       url = params[:url]
       post_to_node "/#{params[:url]}", nodedata
-      if info['twitter'] && params[:post_to_twitter].to_s == 'true'
+      if social_info['twitter'] && params[:post_to_twitter].to_s == 'true'
         twitter_post_to_user "#{message} http://screenx.tv/#{url}"
       end
       screen = Screen.where(url: url).first

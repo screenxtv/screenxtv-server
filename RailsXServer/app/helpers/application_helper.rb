@@ -22,10 +22,10 @@ module ApplicationHelper
   end
 
   def oauth_login_path provider
-    "/auth/#{provider}"
+    "/oauth/#{provider}/redirect"
   end
 
   def oauth_popup_path provider
-    "/auth/#{provider}?popup"
+    "/oauth/#{provider}/popup"
   end
 end

@@ -1,7 +1,12 @@
 class OauthController < ApplicationController
 
   def auth_popup
-    session[:popup] = true
+    session[:callback_mode] = :popup
+    redirect_to "/auth/#{params[:provider]}"
+  end
+
+  def auth_normal
+    session[:callback_mode] = :normal
     redirect_to "/auth/#{params[:provider]}"
   end
 
@@ -21,14 +26,14 @@ class OauthController < ApplicationController
     user = User.find_by_oauth(oauth_info) || current_user
     connect_and_build_user_session user if user
 
-    if session[:popup]
-      session.delete :popup
+    if session[:callback_mode] == :popup
       render layout: false
     elsif user
       redirect_to users_index_path 
     else
       redirect_to users_sign_in_path
     end
+    session.delete :callback_mode
   end
 
   def switch

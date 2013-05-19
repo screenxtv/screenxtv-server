@@ -84,9 +84,13 @@ class ApplicationController < ActionController::Base
         @social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
       end
       @social_info[:main] = session[:oauth][:main]
-    else
+    end
     @social_info[:main] ||= 'anonymous'
-    icon_id = current_user.try(:id) || request.session_options[:id][0, 4].hex
+    begin
+      icon_id = current_user.try(:id) || request.session_options[:id][0, 4].hex
+    rescue
+      icon_id = 0
+    end
     @social_info['anonymous'] = {
       icon: "/assets/icon/#{icon_id % 32}.png"
     }
