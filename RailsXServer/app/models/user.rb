@@ -35,7 +35,7 @@ class User < ActiveRecord::Base
   end
 
   def password= password
-    if password.try :match, /^[\x21-\x7e]{4,16}$/
+    if password.try :match, /^[\x21-\x7e]{4,}$/
       self.password_digest = User.digest password
     else
       self.password_digest = nil
