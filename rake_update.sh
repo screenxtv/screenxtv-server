@@ -1,4 +1,5 @@
+#! /bin/sh
 cd RailsXServer
-export RAILS_ENV=production
-rake db:migrate
-rake assets:precompile
+bundle install &&
+rake db:migrate RAILS_ENV=production &&
+rake assets:precompile RAILS_ENV=production
