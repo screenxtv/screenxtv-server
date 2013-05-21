@@ -63,7 +63,7 @@ describe ScreensController do
       response.body.should eq 'null'
     end
     it 'success get existing url' do
-      data={title:'hoge',color:'red',viewer:0,casting:true}
+      data={title: 'hoge', color: 'red', viewer: 0, casting: true}
       params={title:data[:title],color:data[:color],current_viewer:data[:viewer],state:Screen::STATE_CASTING}
       @user.screens.first.update_attributes(params)
       get :status, url:'tompng'
@@ -74,6 +74,31 @@ describe ScreensController do
       response.body.should eq data[:title]
     end
   end
+  context 'thumbnail' do
+    it 'success when not in db' do
+      TerminalThumbnail.should_not_receive :create
+      get :thumbnail, url: rand.to_s
+      response.should be_success
+    end
+
+    it 'success when vt100 is nil' do
+      TerminalThumbnail.should_not_receive :create
+      data={title: 'hoge', color: 'red', viewer: 0, casting: true}
+      params={title:data[:title],color:data[:color],current_viewer:data[:viewer],state:Screen::STATE_CASTING}
+      @user.screens.first.update_attributes(params)
+      get :thumbnail, url: @user.screens.first.url
+      response.should be_success
+    end
+
+    it 'success' do
+      TerminalThumbnail.should_receive :create
+      data={title: 'hoge', color: 'red', viewer: 0, casting: true}
+      params={title:'a',state:Screen::STATE_CASTING,vt100:{line:[{length:3,chars:%w(a b c),fonts:[0,0,0]}]}.to_json}
+      @user.screens.first.update_attributes(params)
+      get :thumbnail, url: @user.screens.first.url
+      response.should be_success
+    end
+  end
   context 'post' do
     context 'user' do
       before do
@@ -81,10 +106,10 @@ describe ScreensController do
         do_login @user
       end
       it 'twitter' do
-        ApplicationController.any_instance.should_receive(:twitter_post_to_user) do |text|
+        ApplicationController.any_instance.should_receive :twitter_post_to_user do |text|
           text.should include 'msg'
         end
-        ScreensController.any_instance.should_receive(:post_to_node)
+        ScreensController.any_instance.should_receive :post_to_node
         post :post, url:'tompng',provider:'anonymous', message:'msg', post_to_twitter:true
       end
       it 'notwitter' do
