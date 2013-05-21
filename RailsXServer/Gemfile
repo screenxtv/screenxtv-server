@@ -10,6 +10,8 @@ gem 'omniauth-facebook'
 
 gem 'mysql2'
 
+gem 'cairo'
+
 group :development,:test do
   gem 'taps'
   gem 'sqlite3'

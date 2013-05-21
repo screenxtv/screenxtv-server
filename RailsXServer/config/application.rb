@@ -15,6 +15,8 @@ module RailsXServer
   class Application < Rails::Application
     config.assets.precompile+=['screen.js','top.js']
     config.assets.paths<<"../vt100"
+
+    require "#{config.root}/lib/terminal_thumbnail"
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.

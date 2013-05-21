@@ -30,6 +30,8 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.2)
     builder (3.0.4)
+    cairo (1.12.5)
+      pkg-config
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
       railties (~> 3.2.0)
@@ -95,6 +97,7 @@ GEM
     omniauth-twitter (0.0.14)
       multi_json (~> 1.3)
       omniauth-oauth (~> 1.0)
+    pkg-config (1.1.4)
     polyglot (0.3.3)
     rack (1.4.1)
     rack-cache (1.2)
@@ -179,6 +182,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  cairo
   coffee-rails (~> 3.2.1)
   factory_girl_rails
   flay

@@ -9,6 +9,7 @@ RailsXServer::Application.routes.draw do
   match 'screens/authenticate/:url',to:'screens#authenticate'
   match 'screens/post/:url', to:'screens#post',via:'post'
   match 'screens/status/:url(/:key)',to:'screens#status'
+  match 'screens/thumbnail/:url',to:'screens#thumbnail'
 
   match 'screens.:format',to:'screens#index'
 

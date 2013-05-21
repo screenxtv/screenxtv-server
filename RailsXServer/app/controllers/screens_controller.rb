@@ -150,4 +150,15 @@ class ScreensController < ApplicationController
     end
     render json: out
   end
+
+  def thumbnail
+    screen = Screen.where(url: params[:url]).first
+    if screen && screen.vt100
+      data = TerminalThumbnail.create JSON.parse(screen.vt100), screen.color, screen.title
+    else
+      data = File.read("#{Rails.root}/app/assets/images/logo_large.png")
+    end
+    response.headers['Content-Type'] = 'image/png'
+    render text: data
+  end
 end
