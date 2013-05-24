@@ -95,7 +95,7 @@ module TerminalThumbnail
     context.rectangle 0, 0, width, height
     context.fill
 
-    context.font_size = 16
+    context.font_size = 15
     context.select_font_face 'monospace', nil, Cairo::FontWeight::BOLD
 
     vt100['line'].each_with_index do |line, y|
