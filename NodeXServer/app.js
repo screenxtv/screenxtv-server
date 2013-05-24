@@ -44,7 +44,7 @@ function apigetinfo(channelID){
 function apipost(channelID,reqbody){
 	var channel=Channel.channelMap['#'+channelID];
 	if(!channel||reqbody.type!='chat')return;
-	channel.chat({name:reqbody.name,icon:reqbody.icon,message:reqbody.message});
+	channel.chat(reqbody);
 }
 app.get('/:id',function(req,res){
 	if(!filter(req)){res.end();return;}
