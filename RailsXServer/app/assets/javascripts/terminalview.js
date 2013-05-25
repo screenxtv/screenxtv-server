@@ -60,11 +60,16 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 	socket.on('connect',function(){
 		socket.emit('init',{channel:channelID},function(){console.log('init')});
 	});
+	var sendings=[];
+	sendings.remove=function(k){var i=this.indexOf(k);if(i<0)return false;this.splice(i,1);return 1}
 	socket.on('reconnect_failed',function(){socket=null;if(self.onClose)self.onClose();})
 	socket.on('disconnect',function(){})
 	socket.on('init',function(data){if(terminalElement)initTerminal(data);if(self.onInit)self.onInit(data);});
 	socket.on('viewer',function(data){console.log('viewer',data);if(self.onViewerChange)self.onViewerChange(data)});
-	socket.on('chat',function(data){console.log('chat',data);if(self.onChatArrive)self.onChatArrive(data)});
+	socket.on('chat',function(data){
+		if(sendings.remove(data.rand)&&self.onChatSendDone)self.onChatSendDone(data.rand)
+		if(self.onChatArrive)self.onChatArrive(data)
+	});
 	socket.on('castStart',function(data){if(terminalElement)initTerminal(data);if(self.onCastStart)self.onCastStart(data)});
 	socket.on('castData',function(data){if(terminalElement)updateTerminal(data)});
 	socket.on('castWINCH',function(data){resizeTerminal(data.width,data.height)});
@@ -72,10 +77,19 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 	this.resize=resizeUpdate;
 	this.post=function(message,twitter){
 		if(!socket)return;
-		var rand=(Math.random()+"").substr(1)
-		data={authenticity_token:csrf_token,message:message};
+		var rand=(Math.random()+"").substr(1);
+		sendings.push(rand);
+		data={authenticity_token:csrf_token,message:message,rand:rand};
 		if(twitter)data.post_to_twitter=true;
-		$.post('/screens/post/'+channelID,data);
+		if(self.onChatSendStart)self.onChatSendStart(rand);
+		$.ajax({
+			type:'post',
+			url:'/screens/post/'+channelID,
+			data:data,
+			error:function(data){
+				if(sendings.remove(rand)&&self.onChatSendFailed)self.onChatSendFailed(rand);
+			}
+		})
 	}
 }
 
@@ -125,6 +139,9 @@ $(function(){
 		terminalview.onViewerChange=function(info){
 			$("#viewer").text(info.viewer+"/"+info.total_viewer);
 		}
+		terminalview.onChatSendStart=function(){$("#chat_status").text('...').show()}
+		terminalview.onChatSendDone=function(){$("#chat_status").fadeOut()}
+		terminalview.onChatSendFailed=function(){$("#chat_status").text('×').show().delay(1000).fadeOut()}
 		terminalview.onClose=function(){
 			setTimeout(function(){console.log('restart');
 				terminalViewInit();
