@@ -84,7 +84,7 @@ class ScreensController < ApplicationController
         else
           twit_message = message
         end
-        twitter_post_to_user "#{twit_message} http://screenx.tv/#{url}"].join(" ")
+        twitter_post_to_user "#{twit_message} http://screenx.tv/#{url}"
       end
       if screen && screen.user_id
         screen.chats.create(data)
