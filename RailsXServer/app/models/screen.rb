@@ -1,7 +1,7 @@
 class Screen < ActiveRecord::Base
   attr_accessible :url,:total_viewer,:max_viewer,:total_time,:cast_count,:last_cast,:state,
     :current_time,:current_viewer,:current_max_viewer,:current_total_viewer,
-    :pause_count,:title,:color,:vt100
+    :pause_count,:title,:color,:vt100,:hash_tag
   belongs_to :user
   has_many :chats, dependent: :destroy
   validates :url, length: {minimum:2, maximum:16}, uniqueness: true, format: /^[_a-zA-Z0-9]*$/

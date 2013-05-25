@@ -59,15 +59,6 @@ class UsersController < ApplicationController
     redirect_to action: :index
   end
 
-  #   OAuthConsumers.keys.each do |provider|
-  #   end
-  #   provider = params[:provider]
-  #   info = session["oauth_#{provider}"]
-  #   if info
-
-  #   end
-  # end
-
   # def create_screen
   #   if current_user.screens.count < Screen::USER_MAX_SCREENS
   #     current_user.screens << Screen.new(url:params[:url]);
@@ -76,11 +67,11 @@ class UsersController < ApplicationController
   #   redirect_to users_index_path
   # end
 
-  # def change_screen
-  #   screen = current_user.screens.where(url:params[:url]).first
-  #   screen.update_attributes(url:params[:new_url]) if screen
-  #   redirect_to users_index_path
-  # end
+  def change_screen
+    screen = current_user.screens.where(url:params[:url]).first
+    screen.update_attributes(hash_tag:params[:hash_tag]) if screen
+    redirect_to users_index_path
+  end
 
   # def destroy_screen
   #   if params[:url_confirm]==params[:url]

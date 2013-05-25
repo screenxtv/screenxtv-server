@@ -54,17 +54,19 @@ div.item div.url{font-size:24px;}
 	<% screens = current_user.screens %>
 	<% screens.each do |screen| %>
 		<div class='item'>
-			<div class='url'><a href="/<%= screen.url %>"><%= screen.url %></a></div>
-			<% if false # form_tag users_change_screen_path do %>
+			<%= form_tag users_change_screen_path do %>
+				<div class='url'><a href="/<%= screen.url %>"><%= screen.url %></a></div>
+				
 				<input type=hidden name=url value="<%= screen.url %>">
-				<input name='new_url' autocomplete=off placeholder='new url'>
-				<input type=submit value=change>
+				hash tag:<input name='hash_tag' autocomplete=off placeholder='#hashtag' value='<%= screen.hash_tag%>'>
+
+				<div>Total Viewer: <%= screen.total_viewer %></div>
+				<div>Max Viewer: <%= screen.max_viewer %></div>
+				<div>Cast Count: <%= screen.cast_count %></div>
+				<% time=screen.total_time %>
+				<div>Total Time: <%= time/60/60/24 %>days <%= h=time/60/60%24;"#{h/10}#{h%10}"%>:<%= m=time/60%60;"#{m/10}#{m%10}" %></div>
+				<input type=submit value=save>
 			<% end %>
-			<div>Total Viewer: <%= screen.total_viewer %></div>
-			<div>Max Viewer: <%= screen.max_viewer %></div>
-			<div>Cast Count: <%= screen.cast_count %></div>
-			<% time=screen.total_time %>
-			<div>Total Time: <%= time/60/60/24 %>days <%= h=time/60/60%24;"#{h/10}#{h%10}"%>:<%= m=time/60%60;"#{m/10}#{m%10}" %></div>
 		</div>
 	<% end %>
 	<% if false && screens.size < Screen::USER_MAX_SCREENS %>
