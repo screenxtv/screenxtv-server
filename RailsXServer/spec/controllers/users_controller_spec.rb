@@ -161,8 +161,11 @@ describe UsersController do
       end
     end
 
-
     context 'edit' do
+      hashtag = '#foobar'
+      before{post :update_screen, url: @user.name, hash_tag: hashtag}
+      it('response'){response.should redirect_to users_index_path}
+      it('update hashtag'){@user.screens.first.hash_tag.should eq hashtag}
     end
   end
 end

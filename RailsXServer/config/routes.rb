@@ -28,7 +28,7 @@ RailsXServer::Application.routes.draw do
   match 'users/update', to:'users#update', via:'post'
 #  match 'users/create_screen', to:'users#create_screen', via:'post'
 #  match 'users/destroy_screen', to:'users#destroy_screen', via:'post'
-  match 'users/change_screen', to:'users#change_screen', via:'post'
+  match 'users/update_screen', to:'users#update_screen', via:'post'
   match 'users/show/:name', to:'users#show'
 
   match 'oauth/switch',to:'oauth#switch', via:'post'

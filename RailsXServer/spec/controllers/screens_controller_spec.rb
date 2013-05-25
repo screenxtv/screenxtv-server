@@ -112,6 +112,14 @@ describe ScreensController do
         ScreensController.any_instance.should_receive :post_to_node
         post :post, url:'tompng',provider:'anonymous', message:'msg', post_to_twitter:true
       end
+      it 'twitter hashtag' do
+        ApplicationController.any_instance.should_receive :twitter_post_to_user do |text|
+          text.should include '#hashtag'
+        end
+        @user.screens.first.update_attributes(hash_tag:'#hashtag')
+        ScreensController.any_instance.should_receive :post_to_node
+        post :post, url:'tompng',provider:'anonymous', message:'msg', post_to_twitter:true
+      end
       it 'notwitter' do
         ScreensController.any_instance.should_receive(:post_to_node)
         ApplicationController.any_instance.should_not_receive :twitter_post_to_user

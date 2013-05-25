@@ -67,7 +67,7 @@ class UsersController < ApplicationController
   #   redirect_to users_index_path
   # end
 
-  def change_screen
+  def update_screen
     screen = current_user.screens.where(url:params[:url]).first
     screen.update_attributes(hash_tag:params[:hash_tag]) if screen
     redirect_to users_index_path

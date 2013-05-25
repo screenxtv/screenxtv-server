@@ -54,7 +54,7 @@ div.item div.url{font-size:24px;}
 	<% screens = current_user.screens %>
 	<% screens.each do |screen| %>
 		<div class='item'>
-			<%= form_tag users_change_screen_path do %>
+			<%= form_tag users_update_screen_path do %>
 				<div class='url'><a href="/<%= screen.url %>"><%= screen.url %></a></div>
 				
 				<input type=hidden name=url value="<%= screen.url %>">
