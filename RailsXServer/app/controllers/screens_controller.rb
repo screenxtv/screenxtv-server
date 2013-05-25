@@ -75,10 +75,17 @@ class ScreensController < ApplicationController
     if params[:url]
       url = params[:url]
       post_to_node "/#{params[:url]}", nodedata
-      if social_info['twitter'] && params[:post_to_twitter].to_s == 'true'
-        twitter_post_to_user "#{message} http://screenx.tv/#{url}"
-      end
       screen = Screen.where(url: url).first
+
+      if social_info['twitter'] && params[:post_to_twitter].to_s == 'true'
+        hash_tag = screen.try(:hash_tag).presence
+        if hash_tag
+          twit_message = [message.truncate(110 - hash_tag.length), hash_tag].join(" ")
+        else
+          twit_message = message
+        end
+        twitter_post_to_user "#{twit_message} http://screenx.tv/#{url}"].join(" ")
+      end
       if screen && screen.user_id
         screen.chats.create(data)
         screen.chats.order('created_at DESC').offset(max_chats).destroy_all
@@ -128,11 +135,9 @@ class ScreensController < ApplicationController
   end
 
   def post_twitter_news params
-    title=params[:title] || ''
-    title_max=40
-    title=title[0, title_max-3]+"..." if title.length>title_max
+    title=params[:title] || 'no title'
     url="http://screenx.tv/#{params[:url]}"
-    tweet="'#{title}' started broadcasting! Check this out #{url}"
+    tweet="'#{title.truncate 40}' started broadcasting! Check this out #{url}"
     twitter_post_to_news tweet
   end
 

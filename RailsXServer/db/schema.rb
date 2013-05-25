@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130510094016) do
+ActiveRecord::Schema.define(:version => 20130525055258) do
 
   create_table "chats", :force => true do |t|
     t.integer  "screen_id",  :null => false
@@ -58,6 +58,7 @@ ActiveRecord::Schema.define(:version => 20130510094016) do
     t.datetime "created_at",                          :null => false
     t.datetime "updated_at",                          :null => false
     t.integer  "cast_count",           :default => 0
+    t.string   "hash_tag"
   end
 
   add_index "screens", ["url"], :name => "by_url", :unique => true
