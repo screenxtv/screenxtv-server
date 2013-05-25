@@ -71,7 +71,7 @@ class ScreensController < ApplicationController
       user_url = Oauth.url_for user
     end
     data = {name: user[:display_name], icon: user[:icon], url: user_url, message: message}
-    nodedata = data.merge type: 'chat', rand: params[:rand]
+    nodedata = data.merge type: 'chat'
 
     if params[:url]
       url = params[:url]
@@ -87,7 +87,7 @@ class ScreensController < ApplicationController
     elsif params[:room] && params[:id]
       post_to_node "/#{params[:room]}/#{params[:id]}", nodedata
     end
-    render nothing: true
+    render json: data
   end
 
   def authenticate

@@ -11,13 +11,6 @@ var chats=<%= safe_json @chats %>;
 var social_info=<%= safe_json social_info %>;
 var terminalview;
 $(function(){
-	onSocialConnect(social_info);
-	$("#terminaltitle").text(title);
-	if(!channelID)return;
-	if(chats){
-		for(var i=0;i<chats.length;i++)addChat(chats[i])
-	}
-	terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true)
 	window.onresize=function(){
 		var cw=Math.round(0.3*innerWidth);
 		if(cw<200)cw=200;
@@ -35,61 +28,8 @@ $(function(){
 		terminalview.resize(w,h-40);
 		$("#terminal_nav").css("width",w);
 	}
-	terminalview.onChatArrive=function(chat){
-		try{
-			addChat(chat,true);
-		}catch(e){console.log(chat)}
-	}
-	terminalview.onInit=function(data){
-		if(!data.vt100){
-			$("#terminal").text('OFF AIR');
-			window.onresize();
-		}
-		var title=data.info?data.info.title:""
-		$("#terminaltitle").text(title);
-		document.title=(title?title+" - ":"")+"ScreenX TV";
-		if(data.casting)terminalview.onCastStart();
-		else terminalview.onCastEnd();
-		if(data.chatlist){
-			clearChat();
-			for(var i=0;i<data.chatlist.length;i++){
-				var chat=data.chatlist[i];
-				try{
-					addChat(chat);
-				}catch(e){console.log(chat)}
-			}
-		}
-		terminalview.onViewerChange(data.viewer);
-	}
-	terminalview.onCastStart=function(data){
-		$("#terminal").css({opacity:1})
-	}
-	terminalview.onCastEnd=function(){
-		$("#terminal").css({opacity:0.5})
-	}
-	terminalview.onViewerChange=function(info){
-		$("#viewer").text(info.viewer+"/"+info.total_viewer);
-	}
-	terminalview.onClose=function(){
-		console.log('closed');
-		setTimeout(function(){console.log('restart');
-			terminalview=new TerminalView(document.getElementById("terminal"),host,port,channelID,true)
-		},10*1000);
-	}
 	window.onresize();
-})
-
-
-
-function post(){
-	var message=$("#message").val();
-	$("#message").val("")
-	if(!message.trim())return;
-	var twit=$("#twitpost")[0];
-	terminalview.post(message,twit&&twit.checked);
-}
-
-	
+});
 </script>
 <div id="terminalmain" style='position:fixed;left:0;top:50;'>
 	<div id="terminal" style="font-size:16px;box-shadow:0 0 8px silver;margin:10px;"></div>

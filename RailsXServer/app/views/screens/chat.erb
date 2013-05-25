@@ -8,91 +8,10 @@ var port=<%= NODE_PORT %>;
 var chats=<%= safe_json @chats %>;
 var social_info=<%= safe_json social_info %>;
 var terminalchat;
-function TerminalChat(host,port,channelID){
-	var self=this;
-	var socket=io.connect('http://'+host+":"+port,{'reconnect':true,'reconnection delay':500,'max reconnection attempts':10});
-	socket.on('connect',function(){
-		socket.emit('init',{channel:channelID},function(){console.log('init')});
-	});
-	socket.on('reconnect_failed',function(){socket=null;if(self.onClose)self.onClose();})
-	socket.on('disconnect',function(){})
-	socket.on('init',function(data){if(self.onInit)self.onInit(data);});
-	socket.on('viewer',function(data){console.log('viewer',data);if(self.onViewerChange)self.onViewerChange(data)});
-	socket.on('chat',function(data){console.log('chat',data);if(self.onChatArrive)self.onChatArrive(data)});
-	socket.on('castStart',function(data){initTerminal(data);if(self.onCastStart)self.onCastStart(data)});
-	this.post=function(message,twitter){
-		if(!socket)return;
-		data={authenticity_token:csrf_token,message:message};
-		if(twitter)data.twitter=true;
-		$.post('/screens/post/'+channelID,data);
-	}
-}
-
-$(function(){
-	onSocialConnect(social_info);
-	if(!channelID)return;
-	if(chats){
-		for(var i=0;i<chats.length;i++)addChat(chats[i])
-	}
-	terminalchat=new TerminalChat(host,port,channelID);
-	terminalchat.onChatArrive=function(chat){
-		try{
-			addChat(chat,true);
-		}catch(e){console.log('err',chat)}
-	}
-	terminalchat.onInit=function(data){
-		var title=data.info?data.info.title:channelID.split("/").pop()
-		$("#terminaltitle").text(title);
-		document.title=(title?title+" - ":"")+"ScreenX TV";
-		if(data.casting)terminalchat.onCastStart();
-		else terminalchat.onCastEnd();
-		if(data.chatlist){
-			clearChat();
-			for(var i=0;i<data.chatlist.length;i++){
-				var chat=data.chatlist[i];
-				try{
-					addChat(chat);
-				}catch(e){console.log(chat)}
-			}
-		}
-		terminalchat.onViewerChange(data.viewer);
-	}
-	terminalchat.onCastStart=function(data){
-		$("#terminal").css({opacity:1})
-	}
-	terminalchat.onCastEnd=function(){
-		$("#terminal").css({opacity:0.5})
-	}
-	terminalchat.onViewerChange=function(info){
-		$("#viewer").text(info.viewer+"/"+info.total_viewer);
-	}
-	terminalchat.onClose=function(){
-		console.log('closed');
-		setTimeout(function(){console.log('restart');
-			terminalchat=new TerminalChat(host,port,channelID)
-		},10*1000);
-	}
-})
-
-function post(){
-	var message=$("#message").val();
-	$("#message").val("")
-	if(!message.trim())return;
-	var twit=$("#twitpost")[0];
-	terminalchat.post(message,twit&&twit.checked);
-}
-
 
 </script>
 <script>
-$(function(){
-  $(".popupbutton").live('click',function(){
-    var classactive='popupbutton_active';
-    var flag=$(this).hasClass(classactive);
-    $('.popupbutton').removeClass(classactive);
-    if(!flag)$(this).addClass(classactive);
-  })
-})
+
 $(function(){
 	function onresize(){
 		$(".autofit").autofit();

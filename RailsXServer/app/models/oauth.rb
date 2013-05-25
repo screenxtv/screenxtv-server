@@ -20,6 +20,8 @@ class Oauth < ActiveRecord::Base
       "http://twitter.com/#{oauth[:name]}"
     when 'facebook'
       "http://www.facebook.com/#{oauth[:name]}"
+    else
+      oauth[:provider]
     end
   end
 end

@@ -81,7 +81,7 @@ class ApplicationController < ActionController::Base
     @social_info = {}
     if session[:oauth]
       OAuthConsumers.keys.each do |provider|
-        @social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon if session[:oauth][provider]
+        @social_info[provider] = session[:oauth][provider].slice :name, :display_name, :icon, :provider if session[:oauth][provider]
       end
       @social_info[:main] = session[:oauth][:main]
     end
