@@ -1,6 +1,7 @@
 var VT100=require_nocache('../vt100/vt100');
 var print_log=require('./logger').create("./cast.log");
 var request=require('request');
+var LHash=require('./limitedhash')
 
 function require_nocache(req){
   var module_load=module.constructor.prototype.load;
@@ -33,6 +34,8 @@ function Channel(id){
   this.chatlist=null;
   this.updatedAt=new Date();
   this.state=Channel.OFFAIR;
+  this.current_viewer_hash={}
+  this.total_viewer_hash=new LHash()
 }
 Channel.OFFAIR='OFFAIR';
 Channel.PAUSED='PAUSED';
@@ -57,10 +60,20 @@ Channel.prototype={
   getAdminData:function(){
     return {viewer:this.current,chatlist:this.chatlist,slug:this.channelID+'#'+this.castPassword}
   },
-  join:function(socket){
+  join:function(socket,sid){
     socket.join(this.channelID);
-    this.current.viewer++;
-    this.current.total_viewer++;
+    if(sid){
+      var n=this.current_viewer_hash[sid]||0;
+      this.current_viewer_hash[sid]=n+1;
+      if(n==0)this.current.viewer++;
+      if(!this.total_viewer_hash.get(sid)){
+        this.total_viewer_hash.put(sid,1);
+        this.current.total_viewer++;
+      }
+    }else{
+      this.current.viewer++;
+      this.current.total_viewer++;
+    }
     this.current.max_viewer=Math.max(this.current.max_viewer,this.current.viewer);
     if(this.statistics){
       this.statistics.total_viewer++;
@@ -69,9 +82,17 @@ Channel.prototype={
     socket.emit('init',this.getInitData());
     this.broadcast('viewer',this.current,socket)
   },
-  leave:function(socket){
+  leave:function(socket,sid){
     socket.leave(this.channelID);
-    this.current.viewer--;
+    if(sid){
+      var n=--this.current_viewer_hash[sid];
+      if(n==0){
+        this.current.viewer--;
+        delete this.current_viewer_hash[sid];
+      }
+    }else{
+      this.current.viewer--;
+    }
     this.broadcast('viewer',this.current,socket)
     Channel.removeChannel(this);
   },

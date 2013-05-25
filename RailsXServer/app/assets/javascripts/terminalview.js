@@ -1,4 +1,13 @@
 function TerminalView(terminalElement,host,port,channelID,autoresize){
+	var nodesessionid=null;
+	try{
+		nodesessionid=localStorage.nodesessionid
+		if(!nodesessionid){
+			var val="",ch="0123456789abcdefghijklmnopqrstuvwxyz";
+			for(var i=0;i<16;i++)val+=ch.charAt(ch.length*Math.random()|0)
+			localStorage.nodesessionid=nodesessionid=val
+		}
+	}catch(e){}
 	var self=this;
 	var terminal;
 	function initTerminal(){
@@ -58,7 +67,7 @@ function TerminalView(terminalElement,host,port,channelID,autoresize){
 	}
 	var socket=io.connect('http://'+host+":"+port,{'reconnect':true,'reconnection delay':500,'max reconnection attempts':10});
 	socket.on('connect',function(){
-		socket.emit('init',{channel:channelID},function(){console.log('init')});
+		socket.emit('init',{channel:channelID, sid:nodesessionid},function(){console.log('init')});
 	});
 	var sendings=[];
 	sendings.remove=function(k){var i=this.indexOf(k);if(i<0)return false;this.splice(i,1);return 1}
@@ -141,7 +150,7 @@ $(function(){
 		}
 		terminalview.onChatSendStart=function(){$("#chat_status").text('...').show()}
 		terminalview.onChatSendDone=function(){$("#chat_status").fadeOut()}
-		terminalview.onChatSendFailed=function(){$("#chat_status").text('×').show().delay(1000).fadeOut()}
+		terminalview.onChatSendFailed=function(){$("#chat_status").html('&times').show().delay(1000).fadeOut()}
 		terminalview.onClose=function(){
 			setTimeout(function(){console.log('restart');
 				terminalViewInit();

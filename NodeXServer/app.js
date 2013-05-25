@@ -84,10 +84,11 @@ io.set("log level",1);
 io.sockets.on('connection',function(socket){
 	console.log('connection!')
 	socket.on('init',function(data){
+		var sid=data.sid&&data.sid.length>=8?'#'+data.sid:null;
 		var channel=Channel.getChannel(data.channel);
 		console.log('joined',data.channel)
-		channel.join(socket);
-		socket.on('disconnect',function(){channel.leave(socket)});
+		channel.join(socket,sid);
+		socket.on('disconnect',function(){channel.leave(socket,sid)});
 	});
 })
 
