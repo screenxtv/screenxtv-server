@@ -180,6 +180,8 @@ net.createServer(function(usocket){
 		}
 
 		var info=data.info||{};
+		var width=parseInt(data.width)
+		var height=parseInt(data.height)
 		if(data.private){
 			info.private=true
 			if(data.private_url){
