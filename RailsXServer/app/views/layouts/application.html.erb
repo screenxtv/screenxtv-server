@@ -19,6 +19,15 @@
     </a>
   </nobr>
   <nobr class='right'>
+
+    <div class='twitter' style='float:left;margin:4px 4px 0 0;width:100px;height:36px;'>
+      <iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html" style="width:100px; height:20px;"></iframe>
+    </div>
+      <script>(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src="//connect.facebook.net/en_US/all.js#xfbml=1";fjs.parentNode.insertBefore(js,fjs);}(document,'script','facebook-jssdk'));</script>
+    <div style='float:left;margin:4px 4px 0 0;width:100px;height:36px;'>
+      <div class="fb-like facebook" data-send="false" data-layout="button_count" data-width="100" data-show-faces="false"></div>
+    </div>
+
     <% if user_signed_in? %>
       <div class='menu_item pulldown'>
         <a class='pulldown-menu' style='padding-left:30px;'>
