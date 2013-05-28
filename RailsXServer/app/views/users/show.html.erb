@@ -19,24 +19,19 @@ div.item div{font-size:18px;}
 div.item div.url{font-size:24px;}
 </style>
 <div class='main' style='margin-left:auto;margin-right:auto;width:900px;'>
-	<h1>User Profile</h1>
-		<h1>
+	<h1>
 		<%= image_tag @user.user_icon, width: 48, height: 48 %>
-		<%= @user.name %></h1>
-		<div>
-			<b>display name: </b><%= @user.display_name %>
-		</div>
-	<div class='socials'>
+		<%= @user.name %>
+	</h1>
+	<div>
+		<b><%= @user.display_name %></b>
 		<% @user.oauths.each do |oauth| %>
-			<div>
-				<b><%= oauth.provider %></b>
-				<%= link_to oauth.url do %>
-					<%= image_tag oauth.icon, width:24, height:24 %>
-					<%= oauth.display_name %>
-				<% end %>
-			</div>
+			<%= link_to oauth.url, target:'_blank' do %>
+				<i class='icon-<%= oauth.provider %>' style='color:white;background:gray;text-decoration:none;padding:5px;display:inline-block;border-radius:4px;'></i>
+			<% end %>
 		<% end %>
 	</div>
+	<%= link_to 'edit profile', users_index_path, class:'icon-edit' if @user == current_user %>
 	<br>
 	<h1>Reserved URLs</h1>
 	<div class='clearfix'>

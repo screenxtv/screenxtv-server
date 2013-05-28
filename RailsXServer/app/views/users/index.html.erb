@@ -21,12 +21,13 @@ div.item div.url{font-size:24px;}
 		<div>display name: <input type=text name='display_name' value="<%= current_user.display_name %>"></div>
 		<div>email: <input type=text  name='email' value="<%= current_user.email %>"></div>
 		<div>
-			<input type=radio name='social_icon' value='anonymous'>
+			<% is_anonymous = current_user.user_icon == social_info['anonymous'][:icon] %>
+			<input type=radio name='social_icon' value='anonymous' <%= 'checked' if is_anonymous %>>
 			<%= image_tag social_info['anonymous'][:icon], width: 24, height: 24 %>use default icon
 		</div>
 		<% current_user.oauths.each do |oauth| %>
 			<div>
-				<input type=radio name='social_icon' value=<%= oauth.provider %>>
+				<input type=radio name='social_icon' value=<%= oauth.provider %> <%= 'checked' if oauth.icon == current_user.icon %>>
 				<%= image_tag oauth.icon, width: 24, height: 24 %>use <%= oauth.provider %> icon
 			</div>
 		<% end %>
@@ -58,7 +59,7 @@ div.item div.url{font-size:24px;}
 				<div class='url'><a href="/<%= screen.url %>"><%= screen.url %></a></div>
 				
 				<input type=hidden name=url value="<%= screen.url %>">
-				hash tag:<input name='hash_tag' autocomplete=off placeholder='#hashtag' value='<%= screen.hash_tag%>'>
+				hash tag:<input type=text name='hash_tag' autocomplete=off placeholder='#hashtag' value='<%= screen.hash_tag%>'>
 
 				<div>Total Viewer: <%= screen.total_viewer %></div>
 				<div>Max Viewer: <%= screen.max_viewer %></div>
