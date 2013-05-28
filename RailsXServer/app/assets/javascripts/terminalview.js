@@ -177,16 +177,16 @@ $(function(){
 
 
 	function addChat(chat,addedFlag){
-	  var div=$("<div class='chat'><a><img></a><div class='name'/><div class='message'/><div class='time'/></div>");
+	  var div=$("<div class='chat'><a><img></a><div class='name'><a/></div><div class='message'/><div class='time'/></div>");
 	  if(addedFlag)chat.time=new Date().getTime()/1000;
 	  else chat.time=Math.min(new Date().getTime()/1000,chat.time);
 	  var imgsrc=chat.icon;
 	  if(!imgsrc)imgsrc="/assets/anonymous.png"
 	  div.find("img").attr("src",imgsrc);
 		if(chat.url){div.find("a").attr({href:chat.url,target:'_blank'})}
-	  if(chat.name)div.children().eq(1).text(chat.name);
-	  div.children().eq(2).text(chat.message);
-	  var time=div.children().eq(3);
+	  if(chat.name)div.find('.name a').text(chat.name);
+		chatMessageParse(div.find('.message'),chat.message);
+	  var time=div.find('.time');
 	  var chatlist=$("#chatlist");
 	  var wrap=$("<div class='chat_wrap'/>");
 	  wrap.append(div)
@@ -247,13 +247,12 @@ $(function(){
 	  return false;
 	}
 	window.postSubmitCheck=postSubmitCheck
-
-
-	var patterns=[
-	    [/https?:\/\/[^ ]+/g,function(e,s){$("<a />").attr("href",s).attr("target","_blank").text(s).appendTo(e)}]
-	]
 	function chatMessageParse(element,text){
+		var patterns=[
+		  [/https?:\/\/[^ ]+/g,function(e,s){$("<a />").attr("href",s).attr("target","_blank").text(s).appendTo(e)}]
+		]
 	  function parse(e,s,i){
+	  	console.log(patterns)
 	    var p=patterns[i];
 	    if(!p){
 	      $("<span />").text(s).appendTo(e);
@@ -266,7 +265,7 @@ $(function(){
 	      if(joinlist&&joinlist[j])p[1](e,joinlist[j]);
 	    }
 	  }
-	  var lines=text.split("\n"); 
+	  var lines=text.split("\n");
 	  for(var i=0,line;line=lines[i];i++){
 	    var div=$("<div />");
 	    parse(div,line,0);

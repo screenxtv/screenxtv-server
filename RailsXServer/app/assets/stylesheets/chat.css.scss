@@ -24,13 +24,13 @@
     }
     #message{
       margin:0;
-      padding:12px 6;
+      padding:14px 4px;
       outline:none;
       border:none;
       height:100%;
       width:100%;
       font-size:16px;
-      line-height:24px;
+      line-height:20px;
       resize:none;
     }
   }
@@ -98,12 +98,15 @@
         font-size:12px;
         overflow:hidden;
         line-height:1em;
-        color:#444;
+        a{
+          color:#444;
+        }
       }
       .message{
         margin-left:30px;
         margin-top:2px;
         font-size:16px;
+        line-height:1.4em;
         overflow-x:hidden;
         color:black;
         word-break:break-all;
