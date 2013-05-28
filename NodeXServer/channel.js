@@ -69,14 +69,15 @@ Channel.prototype={
       if(!this.total_viewer_hash.get(sid)){
         this.total_viewer_hash.put(sid,1);
         this.current.total_viewer++;
+        if(this.statistics)this.statistics.total_viewer++;
       }
     }else{
       this.current.viewer++;
       this.current.total_viewer++;
+      if(this.statistics)this.statistics.total_viewer++;
     }
     this.current.max_viewer=Math.max(this.current.max_viewer,this.current.viewer);
     if(this.statistics){
-      this.statistics.total_viewer++;
       this.statistics.max_viewer=Math.max(this.statistics.max_viewer,this.current.viewer);
     }
     socket.emit('init',this.getInitData());
