@@ -98,18 +98,18 @@ Channel.prototype={
   },
   startNotify:function(){
     var channel=this;
-    this.notifyTimer=setInterval(function(){channel.notifyUpdate();},Channel.NOTIFY_INTERVAL);
+    if(!this.notifyTimer)this.notifyTimer=setInterval(function(){channel.notifyUpdate();},Channel.NOTIFY_INTERVAL);
   },
   stopNotify:function(){
-    if(this.notifyTimer){clearInterval(this.notifyTimer);}
+    if(this.notifyTimer)clearInterval(this.notifyTimer);
     this.notifyTimer=null;
   },
   startEndTimer:function(){
     var channel=this;
-    this.endTimer=setTimeout(function(){channel.endTimer=null;channel.castEnd();},Channel.DESTROY_TIMEOUT);
+    if(!this.endTimer)this.endTimer=setTimeout(function(){channel.endTimer=null;channel.castEnd();},Channel.DESTROY_TIMEOUT);
   },
   stopEndTimer:function(){
-    if(this.endTimer){clearTimeout(this.endTimer);}
+    if(this.endTimer)clearTimeout(this.endTimer);
     this.endTimer=null;
   },
   notify:function(data){if(!this.private)notify(this.channelID,data)},
