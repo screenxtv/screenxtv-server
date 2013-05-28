@@ -26,9 +26,9 @@ div.item div.url{font-size:24px;}
 	<div>
 		<b><%= @user.display_name %></b>
 		<% @user.oauths.each do |oauth| %>
-			<%= link_to oauth.url, target:'_blank' do %>
-				<i class='icon-<%= oauth.provider %>' style='color:white;background:gray;text-decoration:none;padding:5px;display:inline-block;border-radius:4px;'></i>
-			<% end %>
+			
+			<a href="<%= oauth.url %>" target='_blank' class='icon-<%= oauth.provider %>' style='color:white;background:gray;text-decoration:none;padding:5px;display:inline-block;border-radius:4px;width:18px;height:18px;text-align:center;'></a>
+			
 		<% end %>
 	</div>
 	<%= link_to 'edit profile', users_index_path, class:'icon-edit' if @user == current_user %>
